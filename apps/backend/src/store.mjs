@@ -2,9 +2,20 @@
 // Les routes n'appellent que ces methodes, jamais la base directement.
 
 import { validateDeck } from "@kapsule/schema";
+import { schedule, gradeFromQuiz, addDays } from "./sm2.mjs";
 
 export const VALID_STATES = ["unseen", "seen", "learned"];
 const DEFAULT_USER = "default";
+
+/** Nombre total de questions de quiz dans une fiche. */
+function countQuizQuestions(card) {
+  return (card.sections ?? [])
+    .filter((s) => s.type === "quiz")
+    .reduce((n, s) => n + (s.questions?.length ?? 0), 0);
+}
+
+/** Date du jour (UTC) au format YYYY-MM-DD. */
+const today = () => new Date().toISOString().slice(0, 10);
 
 export class Store {
   /** @param {import("better-sqlite3").Database} db */
@@ -147,6 +158,92 @@ export class Store {
            state=excluded.state, quiz_score=excluded.quiz_score, updated_at=excluded.updated_at`,
       )
       .run(userId, deckId, cardId, state, quizScore, new Date().toISOString());
+
+    // Passage a "apprise" -> entree dans le cycle de revision SM-2 (echeance J+1).
+    if (state === "learned") {
+      this.ensureReview(deckId, cardId, quizScore, userId);
+    }
     return { ok: true };
+  }
+
+  // --- Repetition espacee SM-2 --------------------------------------------
+
+  getReview(deckId, cardId, userId = DEFAULT_USER) {
+    return (
+      this.db
+        .prepare(
+          `SELECT easiness, interval_days AS interval, repetitions, due_date AS dueDate,
+                  last_grade AS lastGrade
+           FROM reviews WHERE user_id = ? AND deck_id = ? AND card_id = ?`,
+        )
+        .get(userId, deckId, cardId) ?? null
+    );
+  }
+
+  _writeReview(userId, deckId, cardId, sched, grade) {
+    this.db
+      .prepare(
+        `INSERT INTO reviews (user_id, deck_id, card_id, easiness, interval_days, repetitions, due_date, last_grade, updated_at)
+         VALUES (@userId, @deckId, @cardId, @easiness, @interval, @repetitions, @dueDate, @grade, @now)
+         ON CONFLICT(user_id, deck_id, card_id) DO UPDATE SET
+           easiness=@easiness, interval_days=@interval, repetitions=@repetitions,
+           due_date=@dueDate, last_grade=@grade, updated_at=@now`,
+      )
+      .run({
+        userId,
+        deckId,
+        cardId,
+        easiness: sched.easiness,
+        interval: sched.interval,
+        repetitions: sched.repetitions,
+        dueDate: addDays(today(), sched.interval),
+        grade,
+        now: new Date().toISOString(),
+      });
+  }
+
+  /**
+   * Cree l'entree de revision quand une fiche devient "apprise", si absente.
+   * La note initiale derive du score de quiz enregistre.
+   */
+  ensureReview(deckId, cardId, quizScore, userId = DEFAULT_USER) {
+    if (this.getReview(deckId, cardId, userId)) return; // deja dans le cycle
+    const card = this.getCard(deckId, cardId);
+    if (!card) return;
+    const grade = gradeFromQuiz(quizScore ?? 0, countQuizQuestions(card));
+    this._writeReview(userId, deckId, cardId, schedule(null, grade), grade);
+  }
+
+  /**
+   * Enregistre une revision : recalcule la planification SM-2.
+   * @returns {{ ok:boolean, error?:string, review?:any }}
+   */
+  reviewCard(deckId, cardId, quizScore = null, userId = DEFAULT_USER) {
+    const card = this.getCard(deckId, cardId);
+    if (!card) return { ok: false, error: `fiche introuvable : ${deckId}/${cardId}` };
+    const prev = this.getReview(deckId, cardId, userId);
+    const grade = gradeFromQuiz(quizScore ?? 0, countQuizQuestions(card));
+    const sched = schedule(
+      prev ? { easiness: prev.easiness, interval: prev.interval, repetitions: prev.repetitions } : null,
+      grade,
+    );
+    this._writeReview(userId, deckId, cardId, sched, grade);
+    return { ok: true, review: this.getReview(deckId, cardId, userId) };
+  }
+
+  /** Fiches dues (due_date <= aujourd'hui), tous decks, avec titres, triees par echeance. */
+  getDueReviews(userId = DEFAULT_USER) {
+    return this.db
+      .prepare(
+        `SELECT r.deck_id AS deckId, r.card_id AS cardId, r.due_date AS dueDate,
+                c.title AS cardTitle, c.duration_min AS durationMin,
+                d.title AS deckTitle
+         FROM reviews r
+         JOIN cards c ON c.deck_id = r.deck_id AND c.card_id = r.card_id
+         JOIN decks d ON d.id = r.deck_id
+         WHERE r.user_id = ? AND r.due_date <= ?
+         ORDER BY r.due_date ASC, d.title ASC`,
+      )
+      .all(userId, today());
   }
 }

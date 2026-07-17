@@ -5,6 +5,7 @@ import { ImportDeck } from "../components/ImportDeck.jsx";
 
 export function DeckList() {
   const [decks, setDecks] = useState(null);
+  const [dueCount, setDueCount] = useState(0);
   const [error, setError] = useState(null);
 
   const load = useCallback(() => {
@@ -12,6 +13,10 @@ export function DeckList() {
       .listDecks()
       .then(setDecks)
       .catch((e) => setError(e.message));
+    api
+      .getDueReviews()
+      .then((due) => setDueCount(due.length))
+      .catch(() => setDueCount(0));
   }, []);
 
   useEffect(() => {
@@ -23,6 +28,15 @@ export function DeckList() {
 
   return (
     <section>
+      {dueCount > 0 && (
+        <Link to="/reviews" className="review-banner">
+          <span className="review-banner-count">{dueCount}</span>
+          <span>
+            fiche{dueCount > 1 ? "s" : ""} à réviser aujourd'hui
+          </span>
+          <span className="review-banner-cta">Réviser →</span>
+        </Link>
+      )}
       <div className="list-head">
         <h1>Vos decks</h1>
         <ImportDeck onImported={load} />

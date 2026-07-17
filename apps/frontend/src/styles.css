@@ -431,6 +431,46 @@ button.back-link {
   border-top: 1px solid var(--border);
 }
 
+/* Bannière de révision ----------------------------------------------------- */
+.review-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: filter 0.12s ease;
+}
+.review-banner:hover {
+  filter: brightness(1.05);
+}
+.review-banner-count {
+  display: grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: 800;
+}
+.review-banner-cta {
+  margin-left: auto;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.review-done {
+  text-align: center;
+  padding-top: 2rem;
+}
+.review-done .back-link {
+  display: inline-block;
+}
+
 /* Ecran d'authentification ------------------------------------------------- */
 .auth-screen {
   min-height: 100vh;

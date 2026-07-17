@@ -93,6 +93,24 @@ const MIGRATIONS = [
     );
     CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
   `),
+
+  // 3 : repetition espacee SM-2 (reviews).
+  (db) =>
+    db.exec(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      user_id       TEXT NOT NULL,
+      deck_id       TEXT NOT NULL,
+      card_id       TEXT NOT NULL,
+      easiness      REAL NOT NULL,
+      interval_days INTEGER NOT NULL,
+      repetitions   INTEGER NOT NULL,
+      due_date      TEXT NOT NULL,          -- YYYY-MM-DD
+      last_grade    INTEGER,
+      updated_at    TEXT NOT NULL,
+      PRIMARY KEY (user_id, deck_id, card_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_reviews_due ON reviews(user_id, due_date);
+  `),
 ];
 
 /** Applique les migrations manquantes selon PRAGMA user_version. */

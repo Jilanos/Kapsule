@@ -141,5 +141,25 @@ export function createApp(db) {
     res.json({ ok: true, state });
   });
 
+  // --- Repetition espacee (SM-2) -------------------------------------------
+
+  // Fiches a reviser aujourd'hui, tous decks confondus.
+  app.get("/api/reviews/due", requireAuth, (req, res) => {
+    res.json(store.getDueReviews(req.user.id));
+  });
+
+  // Enregistre une revision : reprogramme selon le score de quiz.
+  app.post("/api/decks/:deckId/cards/:cardId/review", requireAuth, (req, res) => {
+    const { quizScore } = req.body ?? {};
+    const result = store.reviewCard(
+      req.params.deckId,
+      req.params.cardId,
+      quizScore ?? null,
+      req.user.id,
+    );
+    if (!result.ok) return res.status(404).json({ error: result.error });
+    res.json({ ok: true, review: result.review });
+  });
+
   return app;
 }

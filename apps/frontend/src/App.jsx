@@ -1,6 +1,7 @@
 import { Routes, Route, Link } from "react-router-dom";
 import { DeckList } from "./pages/DeckList.jsx";
 import { DeckReader } from "./pages/DeckReader.jsx";
+import { ReviewSession } from "./pages/ReviewSession.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
 import { AuthScreen } from "./auth/AuthScreen.jsx";
 
@@ -28,6 +29,7 @@ export function App() {
       <main className="app-main">
         <Routes>
           <Route path="/" element={<DeckList />} />
+          <Route path="/reviews" element={<ReviewSession />} />
           <Route path="/decks/:deckId" element={<DeckReader />} />
         </Routes>
       </main>

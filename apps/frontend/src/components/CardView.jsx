@@ -10,7 +10,19 @@ import { Section } from "./Section.jsx";
  *   isLast: boolean, onBack: () => void
  * }} props
  */
-export function CardView({ card, deckId, index, total, onSeen, onLearnAndNext, isLast, onBack }) {
+export function CardView({
+  card,
+  deckId,
+  index,
+  total,
+  onSeen,
+  onLearnAndNext,
+  isLast,
+  onBack,
+  backLabel = "← Deck",
+  nextLabel = "Marquer apprise & fiche suivante →",
+  lastLabel = "Terminer & marquer apprise",
+}) {
   const [quizScore, setQuizScore] = useState(null);
   const topRef = useRef(null);
 
@@ -27,7 +39,7 @@ export function CardView({ card, deckId, index, total, onSeen, onLearnAndNext, i
     <article className="card-view" ref={topRef}>
       <div className="card-progress-row">
         <button type="button" className="back-link" onClick={onBack}>
-          ← Deck
+          {backLabel}
         </button>
         <span className="card-counter">
           Fiche {index + 1} / {total}
@@ -54,7 +66,7 @@ export function CardView({ card, deckId, index, total, onSeen, onLearnAndNext, i
           className="btn-primary"
           onClick={() => onLearnAndNext(quizScore)}
         >
-          {isLast ? "Terminer & marquer apprise" : "Marquer apprise & fiche suivante →"}
+          {isLast ? lastLabel : nextLabel}
         </button>
       </footer>
     </article>

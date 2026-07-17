@@ -61,6 +61,18 @@ export const api = {
   // Decks & progression
   listDecks: () => req("/decks"),
   getDeck: (deckId) => req(`/decks/${encodeURIComponent(deckId)}`),
+  getCard: (deckId, cardId) =>
+    req(`/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}`),
+  getDueReviews: () => req("/reviews/due"),
+  reviewCard: (deckId, cardId, quizScore) =>
+    req(
+      `/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/review`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ quizScore }),
+      },
+    ),
   importDeck: (deck) =>
     req("/decks", {
       method: "POST",
