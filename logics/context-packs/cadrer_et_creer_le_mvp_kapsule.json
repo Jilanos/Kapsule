@@ -1,0 +1,349 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_000_cadrer_et_creer_le_mvp_kapsule item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck item_004_suivre_la_progression_et_la_persister_via_le_backend item_005_importer_et_valider_des_decks_generes_par_ia task_001_orchestrer_le_mvp_kapsule --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+          "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+          "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+          "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+          "item_005_importer_et_valider_des_decks_generes_par_ia"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/product/prod_001_kapsule_product_brief.md",
+      "ref": "prod_001_kapsule_product_brief",
+      "status": "Proposed",
+      "title": "Kapsule product brief"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, cadrer et creer le mvp kapsule, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Cadrer et creer le MVP Kapsule",
+        "use when": "You need to implement or review the scaffolded workflow for Cadrer et creer le MVP Kapsule."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_001_kapsule_architecture_direction"
+        ],
+        "item": [
+          "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+          "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+          "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+          "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+          "item_005_importer_et_valider_des_decks_generes_par_ia"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/request/req_000_cadrer_et_creer_le_mvp_kapsule.md",
+      "ref": "req_000_cadrer_et_creer_le_mvp_kapsule",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Cadrer et creer le MVP Kapsule"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, definir le schema de fiche et le spec.md pour agents ia, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Definir le schema de fiche et le SPEC.md pour agents IA",
+        "use when": "Implementing the scaffolded slice for Definir le schema de fiche et le SPEC.md pour agents IA."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia.md",
+      "ref": "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Definir le schema de fiche et le SPEC.md pour agents IA"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, creer le socle monorepo : pwa frontend et backend api, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Creer le socle monorepo : PWA frontend et backend API",
+        "use when": "Implementing the scaffolded slice for Creer le socle monorepo : PWA frontend et backend API."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api.md",
+      "ref": "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Creer le socle monorepo : PWA frontend et backend API"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, construire le lecteur de fiches et la navigation en deck, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Construire le lecteur de fiches et la navigation en deck",
+        "use when": "Implementing the scaffolded slice for Construire le lecteur de fiches et la navigation en deck."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck.md",
+      "ref": "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Construire le lecteur de fiches et la navigation en deck"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer le MVP Kapsule",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+          "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+          "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+          "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+          "item_005_importer_et_valider_des_decks_generes_par_ia"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/tasks/task_001_orchestrer_le_mvp_kapsule.md",
+      "ref": "task_001_orchestrer_le_mvp_kapsule",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrer le MVP Kapsule"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+          "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+          "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+          "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+          "item_005_importer_et_valider_des_decks_generes_par_ia"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/product/prod_001_kapsule_product_brief.md",
+      "ref": "prod_001_kapsule_product_brief",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Kapsule product brief"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, suivre la progression et la persister via le backend, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Suivre la progression et la persister via le backend",
+        "use when": "Implementing the scaffolded slice for Suivre la progression et la persister via le backend."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_004_suivre_la_progression_et_la_persister_via_le_backend"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_004_suivre_la_progression_et_la_persister_via_le_backend.md",
+      "ref": "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Suivre la progression et la persister via le backend"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, importer et valider des decks generes par ia, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Importer et valider des decks generes par IA",
+        "use when": "Implementing the scaffolded slice for Importer et valider des decks generes par IA."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_005_importer_et_valider_des_decks_generes_par_ia"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_000_cadrer_et_creer_le_mvp_kapsule"
+        ],
+        "task": [
+          "task_001_orchestrer_le_mvp_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_005_importer_et_valider_des_decks_generes_par_ia.md",
+      "ref": "item_005_importer_et_valider_des_decks_generes_par_ia",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Importer et valider des decks generes par IA"
+    }
+  ],
+  "estimates": {
+    "char_count": 7813,
+    "companion_doc_count": 1,
+    "doc_count": 8
+  },
+  "generated_at": "2026-07-17T17:21:04Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_000_cadrer_et_creer_le_mvp_kapsule",
+      "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+      "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+      "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+      "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+      "item_005_importer_et_valider_des_decks_generes_par_ia",
+      "task_001_orchestrer_le_mvp_kapsule"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_000_cadrer_et_creer_le_mvp_kapsule,item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia,item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api,item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck,item_004_suivre_la_progression_et_la_persister_via_le_backend,item_005_importer_et_valider_des_decks_generes_par_ia,task_001_orchestrer_le_mvp_kapsule",
+  "refs": [
+    "req_000_cadrer_et_creer_le_mvp_kapsule",
+    "item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia",
+    "item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api",
+    "item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck",
+    "item_004_suivre_la_progression_et_la_persister_via_le_backend",
+    "item_005_importer_et_valider_des_decks_generes_par_ia",
+    "task_001_orchestrer_le_mvp_kapsule"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "Missing logics/release/contract.json."
+    ],
+    "configured": false,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Run logics-manager release discover --write, then review and promote logics/release/contract.draft.json to logics/release/contract.json.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "not_configured",
+    "target_version": null
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_001_orchestrer_le_mvp_kapsule.md",
+      "ref": "task_001_orchestrer_le_mvp_kapsule"
+    }
+  ]
+}
