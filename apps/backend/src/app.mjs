@@ -3,8 +3,15 @@
 
 import express from "express";
 import cors from "cors";
+import { dirname, join, normalize } from "node:path";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { formatErrors } from "@kapsule/schema";
 import { Store } from "./store.mjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Racine des assets images, un sous-dossier par deck : uploads/<deckId>/…
+const UPLOADS_DIR = process.env.KAPSULE_UPLOADS ?? join(__dirname, "..", "uploads");
 
 /**
  * @param {import("better-sqlite3").Database} db
@@ -37,6 +44,19 @@ export function createApp(db) {
     const deck = store.getDeck(req.params.deckId);
     if (!deck) return res.status(404).json({ error: "deck introuvable" });
     res.json({ deck, progress: store.getDeckProgress(req.params.deckId) });
+  });
+
+  // Assets images d'un deck (chemins relatifs reference par les fiches).
+  // Protege contre la traversee de repertoire.
+  app.get("/api/decks/:deckId/assets/*", (req, res) => {
+    const rel = normalize(req.params[0]).replace(/^(\.\.[/\\])+/, "");
+    if (rel.includes("..")) return res.status(400).end();
+    const deckDir = join(UPLOADS_DIR, req.params.deckId);
+    const file = join(deckDir, rel);
+    if (!file.startsWith(deckDir) || !existsSync(file)) {
+      return res.status(404).json({ error: "asset introuvable" });
+    }
+    res.sendFile(file);
   });
 
   // Une fiche precise.

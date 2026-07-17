@@ -182,10 +182,10 @@
       "required": ["src"],
       "properties": {
         "src": {
-          "description": "Chemin relatif de l'image dans les assets du deck, ou data URI.",
+          "description": "Chemin relatif de l'image dans les assets du deck, URL absolue, ou data URI.",
           "type": "string",
           "minLength": 1,
-          "maxLength": 2000
+          "maxLength": 3000000
         },
         "alt": { "type": "string", "maxLength": 280 },
         "caption": { "type": "string", "maxLength": 280 }

@@ -402,3 +402,83 @@ button.back-link {
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
 }
+
+/* Import ------------------------------------------------------------------- */
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.import-toggle {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  color: var(--primary);
+  background: none;
+  border: 1px dashed var(--primary);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+}
+.import-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.import-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+.import-actions {
+  margin-bottom: 0.75rem;
+}
+.import-actions button {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+}
+.import-textarea {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+  margin-bottom: 0.75rem;
+}
+.import-success {
+  color: var(--success);
+  font-weight: 500;
+}
+.import-errors {
+  margin-top: 0.9rem;
+  border: 1px solid #dc2626;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, #dc2626 8%, transparent);
+  font-size: 0.88rem;
+}
+.import-errors ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+}
+.import-errors code {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+}

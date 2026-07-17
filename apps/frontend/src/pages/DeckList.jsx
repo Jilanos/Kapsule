@@ -1,26 +1,35 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
+import { ImportDeck } from "../components/ImportDeck.jsx";
 
 export function DeckList() {
   const [decks, setDecks] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     api
       .listDecks()
       .then(setDecks)
       .catch((e) => setError(e.message));
   }, []);
 
+  useEffect(() => {
+    load();
+  }, [load]);
+
   if (error) return <p className="msg error">Impossible de charger les decks : {error}</p>;
   if (!decks) return <p className="msg">Chargement…</p>;
-  if (decks.length === 0)
-    return <p className="msg">Aucun deck pour l'instant. Importez-en un pour commencer.</p>;
 
   return (
     <section>
-      <h1>Vos decks</h1>
+      <div className="list-head">
+        <h1>Vos decks</h1>
+        <ImportDeck onImported={load} />
+      </div>
+      {decks.length === 0 && (
+        <p className="msg">Aucun deck pour l'instant. Importez-en un pour commencer.</p>
+      )}
       <ul className="deck-grid">
         {decks.map((d) => (
           <li key={d.id}>

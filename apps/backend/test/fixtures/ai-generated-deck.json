@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "photographie-bases",
+  "title": "Les bases de la photographie",
+  "description": "Deck genere par un agent IA suivant SPEC.md : comprendre l'exposition en trois fiches.",
+  "tags": ["photographie", "creatif"],
+  "cards": [
+    {
+      "id": "ouverture",
+      "title": "L'ouverture",
+      "durationMin": 5,
+      "level": "debutant",
+      "sections": [
+        { "type": "intro", "content": "L'**ouverture** controle la quantite de lumiere qui entre et la profondeur de champ." },
+        {
+          "type": "concept",
+          "heading": "Le nombre f",
+          "content": "L'ouverture se note `f/2.8`, `f/8`... Plus le nombre est *petit*, plus l'ouverture est grande et plus il entre de lumiere."
+        },
+        {
+          "type": "example",
+          "content": "Un portrait a `f/1.8` detache le sujet d'un arriere-plan flou ; un paysage a `f/11` reste net partout."
+        },
+        {
+          "type": "takeaways",
+          "items": [
+            "Petit nombre f = grande ouverture = beaucoup de lumiere.",
+            "Grande ouverture = faible profondeur de champ (arriere-plan flou)."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Quelle ouverture donne le plus de flou d'arriere-plan ?",
+              "choices": ["f/1.8", "f/8", "f/16"],
+              "answer": 0,
+              "explanation": "Plus le nombre f est petit, plus la profondeur de champ est faible."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vitesse",
+      "title": "La vitesse d'obturation",
+      "durationMin": 5,
+      "level": "debutant",
+      "sections": [
+        { "type": "intro", "content": "La **vitesse d'obturation** determine la duree pendant laquelle le capteur recoit la lumiere." },
+        {
+          "type": "concept",
+          "heading": "Figer ou filer le mouvement",
+          "content": "Une vitesse rapide (`1/1000s`) fige l'action ; une vitesse lente (`1/15s`) cree un file de mouvement."
+        },
+        {
+          "type": "takeaways",
+          "items": ["Vitesse rapide = mouvement fige.", "Vitesse lente = flou de mouvement."]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Quelle vitesse fige un sportif en action ?",
+              "choices": ["1/15s", "1/1000s"],
+              "answer": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
