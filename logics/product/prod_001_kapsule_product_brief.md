@@ -4,7 +4,7 @@
 > Related request: `req_000_cadrer_et_creer_le_mvp_kapsule`
 > Related backlog: `item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia`, `item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api`, `item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck`, `item_004_suivre_la_progression_et_la_persister_via_le_backend`, `item_005_importer_et_valider_des_decks_generes_par_ia`
 > Related task: `task_001_orchestrer_le_mvp_kapsule`
-> Related architecture: `adr_001_kapsule_architecture_direction`
+> Related architecture: `adr_001_kapsule_architecture_direction`, `adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
@@ -30,12 +30,17 @@ flowchart LR
 - Synchroniser la progression entre appareils via un backend des le MVP.
 - Etre installable sur Android en PWA sans passer par un store.
 
+# Goals v0.2 (post-MVP)
+- Authentification multi-appareils reelle (email + mot de passe, sessions par appareil) : la progression suit l'utilisateur partout.
+- Repetition espacee SM-2 alimentee par les scores de quiz : les fiches apprises reviennent au bon moment, vue "Revisions du jour".
+- Mise en ligne sur VPS OVH (Docker + Caddy) mutualisable avec les autres projets de l'operateur.
+
 # Non-goals
 - Application native Android/iOS au MVP.
 - Editeur de fiches WYSIWYG integre (la production passe par le format JSON).
-- Repetition espacee complete (SM-2) au MVP - prevue en evolution.
-- Comptes multi-utilisateurs avec partage social ou classements.
+- Partage social, classements, ou decks prives par utilisateur (bibliotheque de decks commune).
 - Generation de fiches IA integree dans l'app (la generation se fait hors app via SPEC.md).
+- Notifications push et verification/reset d'email en v0.2 (follow-ups identifies).
 
 # Scope and guardrails
 - In: format de fiche ferme (JSON Schema + SPEC.md), lecteur de fiches, decks avec etats et enchainement, progression persistee via backend, import de decks avec validation, PWA installable.
