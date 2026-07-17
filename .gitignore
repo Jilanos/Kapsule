@@ -27,3 +27,8 @@ npm-debug.log*
 
 # OS
 .DS_Store
+
+# Clés SSH de déploiement (ne jamais committer)
+cle_hetzner
+cle_hetzner.pub
+.deploy_known_hosts
