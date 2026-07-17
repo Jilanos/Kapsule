@@ -1,10 +1,10 @@
 ## item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck - Construire le lecteur de fiches et la navigation en deck
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: lecture
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api - Creer le socle monorepo : PWA frontend et backend API
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: socle
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

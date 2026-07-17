@@ -1,10 +1,10 @@
 ## item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia - Definir le schema de fiche et le SPEC.md pour agents IA
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: contrat-contenu
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

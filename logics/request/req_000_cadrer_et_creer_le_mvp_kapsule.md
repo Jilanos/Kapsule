@@ -1,9 +1,9 @@
 ## req_000_cadrer_et_creer_le_mvp_kapsule - Cadrer et creer le MVP Kapsule
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 90
 > Complexity: High
 > Theme: mvp
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -35,9 +35,17 @@
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
 
+# Acceptance criteria proof
+- AC1 -> `packages/schema/deck.schema.json` + `SPEC.md` ; validateur `packages/schema/src/index.mjs` (10 tests, rejet avec rapport d'erreurs).
+- AC2 -> lecteur `apps/frontend/src/components/CardView.jsx`/`Section.jsx`/`Quiz.jsx`, styles responsive ; SSR smoke rend tous les types de sections.
+- AC3 -> `apps/frontend/src/pages/DeckReader.jsx` (etats non vue/vue/apprise, enchainement fiche suivante) + agregation backend.
+- AC4 -> `apps/backend/src/store.mjs` + endpoints progression ; persistance verifiee au redemarrage du serveur (test manuel + `apps/backend/test/api.test.mjs`).
+- AC5 -> import UI/API `apps/frontend/src/components/ImportDeck.jsx` + `POST /api/decks` ; test e2e `apps/backend/test/e2e-import.test.mjs` (deck genere par IA importe sans retouche).
+- AC6 -> `apps/frontend/vite.config.mjs` (VitePWA : manifest + service worker, runtime caching des decks pour lecture hors-ligne).
+
 # Companion docs
 - Product brief(s): `prod_001_kapsule_product_brief`
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_001_kapsule_architecture_direction`
 
 # References
 - logics/architecture/adr_001_kapsule_architecture_direction.md
