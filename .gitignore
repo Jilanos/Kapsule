@@ -1,2 +1,25 @@
 AGENTS.md
 LOGICS.md
+
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+build/
+
+# Backend data / uploads (local runtime state)
+apps/backend/data/
+apps/backend/uploads/
+*.sqlite
+*.sqlite-*
+*.db
+
+# Env & logs
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store

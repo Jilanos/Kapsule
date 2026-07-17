@@ -1,0 +1,22 @@
+{
+  "name": "@kapsule/schema",
+  "version": "0.1.0",
+  "description": "Contrat de contenu Kapsule : JSON Schema deck/fiche et validateur partage.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./deck.schema.json": "./deck.schema.json"
+  },
+  "files": [
+    "src",
+    "deck.schema.json"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

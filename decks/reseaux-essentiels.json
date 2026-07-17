@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "id": "reseaux-essentiels",
+  "title": "Reseaux essentiels",
+  "description": "Trois fiches courtes pour comprendre les bases des reseaux : adresses IP, le handshake TCP et le DNS.",
+  "tags": ["reseau", "informatique", "protocoles"],
+  "cards": [
+    {
+      "id": "adresses-ip",
+      "title": "Les adresses IP",
+      "durationMin": 5,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Une **adresse IP** est l'identifiant d'une machine sur un reseau. Sans elle, impossible de savoir a qui envoyer les donnees."
+        },
+        {
+          "type": "concept",
+          "heading": "IPv4 et IPv6",
+          "content": "Une adresse **IPv4** s'ecrit sur 4 nombres de 0 a 255, par exemple `192.168.1.10`. Le stock d'adresses IPv4 etant epuise, **IPv6** prend le relais avec des adresses bien plus longues (`2001:db8::1`)."
+        },
+        {
+          "type": "concept",
+          "heading": "Adresses privees et publiques",
+          "content": "Les adresses *privees* (comme `192.168.x.x`) ne sont valides que dans un reseau local. L'adresse *publique*, fournie par le fournisseur d'acces, est celle vue depuis Internet."
+        },
+        {
+          "type": "example",
+          "heading": "Chez vous",
+          "content": "Votre box a une adresse publique unique. Derriere elle, votre ordinateur, votre telephone et votre TV ont chacun une adresse privee attribuee par la box."
+        },
+        {
+          "type": "takeaways",
+          "items": [
+            "Une adresse IP identifie une machine sur un reseau.",
+            "IPv4 est limitee, IPv6 offre un espace quasi illimite.",
+            "Les adresses privees sont locales, l'adresse publique est visible sur Internet."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Combien de nombres composent une adresse IPv4 ?",
+              "choices": ["2", "4", "6", "8"],
+              "answer": 1,
+              "explanation": "Une IPv4 s'ecrit sur 4 octets, par exemple 192.168.1.10."
+            },
+            {
+              "q": "Quelle adresse est typiquement privee ?",
+              "choices": ["8.8.8.8", "192.168.1.10", "2001:db8::1"],
+              "answer": 1,
+              "explanation": "La plage 192.168.x.x est reservee aux reseaux locaux."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "handshake-tcp",
+      "title": "Le handshake TCP",
+      "durationMin": 6,
+      "level": "intermediaire",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Avant d'echanger des donnees, deux machines TCP etablissent une connexion fiable via une poignee de main en trois temps."
+        },
+        {
+          "type": "concept",
+          "heading": "SYN, SYN-ACK, ACK",
+          "content": "Le client envoie **SYN** (je veux me connecter), le serveur repond **SYN-ACK** (d'accord, et moi aussi), le client confirme avec **ACK**. La connexion est alors ouverte."
+        },
+        {
+          "type": "example",
+          "content": "Ouvrir une page web declenche un handshake TCP avec le serveur avant meme que la moindre donnee HTML ne circule."
+        },
+        {
+          "type": "takeaways",
+          "items": [
+            "Le handshake TCP se fait en trois messages : SYN, SYN-ACK, ACK.",
+            "Il garantit que les deux parties sont pretes avant l'echange.",
+            "C'est ce qui rend TCP fiable, contrairement a UDP."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Quel message le client envoie-t-il en premier ?",
+              "choices": ["ACK", "SYN", "SYN-ACK", "FIN"],
+              "answer": 1,
+              "explanation": "Le client initie toujours avec un SYN."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dns",
+      "title": "Le DNS",
+      "durationMin": 5,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Le **DNS** est l'annuaire d'Internet : il traduit un nom de domaine lisible en adresse IP."
+        },
+        {
+          "type": "concept",
+          "heading": "Du nom a l'adresse",
+          "content": "Quand vous tapez `exemple.fr`, votre machine interroge un serveur DNS qui renvoie l'adresse IP correspondante. Le navigateur peut alors contacter le bon serveur."
+        },
+        {
+          "type": "takeaways",
+          "items": [
+            "Le DNS traduit les noms de domaine en adresses IP.",
+            "Sans DNS, il faudrait retenir des adresses IP pour chaque site."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "A quoi sert le DNS ?",
+              "choices": [
+                "A chiffrer les donnees",
+                "A traduire un nom de domaine en adresse IP",
+                "A acccelerer le telechargement"
+              ],
+              "answer": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

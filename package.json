@@ -1,0 +1,21 @@
+{
+  "name": "kapsule",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Visionneuse de fiches de connaissance courtes (5-10 min) en decks, alimentee par un format JSON genere par des agents IA.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "dev:backend": "npm run dev --workspace @kapsule/backend",
+    "dev:frontend": "npm run dev --workspace @kapsule/frontend",
+    "build": "npm run build --workspaces --if-present",
+    "validate-deck": "node packages/schema/bin/validate-deck.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
