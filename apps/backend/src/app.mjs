@@ -13,6 +13,9 @@ import { AuthStore } from "./auth.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Racine des assets images, un sous-dossier par deck : uploads/<deckId>/…
 const UPLOADS_DIR = process.env.KAPSULE_UPLOADS ?? join(__dirname, "..", "uploads");
+// Frontend buildé servi en production (meme conteneur). Vide en dev (Vite sert le front).
+const STATIC_DIR =
+  process.env.KAPSULE_STATIC_DIR ?? join(__dirname, "..", "..", "frontend", "dist");
 
 /**
  * @param {import("better-sqlite3").Database} db
@@ -160,6 +163,17 @@ export function createApp(db) {
     if (!result.ok) return res.status(404).json({ error: result.error });
     res.json({ ok: true, review: result.review });
   });
+
+  // --- Frontend statique (production) --------------------------------------
+  // En prod, le meme conteneur sert la PWA buildée + fallback SPA. En dev, le
+  // dossier n'existe pas : Vite sert le front et proxifie /api.
+  if (existsSync(STATIC_DIR)) {
+    app.use(express.static(STATIC_DIR));
+    // Fallback SPA : toute route hors /api renvoie index.html (routing client).
+    app.get(/^(?!\/api\/).*/, (_req, res) => {
+      res.sendFile(join(STATIC_DIR, "index.html"));
+    });
+  }
 
   return app;
 }

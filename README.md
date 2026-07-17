@@ -34,6 +34,12 @@ npm run dev:frontend     # PWA sur http://localhost:5173
 npm run validate-deck -- decks/reseaux-essentiels.json
 ```
 
+## Déploiement
+
+Kapsule se déploie sur un VPS avec Docker Compose + Caddy (HTTPS auto). Voir
+[`deploy/README.md`](deploy/README.md) : provisionnement, première mise en ligne,
+`deploy.sh` (déploiement en une commande), sauvegardes et restauration.
+
 ## Générer des fiches avec une IA
 
 Donner [`SPEC.md`](SPEC.md) comme consignes à un agent, puis importer le JSON

@@ -1,0 +1,17 @@
+# Reverse proxy Caddy : HTTPS automatique (Let's Encrypt) pour Kapsule.
+# Le domaine vient de la variable KAPSULE_DOMAIN (ex: kapsule.mondomaine.fr).
+
+{$KAPSULE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3001
+}
+
+# --- Ajouter une autre application sur un autre sous-domaine --------------
+# Il suffit d'ajouter un bloc ici, sans toucher au conteneur Kapsule.
+# Exemple :
+#
+# cashflow.mondomaine.fr {
+# 	reverse_proxy cashflow-app:8080
+# }
+#
+# (le conteneur correspondant doit rejoindre le meme reseau Docker que Caddy)

@@ -1,0 +1,38 @@
+# Kapsule en production : app (API + PWA) derriere Caddy (HTTPS auto).
+# Lancer depuis ce dossier :  docker compose up -d --build
+# Requiert la variable KAPSULE_DOMAIN (voir .env.example).
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # Ferme les inscriptions une fois vos comptes crees : "closed".
+      KAPSULE_REGISTRATION: ${KAPSULE_REGISTRATION:-open}
+    volumes:
+      - kapsule-data:/data
+    expose:
+      - "3001"
+    # Pas de ports publies : seul Caddy est expose sur le reseau.
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      KAPSULE_DOMAIN: ${KAPSULE_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  kapsule-data: # base SQLite + uploads (donnees precieuses -> sauvegardees)
+  caddy-data: # certificats Let's Encrypt
+  caddy-config:
