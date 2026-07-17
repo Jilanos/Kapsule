@@ -187,3 +187,218 @@ h1 {
 .card-list li {
   margin-bottom: 0.4rem;
 }
+
+/* Boutons ------------------------------------------------------------------ */
+.btn-primary {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.8rem 1.25rem;
+  border-radius: var(--radius);
+  width: 100%;
+  transition: filter 0.12s ease;
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+button.back-link {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+/* Vue d'ensemble deck ------------------------------------------------------ */
+.deck-summary {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.25rem 0 1rem;
+}
+.card-overview {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.12s ease;
+}
+.card-row:hover {
+  border-color: var(--primary);
+}
+.card-row-title {
+  flex: 1;
+  font-weight: 500;
+}
+.card-row-meta {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.state-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--border);
+}
+.state-dot.state-seen {
+  background: #f59e0b;
+}
+.state-dot.state-learned {
+  background: var(--success);
+}
+
+/* Lecture d'une fiche ------------------------------------------------------ */
+.card-view {
+  scroll-margin-top: 4rem;
+}
+.card-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.card-counter {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.card-title {
+  margin: 0 0 0.25rem;
+}
+.card-duration {
+  font-size: 0.85rem;
+  margin: 0 0 1.5rem;
+}
+
+.section {
+  margin-bottom: 1.75rem;
+}
+.section-heading {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+.section-intro {
+  font-size: 1.1rem;
+  color: var(--text);
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+}
+.section p {
+  margin: 0 0 0.75rem;
+}
+.section code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.9em;
+}
+.section-figure {
+  margin: 1rem 0 0;
+}
+.section-figure img {
+  max-width: 100%;
+  border-radius: var(--radius);
+  display: block;
+}
+.section-figure figcaption {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+}
+
+.takeaways-list {
+  padding-left: 1.1rem;
+  margin: 0;
+}
+.takeaways-list li {
+  margin-bottom: 0.4rem;
+}
+.section-takeaways {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+
+/* Quiz --------------------------------------------------------------------- */
+.section-quiz {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.quiz-question {
+  margin-bottom: 1.25rem;
+}
+.quiz-question:last-child {
+  margin-bottom: 0;
+}
+.quiz-q {
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+}
+.quiz-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.quiz-choice {
+  appearance: none;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.quiz-choice:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+.quiz-choice:disabled {
+  cursor: default;
+}
+.quiz-choice.correct {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  font-weight: 600;
+}
+.quiz-choice.wrong {
+  border-color: #dc2626;
+  background: color-mix(in srgb, #dc2626 12%, transparent);
+}
+.quiz-explain {
+  margin: 0.6rem 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.card-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
