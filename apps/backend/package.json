@@ -1,0 +1,19 @@
+{
+  "name": "@kapsule/backend",
+  "version": "0.1.0",
+  "description": "API REST Kapsule : decks, fiches, progression, import.",
+  "type": "module",
+  "main": "src/server.mjs",
+  "scripts": {
+    "dev": "node --watch src/server.mjs",
+    "start": "node src/server.mjs",
+    "seed": "node src/seed.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@kapsule/schema": "*",
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

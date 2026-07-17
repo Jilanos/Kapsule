@@ -8,6 +8,10 @@ node_modules/
 dist/
 build/
 
+# Icones PWA generees (via scripts/generate-icons.mjs)
+apps/frontend/public/pwa-*.png
+apps/frontend/public/favicon.png
+
 # Backend data / uploads (local runtime state)
 apps/backend/data/
 apps/backend/uploads/
