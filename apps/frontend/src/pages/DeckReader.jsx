@@ -26,14 +26,28 @@ export function DeckReader() {
       .catch((e) => setError(e.message));
   }, [deckId]);
 
-  // Met a jour la progression (local en slice 3 ; persiste via l'API en slice 4).
-  const setCardState = useCallback((cardId, state, quizScore = null) => {
-    setProgress((prev) => {
-      // Ne pas retrograder learned -> seen.
-      if (prev[cardId]?.state === "learned" && state === "seen") return prev;
-      return { ...prev, [cardId]: { state, quizScore } };
-    });
-  }, []);
+  // Met a jour la progression : mise a jour optimiste locale immediate, puis
+  // persistance backend en arriere-plan (tolerant hors-ligne : un echec reseau
+  // ne perd pas l'etat affiche).
+  const setCardState = useCallback(
+    (cardId, state, quizScore = null) => {
+      let persist = true;
+      setProgress((prev) => {
+        // Ne pas retrograder learned -> seen (ni re-persister un no-op).
+        if (prev[cardId]?.state === "learned" && state === "seen") {
+          persist = false;
+          return prev;
+        }
+        return { ...prev, [cardId]: { state, quizScore } };
+      });
+      if (persist) {
+        api
+          .setProgress(deckId, cardId, state, quizScore)
+          .catch((e) => console.warn("Progression non synchronisee :", e.message));
+      }
+    },
+    [deckId],
+  );
 
   if (error) return <p className="msg error">{error}</p>;
   if (!deck) return <p className="msg">Chargement…</p>;
