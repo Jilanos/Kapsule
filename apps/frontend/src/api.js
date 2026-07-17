@@ -1,7 +1,30 @@
 // Client API : un seul point d'acces au backend.
+// Gere le token de session (persiste en localStorage) et signale les 401.
 
-async function req(path, options) {
-  const res = await fetch(`/api${path}`, options);
+const TOKEN_KEY = "kapsule_token";
+let token = localStorage.getItem(TOKEN_KEY);
+let onUnauthorized = null;
+
+export function setToken(value) {
+  token = value;
+  if (value) localStorage.setItem(TOKEN_KEY, value);
+  else localStorage.removeItem(TOKEN_KEY);
+}
+export const getToken = () => token;
+
+/** Callback appele quand une route protegee renvoie 401 (session expiree). */
+export function setUnauthorizedHandler(fn) {
+  onUnauthorized = fn;
+}
+
+async function req(path, options = {}) {
+  const headers = { ...(options.headers ?? {}) };
+  if (token) headers.authorization = `Bearer ${token}`;
+  const res = await fetch(`/api${path}`, { ...options, headers });
+
+  if (res.status === 401 && !path.startsWith("/auth/")) {
+    onUnauthorized?.();
+  }
   if (!res.ok) {
     let body = null;
     try {
@@ -19,6 +42,23 @@ async function req(path, options) {
 }
 
 export const api = {
+  // Auth
+  register: (email, password) =>
+    req("/auth/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    }),
+  login: (email, password) =>
+    req("/auth/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    }),
+  logout: () => req("/auth/logout", { method: "POST" }),
+  me: () => req("/auth/me"),
+
+  // Decks & progression
   listDecks: () => req("/decks"),
   getDeck: (deckId) => req(`/decks/${encodeURIComponent(deckId)}`),
   importDeck: (deck) =>

@@ -48,6 +48,34 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: env(safe-area-inset-top) 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.header-email {
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.link-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--primary);
+  padding: 0;
+  text-decoration: underline;
 }
 
 .brand {
@@ -401,6 +429,64 @@ button.back-link {
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
+}
+
+/* Ecran d'authentification ------------------------------------------------- */
+.auth-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem 1.75rem;
+}
+.auth-brand {
+  height: auto;
+  margin-bottom: 1.25rem;
+}
+.auth-title {
+  font-size: 1.35rem;
+  margin: 0 0 1.25rem;
+}
+.auth-field {
+  display: block;
+  margin-bottom: 0.9rem;
+}
+.auth-field span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+.auth-field input {
+  width: 100%;
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+}
+.auth-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: -0.4rem 0 0.9rem;
+}
+.auth-error {
+  padding: 0.5rem 0;
+}
+.auth-switch {
+  margin: 1.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 /* Import ------------------------------------------------------------------- */

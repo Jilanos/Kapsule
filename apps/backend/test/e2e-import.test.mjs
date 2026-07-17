@@ -28,36 +28,45 @@ async function startApp() {
     const s = app.listen(0, () => r(s));
   });
   const base = `http://localhost:${server.address().port}`;
-  return { base, close: () => new Promise((r) => server.close(r)) };
+
+  const reg = await fetch(`${base}/api/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "e2e@kapsule.fr", password: "motdepasse1" }),
+  });
+  const { token } = await reg.json();
+  const f = (path, opts = {}) =>
+    fetch(`${base}${path}`, {
+      ...opts,
+      headers: {
+        authorization: `Bearer ${token}`,
+        ...(opts.body ? { "content-type": "application/json" } : {}),
+        ...(opts.headers ?? {}),
+      },
+    });
+
+  return { base, f, close: () => new Promise((r) => server.close(r)) };
 }
 
 test("e2e : un deck genere par IA s'importe, se relit et apparait dans la liste", async () => {
-  const { base, close } = await startApp();
+  const { f, close } = await startApp();
   try {
     // Import via l'API (comme le ferait l'UI).
-    const imp = await fetch(`${base}/api/decks`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(aiDeck),
-    });
+    const imp = await f("/api/decks", { method: "POST", body: JSON.stringify(aiDeck) });
     assert.equal(imp.status, 201, await imp.text());
 
     // Apparait dans la liste.
-    const list = await (await fetch(`${base}/api/decks`)).json();
+    const list = await (await f("/api/decks")).json();
     assert.ok(list.some((d) => d.id === "photographie-bases"));
 
     // Relecture complete, contenu intact.
-    const body = await (await fetch(`${base}/api/decks/photographie-bases`)).json();
+    const body = await (await f("/api/decks/photographie-bases")).json();
     assert.equal(body.deck.cards.length, 2);
     assert.equal(body.deck.cards[0].sections[0].type, "intro");
 
     // Import idempotent : re-importer met a jour sans dupliquer.
-    await fetch(`${base}/api/decks`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(aiDeck),
-    });
-    const list2 = await (await fetch(`${base}/api/decks`)).json();
+    await f("/api/decks", { method: "POST", body: JSON.stringify(aiDeck) });
+    const list2 = await (await f("/api/decks")).json();
     assert.equal(list2.filter((d) => d.id === "photographie-bases").length, 1);
   } finally {
     await close();

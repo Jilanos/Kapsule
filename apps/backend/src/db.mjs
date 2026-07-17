@@ -30,9 +30,13 @@ export function openDb(file) {
   return db;
 }
 
-/** Cree les tables si elles n'existent pas. */
-function migrate(db) {
-  db.exec(`
+// Migrations versionnees, appliquees dans l'ordre selon PRAGMA user_version.
+// Ajouter une migration = pousser une fonction ; ne jamais reordonner ni
+// modifier une migration deja publiee.
+const MIGRATIONS = [
+  // 1 : socle MVP (decks, cards, progress).
+  (db) =>
+    db.exec(`
     CREATE TABLE IF NOT EXISTS decks (
       id            TEXT PRIMARY KEY,
       title         TEXT NOT NULL,
@@ -66,5 +70,39 @@ function migrate(db) {
       updated_at    TEXT NOT NULL,
       PRIMARY KEY (user_id, deck_id, card_id)
     );
-  `);
+  `),
+
+  // 2 : authentification multi-appareils (users, sessions).
+  (db) =>
+    db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id            TEXT PRIMARY KEY,
+      email         TEXT NOT NULL UNIQUE,    -- normalise en minuscules
+      password_hash TEXT NOT NULL,          -- format "scrypt:<sel hex>:<hash hex>"
+      created_at    TEXT NOT NULL
+    );
+
+    -- Une session par appareil : token opaque revocable.
+    CREATE TABLE IF NOT EXISTS sessions (
+      token         TEXT PRIMARY KEY,
+      user_id       TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at    TEXT NOT NULL,
+      last_used_at  TEXT NOT NULL,
+      expires_at    TEXT NOT NULL,
+      user_agent    TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+  `),
+];
+
+/** Applique les migrations manquantes selon PRAGMA user_version. */
+function migrate(db) {
+  let version = db.pragma("user_version", { simple: true });
+  const run = db.transaction(() => {
+    for (let i = version; i < MIGRATIONS.length; i++) {
+      MIGRATIONS[i](db);
+    }
+    db.pragma(`user_version = ${MIGRATIONS.length}`);
+  });
+  if (version < MIGRATIONS.length) run();
 }
