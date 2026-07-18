@@ -35,7 +35,9 @@ export function ReviewSession() {
   if (due.length === 0) {
     return (
       <section className="review-done">
-        <Link to="/" className="back-link">← Accueil</Link>
+        <Link to="/" className="back-link">
+          ← Accueil
+        </Link>
         <h1>Rien à réviser 🎉</h1>
         <p className="muted">Aucune fiche n'est due aujourd'hui. Revenez plus tard !</p>
       </section>
@@ -45,10 +47,13 @@ export function ReviewSession() {
   if (index >= due.length) {
     return (
       <section className="review-done">
-        <Link to="/" className="back-link">← Accueil</Link>
+        <Link to="/" className="back-link">
+          ← Accueil
+        </Link>
         <h1>Révisions terminées 🎉</h1>
         <p className="muted">
-          {due.length} fiche{due.length > 1 ? "s" : ""} révisée{due.length > 1 ? "s" : ""}. Beau travail !
+          {due.length} fiche{due.length > 1 ? "s" : ""} révisée{due.length > 1 ? "s" : ""}. Beau
+          travail !
         </p>
       </section>
     );

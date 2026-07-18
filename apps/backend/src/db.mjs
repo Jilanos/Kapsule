@@ -16,8 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * @returns {import("better-sqlite3").Database}
  */
 export function openDb(file) {
-  const path =
-    file ?? process.env.KAPSULE_DB ?? join(__dirname, "..", "data", "kapsule.sqlite");
+  const path = file ?? process.env.KAPSULE_DB ?? join(__dirname, "..", "data", "kapsule.sqlite");
 
   if (path !== ":memory:") {
     mkdirSync(dirname(path), { recursive: true });

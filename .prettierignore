@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+package-lock.json
+# Contenu de donnees et documents : hors du perimetre de formatage du code.
+decks
+logics
+docs
+apps/frontend/dist
+apps/backend/data
+apps/backend/uploads

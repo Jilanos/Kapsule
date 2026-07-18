@@ -28,9 +28,7 @@ export function canonicalAssetPath(relPath) {
 }
 
 function hmac(deckId, canonicalPath, exp) {
-  return createHmac("sha256", SECRET)
-    .update(`${deckId}\n${canonicalPath}\n${exp}`)
-    .digest("hex");
+  return createHmac("sha256", SECRET).update(`${deckId}\n${canonicalPath}\n${exp}`).digest("hex");
 }
 
 /** URL d'asset signee (chemin absolu pret a poser dans <img src>). */

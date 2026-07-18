@@ -102,13 +102,7 @@ export function ImportDeck({ onImported }) {
         <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}>
           Choisir un fichier .json
         </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          onChange={onFile}
-          hidden
-        />
+        <input ref={fileRef} type="file" accept="application/json,.json" onChange={onFile} hidden />
       </div>
 
       <textarea

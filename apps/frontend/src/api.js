@@ -65,14 +65,11 @@ export const api = {
     req(`/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}`),
   getDueReviews: () => req("/reviews/due"),
   reviewCard: (deckId, cardId, quizScore) =>
-    req(
-      `/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/review`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ quizScore }),
-      },
-    ),
+    req(`/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/review`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ quizScore }),
+    }),
   // visibility : 'private' | 'general' | 'master' (ignore a la mise a jour d'un
   // deck existant, dont la visibilite est preservee cote serveur).
   importDeck: (deck, visibility = "private") =>
@@ -81,8 +78,7 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(deck),
     }),
-  deleteDeck: (deckId) =>
-    req(`/decks/${encodeURIComponent(deckId)}`, { method: "DELETE" }),
+  deleteDeck: (deckId) => req(`/decks/${encodeURIComponent(deckId)}`, { method: "DELETE" }),
   changeDeckVisibility: (deckId, visibility) =>
     req(`/decks/${encodeURIComponent(deckId)}/visibility`, {
       method: "PATCH",
@@ -90,12 +86,9 @@ export const api = {
       body: JSON.stringify({ visibility }),
     }),
   setProgress: (deckId, cardId, state, quizScore) =>
-    req(
-      `/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/progress`,
-      {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ state, quizScore }),
-      },
-    ),
+    req(`/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/progress`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ state, quizScore }),
+    }),
 };

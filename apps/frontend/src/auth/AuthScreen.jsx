@@ -30,9 +30,7 @@ export function AuthScreen() {
         <div className="brand auth-brand">
           <span className="brand-mark">K</span> Kapsule
         </div>
-        <h1 className="auth-title">
-          {mode === "login" ? "Connexion" : "Créer un compte"}
-        </h1>
+        <h1 className="auth-title">{mode === "login" ? "Connexion" : "Créer un compte"}</h1>
         <form onSubmit={submit}>
           <label className="auth-field">
             <span>Email</span>
@@ -55,16 +53,10 @@ export function AuthScreen() {
               required
             />
           </label>
-          {mode === "register" && (
-            <p className="auth-hint">8 caractères minimum.</p>
-          )}
+          {mode === "register" && <p className="auth-hint">8 caractères minimum.</p>}
           {error && <p className="msg error auth-error">{error}</p>}
           <button type="submit" className="btn-primary" disabled={busy}>
-            {busy
-              ? "…"
-              : mode === "login"
-                ? "Se connecter"
-                : "Créer le compte"}
+            {busy ? "…" : mode === "login" ? "Se connecter" : "Créer le compte"}
           </button>
         </form>
         <p className="auth-switch">

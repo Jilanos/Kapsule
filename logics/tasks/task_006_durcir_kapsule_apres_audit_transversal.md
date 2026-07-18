@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95
 > Confidence: 90
-> Progress: 45%
+> Progress: 70%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -98,9 +98,17 @@
   bornage de la longueur de mot de passe ; throttle des ecritures de session +
   purge des sessions expirees ; inscription fermee par defaut en production.
   Tests de durcissement verts (rate limit, bornage, prod-closed, throttle, purge).
-- [ ] Vague 3 - P1 depot/deploiement : fixtures autonomes, CI et scans obligatoires,
+- [~] Vague 3 - P1 depot/deploiement : fixtures autonomes, CI et scans obligatoires,
   protection `main`, licence/gouvernance, mise a jour Vite, environnement versionne,
   conteneur non-root, healthcheck et en-tetes Caddy.
+  Livre : fixtures autonomes (le rouge pre-existant est corrige) ; CI (format,
+  tests, build, audit, gitleaks, CodeQL, build+scan Trivy image) ; LICENSE MIT,
+  SECURITY/CONTRIBUTING, templates, Dependabot ; Vite 7 (audit 0 vuln) ;
+  `.env.example` versionne + `KAPSULE_ASSET_SECRET` ; conteneur non-root +
+  healthcheck + read-only/cap-drop ; en-tetes Caddy (CSP/HSTS/...) ; fix du
+  chemin distant `deploy.sh`. En attente : protection de `main` (operateur) ;
+  validation Logics en CI non incluse (outil local, non publie) -> gardee en
+  pre-push local ; smoke `docker compose`/HTTPS (operateur).
 - [ ] Vague 4 - P2 experience/operations : accessibilite, retry/offline,
   confirmation destructive, budgets de performance, sauvegarde hors site,
   restauration, README, GitHub et brief produit.
@@ -206,6 +214,34 @@ Validation : backend 42/43 (seul echec = #34 pre-existant, hors perimetre) ;
 Reste (Vague 3+) : mise a niveau Vite/esbuild (AC6), CI et scans (AC5), licence
 et gouvernance (AC6), deploiement reproductible non-root + en-tetes Caddy +
 `KAPSULE_ASSET_SECRET` dans `.env.example` (AC7).
+
+## Vague 3 - P1 depot/deploiement - 2026-07-19
+- Fixtures autonomes (AC5) : `apps/backend/test/fixtures/deck-reseaux.json`
+  (structure figee, quiz d'adresses-ip a 2 questions) ; `reviews`, `auth`,
+  `permissions` et `authorization-hardening` repointes dessus. Le test rouge
+  pre-existant (`#34`) est desormais vert -> backend 43/43.
+- CI (AC5) : `.github/workflows/ci.yml` (format Prettier, `npm test`, build,
+  `npm audit --omit=dev`, audit complet informatif, gitleaks, build + scan Trivy
+  de l'image) et `.github/workflows/codeql.yml`. Prettier ajoute
+  (`.prettierrc.json`, `.prettierignore`, scripts `format`/`format:check`) et
+  base de code normalisee. La validation Logics n'est pas executee en CI (outil
+  local non publie) : elle reste un garde-fou pre-push.
+- Gouvernance (AC6) : `LICENSE` (MIT), `SECURITY.md`, `CONTRIBUTING.md`,
+  templates d'issues/PR, `.github/dependabot.yml` (npm/actions/docker).
+- Dependances (AC6) : Vite 5 -> 7 + `@vitejs/plugin-react` 5 + `vite-plugin-pwa`
+  1 ; `npm dedupe`. `npm audit` complet : 0 vulnerabilite (l'alerte esbuild/Vite
+  dev-only est levee). `allowScripts` mis a jour (esbuild 0.28.1).
+- Deploiement (AC7) : `.env.example` versionne (dé-ignore) avec
+  `KAPSULE_ASSET_SECRET` ; `Dockerfile` non-root (`USER node`, /data chown) +
+  `HEALTHCHECK` ; `docker-compose` `read_only`, `tmpfs`, `no-new-privileges`,
+  `cap_drop: ALL`, `NODE_ENV=production`, healthcheck, secret d'assets requis ;
+  `Caddyfile` en-tetes CSP/HSTS/nosniff/frame/referrer/permissions + `-Server` ;
+  `deploy.sh` : chemin distant par defaut sans tilde (bug corrige).
+- Validation : `npm test` 43/43 ; `npm run build` OK ; `npm run format:check`
+  OK ; `npm audit --omit=dev` 0 vuln.
+- En attente (operateur/hors CI local) : protection de branche `main` (ruleset
+  GitHub) ; `docker compose config` + build/scan d'image + smoke HTTPS a
+  executer en CI/serveur ; validation Logics gardee en local.
 
 # AI Context
 - Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec

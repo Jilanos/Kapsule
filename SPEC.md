@@ -43,12 +43,12 @@ d'images en Markdown (utiliser le champ `image` dédié), pas de HTML.
 
 ```jsonc
 {
-  "schemaVersion": 1,          // obligatoire, toujours 1
-  "id": "mon-deck",            // obligatoire, slug: [a-z0-9-]
-  "title": "Titre du deck",    // obligatoire
-  "description": "…",          // optionnel, ≤ 500 caractères
-  "tags": ["tag1", "tag2"],    // optionnel, chaînes uniques
-  "cards": [ /* … */ ]         // obligatoire, 1 à 200 fiches
+  "schemaVersion": 1, // obligatoire, toujours 1
+  "id": "mon-deck", // obligatoire, slug: [a-z0-9-]
+  "title": "Titre du deck", // obligatoire
+  "description": "…", // optionnel, ≤ 500 caractères
+  "tags": ["tag1", "tag2"], // optionnel, chaînes uniques
+  "cards": [/* … */], // obligatoire, 1 à 200 fiches
 }
 ```
 
@@ -56,11 +56,11 @@ d'images en Markdown (utiliser le champ `image` dédié), pas de HTML.
 
 ```jsonc
 {
-  "id": "ma-fiche",            // obligatoire, slug unique dans le deck
-  "title": "Titre de la fiche",// obligatoire
-  "durationMin": 5,            // optionnel, entier 1–10
-  "level": "debutant",         // optionnel: "debutant" | "intermediaire" | "avance"
-  "sections": [ /* … */ ]      // obligatoire, 1 à 30 sections
+  "id": "ma-fiche", // obligatoire, slug unique dans le deck
+  "title": "Titre de la fiche", // obligatoire
+  "durationMin": 5, // optionnel, entier 1–10
+  "level": "debutant", // optionnel: "debutant" | "intermediaire" | "avance"
+  "sections": [/* … */], // obligatoire, 1 à 30 sections
 }
 ```
 
@@ -70,13 +70,17 @@ Chaque section a un champ `type`. **Aucune autre propriété que celles listées
 n'est autorisée** (validation stricte).
 
 ### `intro`
+
 Accroche d'ouverture.
+
 ```json
 { "type": "intro", "content": "Texte d'introduction." }
 ```
 
 ### `concept`
+
 Cœur pédagogique. Image optionnelle.
+
 ```json
 {
   "type": "concept",
@@ -85,16 +89,21 @@ Cœur pédagogique. Image optionnelle.
   "image": { "src": "img/schema.png", "alt": "Description", "caption": "Légende" }
 }
 ```
+
 `heading` et `image` sont optionnels ; `content` est obligatoire.
 
 ### `example`
+
 Illustration concrète. Même structure que `concept`.
+
 ```json
 { "type": "example", "heading": "En pratique", "content": "Exemple concret." }
 ```
 
 ### `takeaways`
+
 Points clés à retenir.
+
 ```json
 {
   "type": "takeaways",
@@ -102,10 +111,13 @@ Points clés à retenir.
   "items": ["Point 1", "Point 2", "Point 3"]
 }
 ```
+
 `items` : 1 à 10 chaînes. `heading` optionnel.
 
 ### `quiz`
+
 Questions à choix unique en fin de fiche.
+
 ```json
 {
   "type": "quiz",
@@ -119,6 +131,7 @@ Questions à choix unique en fin de fiche.
   ]
 }
 ```
+
 - `questions` : 1 à 10.
 - `choices` : 2 à 6 propositions.
 - `answer` : **index base 0** de la bonne réponse (doit être < nombre de choix).
@@ -131,15 +144,15 @@ dans les assets du deck, ou une **data URI**. Toujours fournir un `alt`.
 
 ## 7. Règles de validation (résumé)
 
-| Règle | Effet si violée |
-|-------|-----------------|
-| `schemaVersion` = 1 | rejet |
-| `id` deck/fiche au format slug `[a-z0-9-]` | rejet |
-| identifiants de fiches uniques dans le deck | rejet |
-| ≥ 1 fiche par deck, ≥ 1 section par fiche | rejet |
-| type de section ∈ {intro, concept, example, takeaways, quiz} | rejet |
-| aucune propriété hors de celles définies | rejet |
-| `quiz.answer` < nombre de `choices` | rejet |
+| Règle                                                        | Effet si violée |
+| ------------------------------------------------------------ | --------------- |
+| `schemaVersion` = 1                                          | rejet           |
+| `id` deck/fiche au format slug `[a-z0-9-]`                   | rejet           |
+| identifiants de fiches uniques dans le deck                  | rejet           |
+| ≥ 1 fiche par deck, ≥ 1 section par fiche                    | rejet           |
+| type de section ∈ {intro, concept, example, takeaways, quiz} | rejet           |
+| aucune propriété hors de celles définies                     | rejet           |
+| `quiz.answer` < nombre de `choices`                          | rejet           |
 
 ## 8. Vérifier un deck localement
 

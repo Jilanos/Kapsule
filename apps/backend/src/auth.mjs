@@ -37,7 +37,10 @@ export async function verifyPassword(password, stored) {
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
 
-const normalizeEmail = (email) => String(email ?? "").trim().toLowerCase();
+const normalizeEmail = (email) =>
+  String(email ?? "")
+    .trim()
+    .toLowerCase();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class AuthStore {

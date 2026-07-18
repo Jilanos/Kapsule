@@ -61,11 +61,7 @@ export function CardView({
       ))}
 
       <footer className="card-footer">
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => onLearnAndNext(quizScore)}
-        >
+        <button type="button" className="btn-primary" onClick={() => onLearnAndNext(quizScore)}>
           {isLast ? lastLabel : nextLabel}
         </button>
       </footer>

@@ -13,10 +13,7 @@ export function Quiz({ questions, onScore }) {
     const next = { ...answers, [qi]: ci };
     setAnswers(next);
     if (Object.keys(next).length === questions.length) {
-      const score = questions.reduce(
-        (acc, q, i) => acc + (next[i] === q.answer ? 1 : 0),
-        0,
-      );
+      const score = questions.reduce((acc, q, i) => acc + (next[i] === q.answer ? 1 : 0), 0);
       onScore?.(score, questions.length);
     }
   };
@@ -50,9 +47,7 @@ export function Quiz({ questions, onScore }) {
                 );
               })}
             </div>
-            {answered && q.explanation && (
-              <p className="quiz-explain">{q.explanation}</p>
-            )}
+            {answered && q.explanation && <p className="quiz-explain">{q.explanation}</p>}
           </div>
         );
       })}

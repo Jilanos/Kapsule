@@ -11,7 +11,10 @@
       "durationMin": 5,
       "level": "debutant",
       "sections": [
-        { "type": "intro", "content": "L'**ouverture** controle la quantite de lumiere qui entre et la profondeur de champ." },
+        {
+          "type": "intro",
+          "content": "L'**ouverture** controle la quantite de lumiere qui entre et la profondeur de champ."
+        },
         {
           "type": "concept",
           "heading": "Le nombre f",
@@ -47,7 +50,10 @@
       "durationMin": 5,
       "level": "debutant",
       "sections": [
-        { "type": "intro", "content": "La **vitesse d'obturation** determine la duree pendant laquelle le capteur recoit la lumiere." },
+        {
+          "type": "intro",
+          "content": "La **vitesse d'obturation** determine la duree pendant laquelle le capteur recoit la lumiere."
+        },
         {
           "type": "concept",
           "heading": "Figer ou filer le mouvement",

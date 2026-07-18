@@ -31,10 +31,7 @@ export function schedule(prev, grade) {
   }
 
   // Ajustement du facteur de facilite (borne a 1.3).
-  easiness = Math.max(
-    MIN_EASINESS,
-    easiness + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)),
-  );
+  easiness = Math.max(MIN_EASINESS, easiness + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)));
 
   return { easiness: round2(easiness), interval, repetitions };
 }

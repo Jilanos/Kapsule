@@ -182,9 +182,11 @@ export function createApp(db, options = {}) {
       }
       const result = store.importDeck(req.body); // owner/visibilite preserves par l'upsert
       if (!result.valid) {
-        return res
-          .status(422)
-          .json({ error: "deck invalide", details: result.errors, report: formatErrors(result.errors) });
+        return res.status(422).json({
+          error: "deck invalide",
+          details: result.errors,
+          report: formatErrors(result.errors),
+        });
       }
       return res.status(201).json({ deck: result.deck });
     }

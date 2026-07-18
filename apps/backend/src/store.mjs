@@ -181,7 +181,10 @@ export class Store {
    */
   setProgress(deckId, cardId, state, quizScore = null, userId = DEFAULT_USER) {
     if (!VALID_STATES.includes(state)) {
-      return { ok: false, error: `etat invalide "${state}" (attendu : ${VALID_STATES.join(", ")})` };
+      return {
+        ok: false,
+        error: `etat invalide "${state}" (attendu : ${VALID_STATES.join(", ")})`,
+      };
     }
     if (!this.getCard(deckId, cardId)) {
       return { ok: false, error: `fiche introuvable : ${deckId}/${cardId}` };
@@ -260,7 +263,9 @@ export class Store {
     const prev = this.getReview(deckId, cardId, userId);
     const grade = gradeFromQuiz(quizScore ?? 0, countQuizQuestions(card));
     const sched = schedule(
-      prev ? { easiness: prev.easiness, interval: prev.interval, repetitions: prev.repetitions } : null,
+      prev
+        ? { easiness: prev.easiness, interval: prev.interval, repetitions: prev.repetitions }
+        : null,
       grade,
     );
     this._writeReview(userId, deckId, cardId, sched, grade);

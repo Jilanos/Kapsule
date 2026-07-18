@@ -109,7 +109,9 @@ export function DeckReader() {
   const firstUnlearned = cards.findIndex((c) => progress[c.id]?.state !== "learned");
   return (
     <section>
-      <Link to="/" className="back-link">← Tous les decks</Link>
+      <Link to="/" className="back-link">
+        ← Tous les decks
+      </Link>
       <div className="deck-title-row">
         <h1>{deck.title}</h1>
         {visibility && (
@@ -124,7 +126,10 @@ export function DeckReader() {
         <div className="admin-bar">
           <label className="admin-visibility">
             Visibilité
-            <select value={visibility ?? "general"} onChange={(e) => onChangeVisibility(e.target.value)}>
+            <select
+              value={visibility ?? "general"}
+              onChange={(e) => onChangeVisibility(e.target.value)}
+            >
               {VISIBILITY_ORDER.map((v) => (
                 <option key={v} value={v}>
                   {VISIBILITY_LABEL[v]}

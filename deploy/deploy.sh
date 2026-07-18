@@ -4,13 +4,16 @@
 #
 # Prerequis (variables d'environnement) :
 #   KAPSULE_SSH         utilisateur@hote du VPS      (ex: deploy@203.0.113.10)
-#   KAPSULE_REMOTE_DIR  chemin du repo sur le VPS    (defaut: ~/kapsule)
+#   KAPSULE_REMOTE_DIR  chemin du repo sur le VPS    (defaut: kapsule, relatif
+#                                                     au home de connexion SSH)
 #
 # Usage :  KAPSULE_SSH=deploy@monvps ./deploy.sh
 set -euo pipefail
 
 SSH_TARGET="${KAPSULE_SSH:?Definissez KAPSULE_SSH=utilisateur@hote}"
-REMOTE_DIR="${KAPSULE_REMOTE_DIR:-~/kapsule}"
+# Pas de tilde ici : `~` entre guillemets ne s'expanse pas et casserait le `cd`
+# distant. Un chemin relatif est resolu depuis le home de connexion SSH.
+REMOTE_DIR="${KAPSULE_REMOTE_DIR:-kapsule}"
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 echo "→ Push de la branche '$BRANCH'…"

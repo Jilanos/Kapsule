@@ -32,9 +32,7 @@ export function DeckList() {
       {dueCount > 0 && (
         <Link to="/reviews" className="review-banner">
           <span className="review-banner-count">{dueCount}</span>
-          <span>
-            fiche{dueCount > 1 ? "s" : ""} à réviser aujourd'hui
-          </span>
+          <span>fiche{dueCount > 1 ? "s" : ""} à réviser aujourd'hui</span>
           <span className="review-banner-cta">Réviser →</span>
         </Link>
       )}

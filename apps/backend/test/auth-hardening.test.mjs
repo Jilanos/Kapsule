@@ -113,7 +113,10 @@ test("AC4 : les sessions expirees sont purgees", () => {
   const live = auth.createSession("u1", "new");
 
   // Rend une session expiree.
-  db.prepare(`UPDATE sessions SET expires_at = ? WHERE token = ?`).run("2000-01-01T00:00:00.000Z", expired);
+  db.prepare(`UPDATE sessions SET expires_at = ? WHERE token = ?`).run(
+    "2000-01-01T00:00:00.000Z",
+    expired,
+  );
 
   assert.equal(auth.purgeExpiredSessions(), 1);
   assert.equal(auth.getSessionUser(expired), null);

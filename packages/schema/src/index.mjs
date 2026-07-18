@@ -38,7 +38,8 @@ function formatAjvError(err) {
   } else if (err.keyword === "const") {
     message = `doit valoir ${JSON.stringify(err.params.allowedValue)}`;
   } else if (err.keyword === "oneOf") {
-    message = "ne correspond a aucun type de section connu (intro, concept, example, takeaways, quiz)";
+    message =
+      "ne correspond a aucun type de section connu (intro, concept, example, takeaways, quiz)";
   }
   return { path, message };
 }
@@ -56,7 +57,10 @@ function semanticErrors(deck) {
     const cardPath = `/cards/${ci}`;
     if (card && typeof card.id === "string") {
       if (seenCardIds.has(card.id)) {
-        errors.push({ path: `${cardPath}/id`, message: `identifiant de fiche duplique "${card.id}"` });
+        errors.push({
+          path: `${cardPath}/id`,
+          message: `identifiant de fiche duplique "${card.id}"`,
+        });
       }
       seenCardIds.add(card.id);
     }

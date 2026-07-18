@@ -44,8 +44,18 @@ COPY --from=build /app/apps/backend ./apps/backend
 COPY --from=build /app/apps/frontend/dist ./apps/frontend/dist
 COPY --from=build /app/decks ./decks
 
+# Conteneur non-root (audit 2026-07-18, AC7). L'image node fournit un
+# utilisateur `node` (uid 1000). On cree /data avec cette propriete pour que le
+# volume nomme herite de droits d'ecriture non-root a sa premiere creation.
+RUN mkdir -p /data && chown -R node:node /data
+USER node
+
 # Volume des donnees persistantes (base + uploads).
 VOLUME ["/data"]
 EXPOSE 3001
+
+# Healthcheck applicatif (fetch natif Node 20, pas de dependance a curl).
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3001)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "apps/backend/src/server.mjs"]
