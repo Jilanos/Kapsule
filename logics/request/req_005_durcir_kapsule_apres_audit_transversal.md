@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 90
+> Confidence: 91
 > Complexity: High
 > Theme: hardening
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -145,3 +145,4 @@
 
 # Backlog
 - none
+- `item_010_durcir_kapsule_apres_audit_transversal`

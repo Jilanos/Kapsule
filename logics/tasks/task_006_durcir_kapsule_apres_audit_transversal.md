@@ -1,0 +1,133 @@
+## task_006_durcir_kapsule_apres_audit_transversal - Durcir Kapsule apres audit transversal
+> From version: 0.1.0
+> Schema version: 1.0
+> Status: Ready
+> Understanding: 95
+> Confidence: 90
+> Progress: 0%
+> Complexity: High
+> Theme: Security, reliability and repository hardening
+> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+
+# Context
+- Source fonctionnelle et preuves initiales : `docs/audit-2026-07-18.md`.
+- Cette task implemente l'unique backlog
+  `item_010_durcir_kapsule_apres_audit_transversal` en vagues ordonnees.
+- Les changements de decks deja presents dans le worktree sont hors perimetre et
+  ne doivent jamais etre modifies, indexes ou committes par cette task.
+- Toute rotation de secret, protection GitHub ou operation de production demande
+  une preuve non sensible et une coordination operateur explicite.
+
+# Definition of Done (DoD)
+- [ ] Les protections P0 secrets, cache et autorisations sont livrees et verifiees.
+- [ ] Les 11 criteres d'acceptation ont une preuve reproductible ou une preuve
+  operateur non sensible referencee dans le rapport.
+- [ ] Tests, build, lint, audits, controles accessibilite et smokes de deploiement
+  passent selon la section Validation.
+- [ ] Le brief produit et les ADR affectees sont alignes et settles via la CLI.
+- [ ] Chaque vague suit le checkpoint ADR 009 et laisse le depot commit-ready sans
+  imposer un commit par micro-etape.
+
+# Backlog
+- `item_010_durcir_kapsule_apres_audit_transversal`
+
+# Acceptance criteria
+- AC1 - Hygiene des secrets : le contexte et les couches Docker ne contiennent que
+  les fichiers necessaires ; scan de secrets, rotation de cle et purge de caches
+  disposent de preuves non sensibles.
+- AC2 - Autorisations : assets, progression, revisions et dues appliquent la meme
+  politique centralisee que la lecture des decks et couvrent toute la matrice de
+  permissions par tests negatifs.
+- AC3 - Cache et sessions : deux comptes successifs sur un meme navigateur ne
+  partagent aucune reponse authentifiee, y compris hors ligne ; cache et tokens
+  suivent la decision d'architecture documentee.
+- AC4 - Resistance aux abus : login/register sont limites, le hachage est non
+  bloquant, les entrees sont bornees et les inscriptions sont fermees par defaut en
+  production.
+- AC5 - Chaine CI : PR et `main` sont gardees par lint, tests, build, Logics, audit
+  de dependances, scan de secrets et analyse de securite ; les fixtures de tests
+  sont independantes des decks de demonstration.
+- AC6 - Licence et gouvernance : MIT est materialisee par `LICENSE`, les politiques
+  de securite/contribution et templates existent, les dependances sont maintenues et
+  Vite/esbuild n'ont plus d'alerte connue.
+- AC7 - Deploiement : exemple d'environnement, chemin distant, conteneur non-root,
+  healthcheck, en-tetes Caddy et images maitrisees sont valides par smoke.
+- AC8 - Accessibilite : les vues critiques passent axe sans violation serieuse et
+  un parcours clavier WCAG 2.2 AA couvre focus, live regions, progression,
+  contrastes et reduction des animations.
+- AC9 - Fiabilite produit : les ecritures non synchronisees sont rejouees ou
+  clairement recuperables ; les suppressions sont confirmees et la promesse hors
+  ligne correspond au comportement mesure.
+- AC10 - Performance et operations : budgets frontend/API, reduction des ecritures
+  de session, purge, strategie gros decks et preuves de sauvegarde hors site puis
+  restauration sont disponibles.
+- AC11 - Presentation : README, metadata GitHub et brief produit decrivent l'etat
+  reel avec prerequis, architecture, securite, tests, limites, licence et visuel,
+  sans donnees personnelles d'exploitation inutiles.
+
+# AC Traceability
+- request-AC1 -> This task. Proof: diff Docker cible, scan de secrets CI et preuve operateur rotation/purge.
+- request-AC2 -> This task. Proof: tests API negatifs private/general/master et guest/master/admin.
+- request-AC3 -> This task. Proof: ADR cache/session et test navigateur inter-comptes en ligne/hors ligne.
+- request-AC4 -> This task. Proof: tests rate limit, bornes d'entree et mesure de non-blocage de l'API.
+- request-AC5 -> This task. Proof: workflow CI vert, ruleset `main` et fixtures autonomes.
+- request-AC6 -> This task. Proof: fichiers de gouvernance, mise a jour lockfile et audits sans alerte elevee.
+- request-AC7 -> This task. Proof: `docker compose config`, scan d'image, healthcheck et smoke HTTPS.
+- request-AC8 -> This task. Proof: rapport axe automatise et checklist clavier WCAG 2.2 AA.
+- request-AC9 -> This task. Proof: tests offline/retry et test UI de confirmation de suppression.
+- request-AC10 -> This task. Proof: budgets mesures et preuve datee de sauvegarde/restauration hors site.
+- request-AC11 -> This task. Proof: README/metadata/brief relus et GitHub Community Profile ameliore.
+
+# Plan
+- [ ] Vague 0 - Baseline et decisions : demarrer la task via `flow start`, figer les
+  preuves initiales, cadrer les ADR cache/session/CSP et coordonner la rotation sans
+  exposer de secret.
+- [ ] Vague 1 - P0 : reduire le contexte Docker, purger/faire tourner la cle,
+  centraliser les autorisations, proteger les assets et dues, desactiver ou isoler
+  le cache authentifie, puis ajouter les tests de non-regression.
+- [ ] Vague 2 - P1 application : hachage asynchrone, limites de debit et d'entree,
+  sessions bornees/purgees, inscription fermee par defaut et migration explicite.
+- [ ] Vague 3 - P1 depot/deploiement : fixtures autonomes, CI et scans obligatoires,
+  protection `main`, licence/gouvernance, mise a jour Vite, environnement versionne,
+  conteneur non-root, healthcheck et en-tetes Caddy.
+- [ ] Vague 4 - P2 experience/operations : accessibilite, retry/offline,
+  confirmation destructive, budgets de performance, sauvegarde hors site,
+  restauration, README, GitHub et brief produit.
+- [ ] Vague 5 - Closeout : executer toutes les validations, joindre les preuves,
+  mettre a jour le rapport Logics et terminer avec `flow closeout`/`flow finish`.
+
+# Validation
+- `npm test` et `npm run build` passent sur des fixtures autonomes.
+- `npm audit --omit=dev` ne remonte aucune vulnerabilite ; l'audit complet ne
+  contient aucune alerte elevee non acceptee par une decision documentee.
+- Les tests d'autorisation, cache inter-comptes, rate limit, offline/retry et
+  accessibilite couvrent explicitement les criteres associes.
+- `docker compose config`, build/scan d'image, healthcheck et smoke HTTPS passent ;
+  le contexte et les couches inspectees ne contiennent aucun secret.
+- Une preuve non sensible confirme rotation/purge, protection de branche,
+  sauvegarde hors site et restauration.
+- `logics-manager lint --require-status` et
+  `logics-manager audit --group-by-doc` passent.
+- Utiliser `logics-manager flow progress task task_006_durcir_kapsule_apres_audit_transversal --progress <n>%`
+  a chaque vague significative, puis `flow closeout` et `flow finish` uniquement
+  apres livraison de toutes les preuves.
+
+# Report
+- Etat initial : implementation non demarree ; task prete a etre prise en charge.
+- Baseline : voir `docs/audit-2026-07-18.md` et `req_005`.
+- Consigner ici les fichiers modifies, tests, mesures, decisions et preuves
+  operateur a chaque vague sans inclure de secret ni de donnee personnelle.
+
+# AI Context
+- Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec
+  preuves de securite, qualite, accessibilite et exploitation.
+- Keywords: task, hardening, Docker secrets, authorization, PWA cache, auth, CI,
+  accessibility, performance, operations
+- Use when: Implementing `item_010` or enregistrant une preuve de vague.
+- Skip when: The work concerne des fonctionnalites pedagogiques ou des decks hors
+  perimetre.
+
+# Links
+- Request: `req_005_durcir_kapsule_apres_audit_transversal`
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)
