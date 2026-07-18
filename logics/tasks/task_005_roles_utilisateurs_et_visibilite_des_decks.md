@@ -1,19 +1,19 @@
 ## task_005_roles_utilisateurs_et_visibilite_des_decks - Roles utilisateurs et visibilite des decks
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_009_roles_utilisateurs_et_visibilite_des_decks`
@@ -35,6 +35,8 @@
 - Run `logics-manager lint --require-status`.
 - Use `logics-manager flow progress task task_005_roles_utilisateurs_et_visibilite_des_decks --progress <n>%` during multi-wave work.
 - Run `logics-manager flow finish task task_005_roles_utilisateurs_et_visibilite_des_decks` after implementation.
+- Finish workflow executed on 2026-07-18.
+- Linked backlog/request close verification passed.
 
 # Plan
 - Vague 1 (schema + store) : migration 4 dans `apps/backend/src/db.mjs` (users.role, decks.owner_id, decks.visibility, index) ; requetes de listing/lecture filtrees par role et proprietaire dans `apps/backend/src/store.mjs` ; tests de migration et de filtre.
@@ -47,7 +49,10 @@
 - Vague 2 (enforcement API) : module pur `permissions.mjs` (canView/canEdit/canCreateWithVisibility/canDelete/canChangeVisibility) ; role expose par auth (register/login/getUserById) ; routes decks gardees (list filtree, GET 404 si non visible, POST create selon role + owner=user, edit selon droits, DELETE admin-only 403, nouvelle route `PATCH /api/decks/:id/visibility` admin-only).
 - Vague 3 (frontend) : `api.importDeck(deck, visibility)`, `changeDeckVisibility` ; `lib/visibility.js` (libelles + droits UI) ; selecteur de visibilite a l'import selon role ; badge de visibilite (DeckList + DeckReader) ; barre admin (changer visibilite / supprimer) reservee a l'admin ; CSS dedie.
 - Validation : backend 35/35 tests verts (dont 7 nouveaux sur la matrice des droits) avec le fixture de deck committe ; build frontend vert.
-- Vague 4 (production) EN ATTENTE : deploiement + SQL d'attribution des roles (paul.mondou12 admin, a.agostini master) et bascule des decks existants en general/owner=admin (AC5/AC7) + smoke live, a faire lors du prochain deploiement.
+- Vague 4 (production) livree le 2026-07-18 : sauvegarde pre-migration, deploiement (migration 4 appliquee au demarrage -> user_version 4), SQL d'attribution des roles (paul.mondou12 = admin, a.agostini = master) et rattachement des 6 decks existants en general/owner=admin (AC5/AC7). Smoke live HTTPS OK : nouvel inscrit = guest ne voyant que les 6 decks generaux ; creation general/suppression/changement de visibilite -> 403 ; creation private -> 201. Comptes jetables de smoke nettoyes.
+- Finished on 2026-07-18.
+- Linked backlog item(s): `item_009_roles_utilisateurs_et_visibilite_des_decks`
+- Related request(s): `req_004_roles_utilisateurs_et_visibilite_des_decks`
 
 # AI Context
 - Summary: Implement roles utilisateurs et visibilite des decks.

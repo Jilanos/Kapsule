@@ -1,10 +1,10 @@
 ## item_009_roles_utilisateurs_et_visibilite_des_decks - Roles utilisateurs et visibilite des decks
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -76,6 +76,7 @@ Attribuer les roles en production : paul.mondou12@gmail.com administrateur, a.ag
 - Hybrid rationale: Derived from request `req_004_roles_utilisateurs_et_visibilite_des_decks` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_004_roles_utilisateurs_et_visibilite_des_decks.md`.
 - Generated locally by logics-manager.
+- Task `task_005_roles_utilisateurs_et_visibilite_des_decks` was finished via `logics-manager flow finish task` on 2026-07-18.
 
 # Tasks
 - `task_005_roles_utilisateurs_et_visibilite_des_decks`
