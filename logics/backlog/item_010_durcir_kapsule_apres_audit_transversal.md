@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Non-semantic edit: lien vers adr_003 (decision assets/cache/sessions).
 
 # Problem
 Kapsule remplit son parcours MVP, mais l'audit du 2026-07-18 a identifie des
@@ -111,7 +112,7 @@ de secrets et d'isolation P0 sont traitees avant les travaux de qualite P1/P2.
 
 # Links
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
 - Request: `logics/request/req_005_durcir_kapsule_apres_audit_transversal.md`
 - Primary task(s): (none yet)
 

@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Non-semantic edit: lien vers adr_003 (decision assets/cache/sessions).
 
 # Context
 - Source fonctionnelle et preuves initiales : `docs/audit-2026-07-18.md`.
@@ -175,4 +176,4 @@ En attente (hors code) :
 # Links
 - Request: `req_005_durcir_kapsule_apres_audit_transversal`
 - Product brief(s): (none yet)
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
