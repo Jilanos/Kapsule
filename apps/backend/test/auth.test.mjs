@@ -13,7 +13,7 @@ import { hashPassword, verifyPassword } from "../src/auth.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const exampleDeck = JSON.parse(
-  readFileSync(join(__dirname, "..", "..", "..", "decks", "reseaux-essentiels.json"), "utf8"),
+  readFileSync(join(__dirname, "fixtures", "deck-reseaux.json"), "utf8"),
 );
 
 async function startApp(seed) {
@@ -47,13 +47,18 @@ test("hachage scrypt : verifie le bon mot de passe, rejette le mauvais", async (
 test("AC1 : inscription, connexion, deconnexion", async () => {
   const { base, close } = await startApp();
   try {
-    const reg = await post(base, "/api/auth/register", { email: "a@b.fr", password: "motdepasse1" });
+    const reg = await post(base, "/api/auth/register", {
+      email: "a@b.fr",
+      password: "motdepasse1",
+    });
     assert.equal(reg.status, 201);
     const { token } = await reg.json();
     assert.ok(token);
 
     // me() avec le token
-    const me = await fetch(`${base}/api/auth/me`, { headers: { authorization: `Bearer ${token}` } });
+    const me = await fetch(`${base}/api/auth/me`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
     assert.equal(me.status, 200);
     assert.equal((await me.json()).user.email, "a@b.fr");
 
@@ -68,7 +73,9 @@ test("AC1 : inscription, connexion, deconnexion", async () => {
     // logout invalide le token
     const out = await post(base, "/api/auth/logout", {}, token);
     assert.equal(out.status, 204);
-    const after = await fetch(`${base}/api/auth/me`, { headers: { authorization: `Bearer ${token}` } });
+    const after = await fetch(`${base}/api/auth/me`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
     assert.equal(after.status, 401);
   } finally {
     await close();
@@ -79,7 +86,10 @@ test("AC1 : email duplique et mot de passe trop court rejetes", async () => {
   const { base, close } = await startApp();
   try {
     await post(base, "/api/auth/register", { email: "dup@b.fr", password: "motdepasse1" });
-    const dup = await post(base, "/api/auth/register", { email: "dup@b.fr", password: "motdepasse2" });
+    const dup = await post(base, "/api/auth/register", {
+      email: "dup@b.fr",
+      password: "motdepasse2",
+    });
     assert.equal(dup.status, 409);
     const short = await post(base, "/api/auth/register", { email: "x@b.fr", password: "court" });
     assert.equal(short.status, 422);
@@ -92,14 +102,28 @@ test("AC2 : deux appareils, la deconnexion de l'un n'affecte pas l'autre", async
   const { base, close } = await startApp();
   try {
     await post(base, "/api/auth/register", { email: "multi@b.fr", password: "motdepasse1" });
-    const t1 = (await (await post(base, "/api/auth/login", { email: "multi@b.fr", password: "motdepasse1" })).json()).token;
-    const t2 = (await (await post(base, "/api/auth/login", { email: "multi@b.fr", password: "motdepasse1" })).json()).token;
+    const t1 = (
+      await (
+        await post(base, "/api/auth/login", { email: "multi@b.fr", password: "motdepasse1" })
+      ).json()
+    ).token;
+    const t2 = (
+      await (
+        await post(base, "/api/auth/login", { email: "multi@b.fr", password: "motdepasse1" })
+      ).json()
+    ).token;
     assert.notEqual(t1, t2);
 
     await post(base, "/api/auth/logout", {}, t1);
     // t1 revoque, t2 toujours valide
-    assert.equal((await fetch(`${base}/api/auth/me`, { headers: { authorization: `Bearer ${t1}` } })).status, 401);
-    assert.equal((await fetch(`${base}/api/auth/me`, { headers: { authorization: `Bearer ${t2}` } })).status, 200);
+    assert.equal(
+      (await fetch(`${base}/api/auth/me`, { headers: { authorization: `Bearer ${t1}` } })).status,
+      401,
+    );
+    assert.equal(
+      (await fetch(`${base}/api/auth/me`, { headers: { authorization: `Bearer ${t2}` } })).status,
+      200,
+    );
   } finally {
     await close();
   }
@@ -111,8 +135,16 @@ test("AC3 : routes decks/progression exigent une session et cloisonnent par util
     // sans token -> 401
     assert.equal((await fetch(`${base}/api/decks`)).status, 401);
 
-    const tA = (await (await post(base, "/api/auth/register", { email: "userA@b.fr", password: "motdepasse1" })).json()).token;
-    const tB = (await (await post(base, "/api/auth/register", { email: "userB@b.fr", password: "motdepasse1" })).json()).token;
+    const tA = (
+      await (
+        await post(base, "/api/auth/register", { email: "userA@b.fr", password: "motdepasse1" })
+      ).json()
+    ).token;
+    const tB = (
+      await (
+        await post(base, "/api/auth/register", { email: "userB@b.fr", password: "motdepasse1" })
+      ).json()
+    ).token;
 
     // A marque une fiche apprise
     await fetch(`${base}/api/decks/reseaux-essentiels/cards/adresses-ip/progress`, {
@@ -122,8 +154,12 @@ test("AC3 : routes decks/progression exigent une session et cloisonnent par util
     });
 
     // A voit sa progression, B ne voit rien
-    const listA = await (await fetch(`${base}/api/decks`, { headers: { authorization: `Bearer ${tA}` } })).json();
-    const listB = await (await fetch(`${base}/api/decks`, { headers: { authorization: `Bearer ${tB}` } })).json();
+    const listA = await (
+      await fetch(`${base}/api/decks`, { headers: { authorization: `Bearer ${tA}` } })
+    ).json();
+    const listB = await (
+      await fetch(`${base}/api/decks`, { headers: { authorization: `Bearer ${tB}` } })
+    ).json();
     assert.equal(listA[0].progress.learned, 1);
     assert.equal(listB[0].progress.learned, 0);
   } finally {
@@ -139,8 +175,14 @@ test("AC4 : la progression `default` est migree vers le premier compte cree", as
     store.setProgress("reseaux-essentiels", "dns", "seen", null, "default");
   });
   try {
-    const token = (await (await post(base, "/api/auth/register", { email: "first@b.fr", password: "motdepasse1" })).json()).token;
-    const list = await (await fetch(`${base}/api/decks`, { headers: { authorization: `Bearer ${token}` } })).json();
+    const token = (
+      await (
+        await post(base, "/api/auth/register", { email: "first@b.fr", password: "motdepasse1" })
+      ).json()
+    ).token;
+    const list = await (
+      await fetch(`${base}/api/decks`, { headers: { authorization: `Bearer ${token}` } })
+    ).json();
     assert.equal(list[0].progress.learned, 1);
     assert.equal(list[0].progress.seen, 2);
   } finally {
@@ -156,10 +198,16 @@ test("AC5 : KAPSULE_REGISTRATION=closed ferme l'inscription mais pas la connexio
 
     process.env.KAPSULE_REGISTRATION = "closed";
     try {
-      const reg = await post(base, "/api/auth/register", { email: "new@b.fr", password: "motdepasse1" });
+      const reg = await post(base, "/api/auth/register", {
+        email: "new@b.fr",
+        password: "motdepasse1",
+      });
       assert.equal(reg.status, 403);
       // la connexion existante fonctionne toujours
-      const login = await post(base, "/api/auth/login", { email: "existing@b.fr", password: "motdepasse1" });
+      const login = await post(base, "/api/auth/login", {
+        email: "existing@b.fr",
+        password: "motdepasse1",
+      });
       assert.equal(login.status, 200);
     } finally {
       delete process.env.KAPSULE_REGISTRATION;

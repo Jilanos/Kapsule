@@ -11,9 +11,7 @@ import { openDb } from "../src/db.mjs";
 import { createApp } from "../src/app.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const baseDeck = JSON.parse(
-  readFileSync(join(__dirname, "..", "..", "..", "decks", "reseaux-essentiels.json"), "utf8"),
-);
+const baseDeck = JSON.parse(readFileSync(join(__dirname, "fixtures", "deck-reseaux.json"), "utf8"));
 const CARD_ID = "adresses-ip";
 const deckWithId = (id) => ({ ...baseDeck, id, title: `Deck ${id}` });
 
@@ -59,7 +57,8 @@ test("P0 : ecriture de progression refusee sur un deck non visible (404)", async
 
     // Deck prive appartenant a `owner`.
     assert.equal(
-      (await call("/api/decks", { method: "POST", body: deckWithId("priv"), token: owner.token })).status,
+      (await call("/api/decks", { method: "POST", body: deckWithId("priv"), token: owner.token }))
+        .status,
       201,
     );
 
@@ -124,11 +123,13 @@ test("P0 : les revisions dues refiltrent la visibilite courante du deck", async 
 
     // L'invite apprend une fiche -> une revision est creee pour lui.
     assert.equal(
-      (await call(progressPath("shared"), {
-        method: "PUT",
-        body: { state: "learned", quizScore: 1 },
-        token: guest.token,
-      })).status,
+      (
+        await call(progressPath("shared"), {
+          method: "PUT",
+          body: { state: "learned", quizScore: 1 },
+          token: guest.token,
+        })
+      ).status,
       200,
     );
 
@@ -139,22 +140,30 @@ test("P0 : les revisions dues refiltrent la visibilite courante du deck", async 
 
     // Tant que le deck est general, la fiche est due pour l'invite.
     const before = await (await call("/api/reviews/due", { token: guest.token })).json();
-    assert.ok(before.some((r) => r.deckId === "shared"), "la fiche doit etre due avant changement");
+    assert.ok(
+      before.some((r) => r.deckId === "shared"),
+      "la fiche doit etre due avant changement",
+    );
 
     // Un admin bascule le deck en visibilite "master".
     const admin = await makeUser("admin@b.fr", "admin");
     assert.equal(
-      (await call("/api/decks/shared/visibility", {
-        method: "PATCH",
-        body: { visibility: "master" },
-        token: admin.token,
-      })).status,
+      (
+        await call("/api/decks/shared/visibility", {
+          method: "PATCH",
+          body: { visibility: "master" },
+          token: admin.token,
+        })
+      ).status,
       200,
     );
 
     // L'invite ne voit plus le deck : la revision due ne doit plus exposer son titre.
     const after = await (await call("/api/reviews/due", { token: guest.token })).json();
-    assert.ok(!after.some((r) => r.deckId === "shared"), "la fiche ne doit plus etre due apres passage master");
+    assert.ok(
+      !after.some((r) => r.deckId === "shared"),
+      "la fiche ne doit plus etre due apres passage master",
+    );
 
     // Le maitre, lui, la voit toujours.
     const forMaster = await (await call("/api/reviews/due", { token: master.token })).json();

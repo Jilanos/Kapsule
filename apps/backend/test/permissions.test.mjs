@@ -10,9 +10,7 @@ import { openDb } from "../src/db.mjs";
 import { createApp } from "../src/app.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const baseDeck = JSON.parse(
-  readFileSync(join(__dirname, "..", "..", "..", "decks", "reseaux-essentiels.json"), "utf8"),
-);
+const baseDeck = JSON.parse(readFileSync(join(__dirname, "fixtures", "deck-reseaux.json"), "utf8"));
 
 /** Clone le deck d'exemple avec un nouvel id (id unique par test). */
 const deckWithId = (id) => ({ ...baseDeck, id, title: `Deck ${id}` });
@@ -60,7 +58,11 @@ test("AC2/AC3 : un invite ne cree que du prive, visible de lui seul", async () =
     const admin = await makeUser("admin@b.fr", "admin");
 
     // Creation privee OK (visibilite par defaut).
-    const created = await call("/api/decks", { method: "POST", body: deckWithId("g1"), token: guest.token });
+    const created = await call("/api/decks", {
+      method: "POST",
+      body: deckWithId("g1"),
+      token: guest.token,
+    });
     assert.equal(created.status, 201);
 
     // Un invite ne peut pas creer un deck general.
@@ -132,13 +134,29 @@ test("AC4 : seul l'admin supprime un deck", async () => {
     const guest = await makeUser("guest@b.fr", "guest");
     const admin = await makeUser("admin@b.fr", "admin");
 
-    await call("/api/decks?visibility=general", { method: "POST", body: deckWithId("d1"), token: master.token });
+    await call("/api/decks?visibility=general", {
+      method: "POST",
+      body: deckWithId("d1"),
+      token: master.token,
+    });
 
-    assert.equal((await call("/api/decks/d1", { method: "DELETE", token: guest.token })).status, 403);
-    assert.equal((await call("/api/decks/d1", { method: "DELETE", token: master.token })).status, 403);
-    assert.equal((await call("/api/decks/d1", { method: "DELETE", token: admin.token })).status, 204);
+    assert.equal(
+      (await call("/api/decks/d1", { method: "DELETE", token: guest.token })).status,
+      403,
+    );
+    assert.equal(
+      (await call("/api/decks/d1", { method: "DELETE", token: master.token })).status,
+      403,
+    );
+    assert.equal(
+      (await call("/api/decks/d1", { method: "DELETE", token: admin.token })).status,
+      204,
+    );
     // Supprime -> 404 ensuite.
-    assert.equal((await call("/api/decks/d1", { method: "DELETE", token: admin.token })).status, 404);
+    assert.equal(
+      (await call("/api/decks/d1", { method: "DELETE", token: admin.token })).status,
+      404,
+    );
   } finally {
     await close();
   }
@@ -151,11 +169,21 @@ test("AC4 : seul l'admin change la visibilite d'un deck", async () => {
     const guest = await makeUser("guest@b.fr", "guest");
     const admin = await makeUser("admin@b.fr", "admin");
 
-    await call("/api/decks?visibility=master", { method: "POST", body: deckWithId("v1"), token: master.token });
+    await call("/api/decks?visibility=master", {
+      method: "POST",
+      body: deckWithId("v1"),
+      token: master.token,
+    });
 
     // Non-admin refuses.
     assert.equal(
-      (await call("/api/decks/v1/visibility", { method: "PATCH", body: { visibility: "general" }, token: master.token })).status,
+      (
+        await call("/api/decks/v1/visibility", {
+          method: "PATCH",
+          body: { visibility: "general" },
+          token: master.token,
+        })
+      ).status,
       403,
     );
 
@@ -170,7 +198,13 @@ test("AC4 : seul l'admin change la visibilite d'un deck", async () => {
 
     // Visibilite invalide -> 400.
     assert.equal(
-      (await call("/api/decks/v1/visibility", { method: "PATCH", body: { visibility: "public" }, token: admin.token })).status,
+      (
+        await call("/api/decks/v1/visibility", {
+          method: "PATCH",
+          body: { visibility: "public" },
+          token: admin.token,
+        })
+      ).status,
       400,
     );
   } finally {
@@ -195,7 +229,10 @@ test("AC2 : l'admin voit les decks prives des autres", async () => {
 test("AC1 : un nouvel inscrit est invite par defaut", async () => {
   const { call, close } = await startApp();
   try {
-    const reg = await call("/api/auth/register", { method: "POST", body: { email: "new@b.fr", password: "motdepasse1" } });
+    const reg = await call("/api/auth/register", {
+      method: "POST",
+      body: { email: "new@b.fr", password: "motdepasse1" },
+    });
     const { user } = await reg.json();
     assert.equal(user.role, "guest");
   } finally {

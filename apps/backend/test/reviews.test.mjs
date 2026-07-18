@@ -11,7 +11,7 @@ import { Store } from "../src/store.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const exampleDeck = JSON.parse(
-  readFileSync(join(__dirname, "..", "..", "..", "decks", "reseaux-essentiels.json"), "utf8"),
+  readFileSync(join(__dirname, "fixtures", "deck-reseaux.json"), "utf8"),
 );
 
 async function startApp() {
@@ -95,18 +95,22 @@ test("AC2 : reviser avec un bon score repousse l'echeance ; un echec la ramene a
       body: JSON.stringify({ state: "learned", quizScore: 2 }),
     });
     // bon score -> repetitions augmente, interval > 1
-    const good = await (await f("/api/decks/reseaux-essentiels/cards/adresses-ip/review", {
-      method: "POST",
-      body: JSON.stringify({ quizScore: 2 }),
-    })).json();
+    const good = await (
+      await f("/api/decks/reseaux-essentiels/cards/adresses-ip/review", {
+        method: "POST",
+        body: JSON.stringify({ quizScore: 2 }),
+      })
+    ).json();
     assert.ok(good.review.interval >= 1);
     assert.ok(good.review.repetitions >= 2);
 
     // echec -> interval revient a 1, repetitions 0
-    const bad = await (await f("/api/decks/reseaux-essentiels/cards/adresses-ip/review", {
-      method: "POST",
-      body: JSON.stringify({ quizScore: 0 }),
-    })).json();
+    const bad = await (
+      await f("/api/decks/reseaux-essentiels/cards/adresses-ip/review", {
+        method: "POST",
+        body: JSON.stringify({ quizScore: 0 }),
+      })
+    ).json();
     assert.equal(bad.review.interval, 1);
     assert.equal(bad.review.repetitions, 0);
   } finally {

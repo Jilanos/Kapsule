@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "reseaux-essentiels",
+  "title": "Reseaux essentiels (fixture de test)",
+  "description": "Deck de test autonome, independant des decks de demonstration mutables. Structure figee : le quiz d'adresses-ip a exactement 2 questions.",
+  "tags": ["test", "reseaux"],
+  "cards": [
+    {
+      "id": "adresses-ip",
+      "title": "Adresses IP",
+      "durationMin": 4,
+      "level": "debutant",
+      "sections": [
+        { "type": "intro", "content": "Une adresse IP identifie une machine sur un reseau." },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Combien de bits dans une adresse IPv4 ?",
+              "choices": ["32", "64", "128"],
+              "answer": 0,
+              "explanation": "IPv4 = 32 bits."
+            },
+            {
+              "q": "Quelle plage est privee ?",
+              "choices": ["10.0.0.0/8", "8.8.8.8", "1.1.1.1"],
+              "answer": 0,
+              "explanation": "10.0.0.0/8 est reservee aux reseaux prives."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "handshake-tcp",
+      "title": "Poignee de main TCP",
+      "durationMin": 3,
+      "level": "debutant",
+      "sections": [
+        { "type": "intro", "content": "TCP ouvre une connexion en trois etapes." },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Quel est le premier message du handshake ?",
+              "choices": ["SYN", "ACK", "FIN"],
+              "answer": 0,
+              "explanation": "Le client envoie d'abord un SYN."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dns",
+      "title": "DNS",
+      "durationMin": 3,
+      "level": "debutant",
+      "sections": [
+        { "type": "intro", "content": "Le DNS traduit un nom de domaine en adresse IP." },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Que resout le DNS ?",
+              "choices": ["Nom -> IP", "IP -> MAC", "Port -> Service"],
+              "answer": 0,
+              "explanation": "Le DNS resout un nom en adresse IP."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
