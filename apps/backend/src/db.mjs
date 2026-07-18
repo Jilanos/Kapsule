@@ -111,6 +111,23 @@ const MIGRATIONS = [
     );
     CREATE INDEX IF NOT EXISTS idx_reviews_due ON reviews(user_id, due_date);
   `),
+
+  // 4 : roles utilisateurs et visibilite des decks.
+  // - users.role : 'guest' (defaut a l'inscription) | 'master' | 'admin'.
+  // - decks.owner_id : createur du deck (NULL pour les decks seeds historiques).
+  // - decks.visibility : 'private' (proprietaire seul) | 'general' (tous) |
+  //   'master' (maitres et admin). Defaut 'general' -> les decks existants
+  //   restent visibles par tous apres migration.
+  (db) =>
+    db.exec(`
+    ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'guest'
+      CHECK (role IN ('guest','master','admin'));
+
+    ALTER TABLE decks ADD COLUMN owner_id TEXT REFERENCES users(id);
+    ALTER TABLE decks ADD COLUMN visibility TEXT NOT NULL DEFAULT 'general'
+      CHECK (visibility IN ('private','general','master'));
+    CREATE INDEX IF NOT EXISTS idx_decks_owner ON decks(owner_id);
+  `),
 ];
 
 /** Applique les migrations manquantes selon PRAGMA user_version. */

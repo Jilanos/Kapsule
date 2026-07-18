@@ -44,7 +44,9 @@ export class AuthStore {
   }
 
   getUserById(id) {
-    return this.db.prepare(`SELECT id, email, created_at FROM users WHERE id = ?`).get(id) ?? null;
+    return (
+      this.db.prepare(`SELECT id, email, role, created_at FROM users WHERE id = ?`).get(id) ?? null
+    );
   }
 
   /**
@@ -80,7 +82,8 @@ export class AuthStore {
     });
     tx();
 
-    return { ok: true, user: { id, email: mail, created_at: now } };
+    // Tout nouveau compte est invite (role par defaut en base).
+    return { ok: true, user: { id, email: mail, role: "guest", created_at: now } };
   }
 
   /**
@@ -90,13 +93,17 @@ export class AuthStore {
   login(email, password, userAgent = null) {
     const mail = normalizeEmail(email);
     const row = this.db
-      .prepare(`SELECT id, email, password_hash, created_at FROM users WHERE email = ?`)
+      .prepare(`SELECT id, email, role, password_hash, created_at FROM users WHERE email = ?`)
       .get(mail);
     if (!row || !verifyPassword(password, row.password_hash)) {
       return { ok: false, error: "email ou mot de passe incorrect" };
     }
     const token = this.createSession(row.id, userAgent);
-    return { ok: true, token, user: { id: row.id, email: row.email, created_at: row.created_at } };
+    return {
+      ok: true,
+      token,
+      user: { id: row.id, email: row.email, role: row.role, created_at: row.created_at },
+    };
   }
 
   createSession(userId, userAgent = null) {

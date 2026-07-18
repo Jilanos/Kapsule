@@ -73,14 +73,22 @@ export const api = {
         body: JSON.stringify({ quizScore }),
       },
     ),
-  importDeck: (deck) =>
-    req("/decks", {
+  // visibility : 'private' | 'general' | 'master' (ignore a la mise a jour d'un
+  // deck existant, dont la visibilite est preservee cote serveur).
+  importDeck: (deck, visibility = "private") =>
+    req(`/decks?visibility=${encodeURIComponent(visibility)}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(deck),
     }),
   deleteDeck: (deckId) =>
     req(`/decks/${encodeURIComponent(deckId)}`, { method: "DELETE" }),
+  changeDeckVisibility: (deckId, visibility) =>
+    req(`/decks/${encodeURIComponent(deckId)}/visibility`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ visibility }),
+    }),
   setProgress: (deckId, cardId, state, quizScore) =>
     req(
       `/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/progress`,

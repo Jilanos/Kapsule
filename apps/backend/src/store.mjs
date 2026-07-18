@@ -23,17 +23,48 @@ export class Store {
     this.db = db;
   }
 
-  /** Liste les decks avec leur nombre de fiches (metadonnees, sans le contenu complet). */
-  listDecks() {
+  /**
+   * Liste les decks avec leur nombre de fiches (metadonnees, sans le contenu).
+   * @param {{id:string, role:string}} [viewer] filtre par visibilite/role.
+   *   Omis -> aucun filtre (usage interne : verification "base vide" au seed).
+   */
+  listDecks(viewer) {
+    let where = "";
+    const params = [];
+    if (viewer && viewer.role !== "admin") {
+      // Decks visibles selon le role : general pour tous, master pour les
+      // maitres, private pour son proprietaire.
+      const clauses = ["d.visibility = 'general'", "(d.visibility = 'private' AND d.owner_id = ?)"];
+      params.push(viewer.id);
+      if (viewer.role === "master") clauses.push("d.visibility = 'master'");
+      where = `WHERE ${clauses.join(" OR ")}`;
+    }
     const rows = this.db
       .prepare(
         `SELECT d.id, d.title, d.description, d.tags, d.schema_version AS schemaVersion,
-                d.updated_at AS updatedAt,
+                d.visibility, d.owner_id AS ownerId, d.updated_at AS updatedAt,
                 (SELECT COUNT(*) FROM cards c WHERE c.deck_id = d.id) AS cardCount
-         FROM decks d ORDER BY d.updated_at DESC`,
+         FROM decks d ${where} ORDER BY d.updated_at DESC`,
       )
-      .all();
+      .all(...params);
     return rows.map((r) => ({ ...r, tags: JSON.parse(r.tags) }));
+  }
+
+  /** Metadonnees d'acces d'un deck (proprietaire + visibilite) ou null. */
+  getDeckAccess(deckId) {
+    return (
+      this.db
+        .prepare(`SELECT owner_id AS ownerId, visibility FROM decks WHERE id = ?`)
+        .get(deckId) ?? null
+    );
+  }
+
+  /** Change la visibilite d'un deck (route admin). Renvoie true si applique. */
+  setDeckVisibility(deckId, visibility) {
+    const info = this.db
+      .prepare(`UPDATE decks SET visibility = ?, updated_at = ? WHERE id = ?`)
+      .run(visibility, new Date().toISOString(), deckId);
+    return info.changes > 0;
   }
 
   /** Renvoie le deck complet (avec ses fiches) ou null. */
@@ -52,10 +83,13 @@ export class Store {
 
   /**
    * Valide puis insere/remplace un deck et ses fiches (transaction atomique).
+   * A la creation, `owner_id` et `visibility` proviennent des options ; a la
+   * mise a jour, ils sont preserves (l'upsert ne touche pas ces colonnes).
    * @param {unknown} deck
+   * @param {{ ownerId?: string|null, visibility?: string }} [opts]
    * @returns {{ valid: boolean, errors?: {path:string,message:string}[], deck?: any }}
    */
-  importDeck(deck) {
+  importDeck(deck, opts = {}) {
     const { valid, errors } = validateDeck(deck);
     if (!valid) return { valid: false, errors };
 
@@ -66,8 +100,8 @@ export class Store {
     const tx = this.db.transaction(() => {
       this.db
         .prepare(
-          `INSERT INTO decks (id, title, description, tags, schema_version, data, created_at, updated_at)
-           VALUES (@id, @title, @description, @tags, @schemaVersion, @data, @createdAt, @updatedAt)
+          `INSERT INTO decks (id, title, description, tags, schema_version, data, owner_id, visibility, created_at, updated_at)
+           VALUES (@id, @title, @description, @tags, @schemaVersion, @data, @ownerId, @visibility, @createdAt, @updatedAt)
            ON CONFLICT(id) DO UPDATE SET
              title=@title, description=@description, tags=@tags,
              schema_version=@schemaVersion, data=@data, updated_at=@updatedAt`,
@@ -79,6 +113,8 @@ export class Store {
           tags: JSON.stringify(deck.tags ?? []),
           schemaVersion: deck.schemaVersion,
           data: JSON.stringify(deck),
+          ownerId: opts.ownerId ?? null,
+          visibility: opts.visibility ?? "general",
           createdAt,
           updatedAt: now,
         });

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
 import { ImportDeck } from "../components/ImportDeck.jsx";
+import { VISIBILITY_LABEL } from "../lib/visibility.js";
 
 export function DeckList() {
   const [decks, setDecks] = useState(null);
@@ -48,7 +49,14 @@ export function DeckList() {
         {decks.map((d) => (
           <li key={d.id}>
             <Link to={`/decks/${d.id}`} className="deck-card">
-              <h2>{d.title}</h2>
+              <div className="deck-card-head">
+                <h2>{d.title}</h2>
+                {d.visibility && d.visibility !== "general" && (
+                  <span className={`visibility-badge vis-${d.visibility}`}>
+                    {VISIBILITY_LABEL[d.visibility]}
+                  </span>
+                )}
+              </div>
               {d.description && <p className="deck-desc">{d.description}</p>}
               <div className="deck-meta">
                 <ProgressBar learned={d.progress.learned} total={d.cardCount} />

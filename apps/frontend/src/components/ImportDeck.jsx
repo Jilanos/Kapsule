@@ -1,13 +1,18 @@
 import { useRef, useState } from "react";
 import { api } from "../api.js";
+import { useAuth } from "../auth/AuthContext.jsx";
+import { VISIBILITY_LABEL, creatableVisibilities } from "../lib/visibility.js";
 
 /**
  * Import d'un deck : upload d'un .json ou collage du JSON, validation via l'API.
  * @param {{ onImported: () => void }} props
  */
 export function ImportDeck({ onImported }) {
+  const { user } = useAuth();
+  const choices = creatableVisibilities(user?.role);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
+  const [visibility, setVisibility] = useState(choices[0]);
   const [errors, setErrors] = useState(null);
   const [message, setMessage] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -31,7 +36,7 @@ export function ImportDeck({ onImported }) {
     }
     setBusy(true);
     try {
-      const { deck: saved } = await api.importDeck(deck);
+      const { deck: saved } = await api.importDeck(deck, visibility);
       setMessage(`Deck « ${saved.title} » importé (${saved.cards.length} fiches).`);
       setText("");
       onImported?.();
@@ -75,6 +80,23 @@ export function ImportDeck({ onImported }) {
           Fermer
         </button>
       </div>
+
+      {choices.length > 1 ? (
+        <label className="import-visibility">
+          Visibilité du deck
+          <select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+            {choices.map((v) => (
+              <option key={v} value={v}>
+                {VISIBILITY_LABEL[v]}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <p className="import-visibility-note muted">
+          Ce deck sera <strong>privé</strong> : visible par vous seul.
+        </p>
+      )}
 
       <div className="import-actions">
         <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}>

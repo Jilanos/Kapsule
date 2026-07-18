@@ -9,6 +9,14 @@ import { fileURLToPath } from "node:url";
 import { formatErrors } from "@kapsule/schema";
 import { Store } from "./store.mjs";
 import { AuthStore } from "./auth.mjs";
+import {
+  VALID_VISIBILITY,
+  canViewDeck,
+  canEditDeck,
+  canCreateWithVisibility,
+  canDeleteDeck,
+  canChangeVisibility,
+} from "./permissions.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Racine des assets images, un sous-dossier par deck : uploads/<deckId>/…
@@ -88,7 +96,8 @@ export function createApp(db) {
   // --- Decks (session requise ; progression cloisonnee par utilisateur) ----
 
   app.get("/api/decks", requireAuth, (req, res) => {
-    const decks = store.listDecks();
+    // Le filtrage par visibilite/role se fait cote SQL.
+    const decks = store.listDecks(req.user);
     const summary = store.getProgressSummary(req.user.id);
     res.json(
       decks.map((d) => ({
@@ -99,20 +108,62 @@ export function createApp(db) {
   });
 
   app.get("/api/decks/:deckId", requireAuth, (req, res) => {
+    const access = store.getDeckAccess(req.params.deckId);
+    // Deck absent ou non visible : meme reponse 404 (on ne divulgue pas l'existence).
+    if (!access || !canViewDeck(req.user, access)) {
+      return res.status(404).json({ error: "deck introuvable" });
+    }
     const deck = store.getDeck(req.params.deckId);
-    if (!deck) return res.status(404).json({ error: "deck introuvable" });
-    res.json({ deck, progress: store.getDeckProgress(req.params.deckId, req.user.id) });
+    res.json({
+      deck,
+      progress: store.getDeckProgress(req.params.deckId, req.user.id),
+      visibility: access.visibility,
+      ownerId: access.ownerId,
+    });
   });
 
   app.get("/api/decks/:deckId/cards/:cardId", requireAuth, (req, res) => {
+    const access = store.getDeckAccess(req.params.deckId);
+    if (!access || !canViewDeck(req.user, access)) {
+      return res.status(404).json({ error: "fiche introuvable" });
+    }
     const card = store.getCard(req.params.deckId, req.params.cardId);
     if (!card) return res.status(404).json({ error: "fiche introuvable" });
     res.json(card);
   });
 
   // Import / mise a jour d'un deck (valide contre le contrat de contenu).
+  // Creation : la visibilite demandee (?visibility=) doit etre autorisee pour
+  //   le role ; le proprietaire devient l'utilisateur courant.
+  // Mise a jour : reservee a qui peut editer le deck ; owner/visibilite preserves.
   app.post("/api/decks", requireAuth, (req, res) => {
-    const result = store.importDeck(req.body);
+    const deckId = req.body?.id;
+    const existing = deckId ? store.getDeckAccess(deckId) : null;
+
+    if (existing) {
+      if (!canEditDeck(req.user, existing)) {
+        return res.status(403).json({ error: "modification de ce deck non autorisee" });
+      }
+      const result = store.importDeck(req.body); // owner/visibilite preserves par l'upsert
+      if (!result.valid) {
+        return res
+          .status(422)
+          .json({ error: "deck invalide", details: result.errors, report: formatErrors(result.errors) });
+      }
+      return res.status(201).json({ deck: result.deck });
+    }
+
+    // Creation.
+    const visibility = req.query.visibility ?? "private";
+    if (!VALID_VISIBILITY.includes(visibility)) {
+      return res.status(400).json({ error: `visibilite invalide "${visibility}"` });
+    }
+    if (!canCreateWithVisibility(req.user, visibility)) {
+      return res
+        .status(403)
+        .json({ error: `creation d'un deck "${visibility}" non autorisee pour votre role` });
+    }
+    const result = store.importDeck(req.body, { ownerId: req.user.id, visibility });
     if (!result.valid) {
       return res.status(422).json({
         error: "deck invalide",
@@ -123,7 +174,25 @@ export function createApp(db) {
     res.status(201).json({ deck: result.deck });
   });
 
+  // Changement de visibilite : admin uniquement.
+  app.patch("/api/decks/:deckId/visibility", requireAuth, (req, res) => {
+    if (!canChangeVisibility(req.user)) {
+      return res.status(403).json({ error: "action reservee a l'administrateur" });
+    }
+    const { visibility } = req.body ?? {};
+    if (!VALID_VISIBILITY.includes(visibility)) {
+      return res.status(400).json({ error: `visibilite invalide "${visibility}"` });
+    }
+    if (!store.setDeckVisibility(req.params.deckId, visibility)) {
+      return res.status(404).json({ error: "deck introuvable" });
+    }
+    res.json({ ok: true, visibility });
+  });
+
   app.delete("/api/decks/:deckId", requireAuth, (req, res) => {
+    if (!canDeleteDeck(req.user)) {
+      return res.status(403).json({ error: "seul l'administrateur peut supprimer un deck" });
+    }
     const removed = store.deleteDeck(req.params.deckId);
     if (!removed) return res.status(404).json({ error: "deck introuvable" });
     res.status(204).end();
