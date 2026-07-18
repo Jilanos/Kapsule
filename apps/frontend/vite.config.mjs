@@ -31,16 +31,18 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Mise en cache des reponses de l'API pour la lecture hors-ligne
-        // des decks deja consultes.
+        // P0 isolation inter-comptes (cf. audit 2026-07-18) : le cache runtime
+        // des API authentifiees est DESACTIVE. L'ancien NetworkFirst mettait en
+        // cache /api/decks par URL seule, sans segmentation par utilisateur ni
+        // purge au logout ; hors ligne, un compte B pouvait recevoir les decks
+        // du compte A sur le meme navigateur. On force donc NetworkOnly sur
+        // /api : aucune reponse authentifiee ne transite par le cache.
+        // Le retour d'un cache segmente + purge a login/logout est suivi par une
+        // ADR (cache/session) avant reactivation de la lecture hors ligne.
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.startsWith("/api/decks"),
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "kapsule-decks",
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
+            urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
+            handler: "NetworkOnly",
           },
         ],
       },

@@ -267,8 +267,29 @@ export class Store {
     return { ok: true, review: this.getReview(deckId, cardId, userId) };
   }
 
-  /** Fiches dues (due_date <= aujourd'hui), tous decks, avec titres, triees par echeance. */
-  getDueReviews(userId = DEFAULT_USER) {
+  /**
+   * Fiches dues (due_date <= aujourd'hui), tous decks, avec titres, triees par
+   * echeance. Refiltre la visibilite *courante* des decks : une revision creee
+   * quand le deck etait visible ne doit plus exposer ses titres si le deck est
+   * devenu prive/maitre (cf. audit 2026-07-18, P0 autorisations).
+   * @param {{id:string, role:string}|string} viewer objet utilisateur, ou id
+   *   seul (usage interne/tests) — dans ce cas aucun filtre de visibilite.
+   */
+  getDueReviews(viewer) {
+    const isObject = viewer != null && typeof viewer === "object";
+    const userId = isObject ? viewer.id : (viewer ?? DEFAULT_USER);
+    const role = isObject ? viewer.role : "admin"; // id seul -> pas de filtre
+
+    let visibility = "";
+    const params = [userId];
+    if (role !== "admin") {
+      const clauses = ["d.visibility = 'general'", "(d.visibility = 'private' AND d.owner_id = ?)"];
+      params.push(userId);
+      if (role === "master") clauses.push("d.visibility = 'master'");
+      visibility = `AND (${clauses.join(" OR ")})`;
+    }
+    params.push(today());
+
     return this.db
       .prepare(
         `SELECT r.deck_id AS deckId, r.card_id AS cardId, r.due_date AS dueDate,
@@ -277,9 +298,9 @@ export class Store {
          FROM reviews r
          JOIN cards c ON c.deck_id = r.deck_id AND c.card_id = r.card_id
          JOIN decks d ON d.id = r.deck_id
-         WHERE r.user_id = ? AND r.due_date <= ?
+         WHERE r.user_id = ? ${visibility} AND r.due_date <= ?
          ORDER BY r.due_date ASC, d.title ASC`,
       )
-      .all(userId, today());
+      .all(...params);
   }
 }

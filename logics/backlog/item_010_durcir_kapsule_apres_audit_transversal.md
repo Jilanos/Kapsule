@@ -1,10 +1,10 @@
 ## item_010_durcir_kapsule_apres_audit_transversal - Durcir Kapsule apres audit transversal
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95
 > Confidence: 90
-> Progress: 0%
+> Progress: 20%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

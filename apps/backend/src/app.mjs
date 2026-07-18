@@ -201,6 +201,13 @@ export function createApp(db) {
   // --- Progression (cloisonnee par utilisateur) ----------------------------
 
   app.put("/api/decks/:deckId/cards/:cardId/progress", requireAuth, (req, res) => {
+    // Meme decision d'autorisation que la lecture du deck : on n'ecrit pas de
+    // progression sur une fiche que l'utilisateur ne peut pas voir. 404 pour ne
+    // pas divulguer l'existence du deck (cf. audit 2026-07-18, P0 autorisations).
+    const access = store.getDeckAccess(req.params.deckId);
+    if (!access || !canViewDeck(req.user, access)) {
+      return res.status(404).json({ error: "fiche introuvable" });
+    }
     const { state, quizScore } = req.body ?? {};
     const result = store.setProgress(
       req.params.deckId,
@@ -217,11 +224,17 @@ export function createApp(db) {
 
   // Fiches a reviser aujourd'hui, tous decks confondus.
   app.get("/api/reviews/due", requireAuth, (req, res) => {
-    res.json(store.getDueReviews(req.user.id));
+    res.json(store.getDueReviews(req.user));
   });
 
   // Enregistre une revision : reprogramme selon le score de quiz.
   app.post("/api/decks/:deckId/cards/:cardId/review", requireAuth, (req, res) => {
+    // Meme garde de visibilite que la progression : une revision ne peut pas
+    // etre ecrite sur un deck que l'utilisateur ne peut plus voir.
+    const access = store.getDeckAccess(req.params.deckId);
+    if (!access || !canViewDeck(req.user, access)) {
+      return res.status(404).json({ error: "fiche introuvable" });
+    }
     const { quizScore } = req.body ?? {};
     const result = store.reviewCard(
       req.params.deckId,

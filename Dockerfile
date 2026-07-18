@@ -17,8 +17,13 @@ COPY apps/backend/package.json apps/backend/
 COPY apps/frontend/package.json apps/frontend/
 RUN npm ci
 
-# Code source + build du frontend.
-COPY . .
+# Code source + build du frontend. COPY cible (pas de `COPY . .`) : seuls les
+# dossiers necessaires entrent dans le contexte de build, jamais les secrets de
+# deploiement du depot (cf. audit 2026-07-18, P0 hygiene des secrets).
+COPY packages ./packages
+COPY apps/backend ./apps/backend
+COPY apps/frontend ./apps/frontend
+COPY decks ./decks
 RUN npm run build --workspace @kapsule/frontend
 # Retire les dependances de dev pour l'image finale.
 RUN npm prune --omit=dev

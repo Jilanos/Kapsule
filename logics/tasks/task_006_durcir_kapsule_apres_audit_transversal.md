@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95
 > Confidence: 90
-> Progress: 0%
+> Progress: 20%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -82,9 +82,15 @@
 - [ ] Vague 0 - Baseline et decisions : demarrer la task via `flow start`, figer les
   preuves initiales, cadrer les ADR cache/session/CSP et coordonner la rotation sans
   exposer de secret.
-- [ ] Vague 1 - P0 : reduire le contexte Docker, purger/faire tourner la cle,
+- [~] Vague 1 - P0 : reduire le contexte Docker, purger/faire tourner la cle,
   centraliser les autorisations, proteger les assets et dues, desactiver ou isoler
   le cache authentifie, puis ajouter les tests de non-regression.
+  Livre (code) : contexte Docker cible + `.dockerignore` durci ; garde `canViewDeck`
+  sur progression et revision ; refiltrage de visibilite des revisions dues ;
+  cache runtime `/api` passe en `NetworkOnly` (isolation inter-comptes) ; 3 tests
+  de non-regression P0 verts. En attente : (a) rotation/purge de la cle = action
+  operateur ; (b) protection des assets prives = ADR requise (images servies via
+  `<img>` sans Bearer, choix URL signee / cookie / proxy avant implementation).
 - [ ] Vague 2 - P1 application : hachage asynchrone, limites de debit et d'entree,
   sessions bornees/purgees, inscription fermee par defaut et migration explicite.
 - [ ] Vague 3 - P1 depot/deploiement : fixtures autonomes, CI et scans obligatoires,
@@ -117,6 +123,45 @@
 - Baseline : voir `docs/audit-2026-07-18.md` et `req_005`.
 - Consigner ici les fichiers modifies, tests, mesures, decisions et preuves
   operateur a chaque vague sans inclure de secret ni de donnee personnelle.
+
+## Vague 1 - P0 (partie code) - 2026-07-18
+Fichiers modifies :
+- `.dockerignore` : exclusion explicite des secrets/artefacts de deploiement
+  (`cle_hetzner`, `cle_hetzner.pub`, `.deploy_known_hosts`, `*.pem`, `*.key`,
+  `id_rsa*`, `id_ed25519*`) et des dossiers non runtime (`deploy`, `docs`).
+- `Dockerfile` : remplacement de `COPY . .` par des `COPY` cibles
+  (`packages`, `apps/backend`, `apps/frontend`, `decks`) ; les secrets locaux ne
+  peuvent plus entrer dans le contexte/cache de build. [AC1, partie code]
+- `apps/backend/src/app.mjs` : garde `canViewDeck` (404 non divulguant) sur
+  `PUT .../progress` et `POST .../review` ; `/api/reviews/due` recoit desormais
+  `req.user` complet. [AC2]
+- `apps/backend/src/store.mjs` : `getDueReviews(viewer)` refiltre la visibilite
+  courante des decks (general/private-owner/master selon le role). [AC2]
+- `apps/frontend/vite.config.mjs` : cache runtime `/api` force en `NetworkOnly`
+  (l'ancien `NetworkFirst` sur `/api/decks` melangeait les comptes hors ligne).
+  Verifie dans `dist/sw.js` : plus de `NetworkFirst`/`kapsule-decks`. [AC3, interim]
+- `apps/backend/test/authorization-hardening.test.mjs` : 3 tests de
+  non-regression P0 (progression refusee 404, revision refusee 404, refiltrage
+  des dues au changement de visibilite) — tous verts.
+
+Validation :
+- `npm test --workspace @kapsule/backend` : 37/38 verts. Le seul echec (`AC2 :
+  reviser avec un bon score...` dans `reviews.test.mjs`) est la defaillance
+  pre-existante deja documentee par l'audit (`quizScore: 2` couple au nombre de
+  questions du deck exemple, modifie hors perimetre). Correction rattachee a
+  l'AC5 (fixtures autonomes, Vague 3) ; le deck ne doit pas etre modifie ici.
+- `npm run build --workspace @kapsule/frontend` : succes, bundle 181,43 kB
+  (58,86 kB gzip), SW regenere.
+
+En attente (hors code) :
+- AC1 : rotation de la cle `cle_hetzner` et purge des caches de build = action
+  operateur ; joindre une preuve non sensible.
+- AC2 (assets) : protection des assets de decks prives requiert une decision
+  d'architecture (ADR) — les images sont servies via `<img src>` sans header
+  Bearer, il faut arbitrer URL signee / cookie de session / proxy authentifie
+  avant implementation. Non traite en P0 pour ne pas casser l'affichage legitime.
+- AC3 : reactivation d'un cache hors ligne segmente par utilisateur = ADR
+  cache/session, apres la mesure interim ci-dessus.
 
 # AI Context
 - Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec

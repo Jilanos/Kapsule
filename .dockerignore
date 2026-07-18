@@ -8,8 +8,22 @@ apps/frontend/public/pwa-*.png
 apps/frontend/public/favicon.png
 .git
 logics
+docs
+deploy
 *.sqlite
 *.sqlite-*
 *.log
 .env
 .env.*
+
+# Secrets et artefacts de deploiement : ne doivent jamais entrer dans le
+# contexte de build Docker (cf. audit 2026-07-18, P0 hygiene des secrets).
+cle_hetzner
+cle_hetzner.pub
+.deploy_known_hosts
+*.pem
+*.key
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
