@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95
 > Confidence: 90
-> Progress: 30%
+> Progress: 45%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -92,8 +92,12 @@
   protection des assets prives par URL signee HMAC (ADR 003) ; tests de
   non-regression P0 verts. En attente : rotation/purge de la cle = action
   operateur (seul reliquat code du P0 est clos).
-- [ ] Vague 2 - P1 application : hachage asynchrone, limites de debit et d'entree,
+- [x] Vague 2 - P1 application : hachage asynchrone, limites de debit et d'entree,
   sessions bornees/purgees, inscription fermee par defaut et migration explicite.
+  Livre : `scrypt` async (non bloquant) ; rate limit login/register (429) ;
+  bornage de la longueur de mot de passe ; throttle des ecritures de session +
+  purge des sessions expirees ; inscription fermee par defaut en production.
+  Tests de durcissement verts (rate limit, bornage, prod-closed, throttle, purge).
 - [ ] Vague 3 - P1 depot/deploiement : fixtures autonomes, CI et scans obligatoires,
   protection `main`, licence/gouvernance, mise a jour Vite, environnement versionne,
   conteneur non-root, healthcheck et en-tetes Caddy.
@@ -177,6 +181,31 @@ Nouvelle variable d'env `KAPSULE_ASSET_SECRET` a versionner (sans valeur) dans
 Validation : backend 37/38 (seul echec = defaillance pre-existante #29,
 `reviews.test.mjs`, hors perimetre) ; `npm run build` frontend OK.
 Reliquat P0 code : neant. Reliquat P0 : rotation de cle (operateur).
+
+## Vague 2 - P1 application (AC4 + politique de session) - 2026-07-18
+Fichiers :
+- `apps/backend/src/auth.mjs` : `hashPassword`/`verifyPassword` passes en
+  `scrypt` asynchrone (non bloquant, AC4) ; `register`/`login` async ; bornage
+  de la longueur de mot de passe (`MAX_PASSWORD_LENGTH=256`) avant hachage
+  (anti-DoS) ; `registrationOpen()` ferme par defaut si `NODE_ENV=production` ;
+  `getSessionUser` n'ecrit `last_used_at`/`expires_at` qu'au-dela de 24 h
+  (reduction des ecritures, ADR 003/AC10) ; nouvelle `purgeExpiredSessions()`.
+- `apps/backend/src/rate-limit.mjs` (nouveau) : limiteur en memoire, fenetre
+  glissante par IP, zero dependance, deterministe et testable.
+- `apps/backend/src/app.mjs` : `trust proxy` ; middleware rate limit sur
+  login/register (429) ; handlers async avec gestion d'erreurs JSON (500).
+- `apps/backend/src/server.mjs` : purge des sessions expirees au demarrage puis
+  une fois par jour.
+- `deploy/docker-compose.yml` + `deploy/.env.example` : `NODE_ENV=production` et
+  inscription `closed` par defaut.
+- `apps/backend/test/auth-hardening.test.mjs` (nouveau) + `auth.test.mjs`
+  (hash async) : rate limit 429, mot de passe trop long (422/401), inscription
+  prod fermee (403), throttle des ecritures de session, purge des expirees.
+Validation : backend 42/43 (seul echec = #34 pre-existant, hors perimetre) ;
+`npm audit --omit=dev` : aucune vulnerabilite de production (zero dep ajoutee).
+Reste (Vague 3+) : mise a niveau Vite/esbuild (AC6), CI et scans (AC5), licence
+et gouvernance (AC6), deploiement reproductible non-root + en-tetes Caddy +
+`KAPSULE_ASSET_SECRET` dans `.env.example` (AC7).
 
 # AI Context
 - Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec

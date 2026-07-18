@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { formatErrors } from "@kapsule/schema";
 import { Store } from "./store.mjs";
 import { AuthStore } from "./auth.mjs";
+import { createRateLimiter } from "./rate-limit.mjs";
 import {
   canonicalAssetPath,
   verifyAssetSig,
@@ -35,12 +36,26 @@ const STATIC_DIR =
  * @param {import("better-sqlite3").Database} db
  * @returns {import("express").Express}
  */
-export function createApp(db) {
+export function createApp(db, options = {}) {
   const store = new Store(db);
   const auth = new AuthStore(db);
   const app = express();
+  // Derriere Caddy : fait confiance a X-Forwarded-For pour identifier le client
+  // (rate limit par IP reelle).
+  app.set("trust proxy", true);
   app.use(cors());
   app.use(express.json({ limit: "5mb" }));
+
+  // Limiteur de debit des routes d'authentification (AC4) : protege login et
+  // register du brute force et du DoS CPU (hachage scrypt).
+  const authLimiter = createRateLimiter(options.rateLimit ?? { windowMs: 15 * 60_000, max: 10 });
+  const rateLimit = (limiter) => (req, res, next) => {
+    const key = req.ip || req.socket?.remoteAddress || "unknown";
+    if (!limiter.check(key)) {
+      return res.status(429).json({ error: "trop de tentatives, reessayez plus tard" });
+    }
+    next();
+  };
 
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
@@ -58,23 +73,31 @@ export function createApp(db) {
 
   // --- Authentification ----------------------------------------------------
 
-  app.post("/api/auth/register", (req, res) => {
-    if (!auth.registrationOpen()) {
-      return res.status(403).json({ error: "les inscriptions sont fermees" });
+  app.post("/api/auth/register", rateLimit(authLimiter), async (req, res, next) => {
+    try {
+      if (!auth.registrationOpen()) {
+        return res.status(403).json({ error: "les inscriptions sont fermees" });
+      }
+      const { email, password } = req.body ?? {};
+      const result = await auth.register(email, password);
+      if (!result.ok) return res.status(result.status).json({ error: result.error });
+      // Connexion immediate apres inscription.
+      const token = auth.createSession(result.user.id, req.get("user-agent"));
+      res.status(201).json({ token, user: result.user });
+    } catch (err) {
+      next(err);
     }
-    const { email, password } = req.body ?? {};
-    const result = auth.register(email, password);
-    if (!result.ok) return res.status(result.status).json({ error: result.error });
-    // Connexion immediate apres inscription.
-    const token = auth.createSession(result.user.id, req.get("user-agent"));
-    res.status(201).json({ token, user: result.user });
   });
 
-  app.post("/api/auth/login", (req, res) => {
-    const { email, password } = req.body ?? {};
-    const result = auth.login(email, password, req.get("user-agent"));
-    if (!result.ok) return res.status(401).json({ error: result.error });
-    res.json({ token: result.token, user: result.user });
+  app.post("/api/auth/login", rateLimit(authLimiter), async (req, res, next) => {
+    try {
+      const { email, password } = req.body ?? {};
+      const result = await auth.login(email, password, req.get("user-agent"));
+      if (!result.ok) return res.status(401).json({ error: result.error });
+      res.json({ token: result.token, user: result.user });
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.post("/api/auth/logout", requireAuth, (req, res) => {
@@ -269,6 +292,13 @@ export function createApp(db) {
       res.sendFile(join(STATIC_DIR, "index.html"));
     });
   }
+
+  // Gestionnaire d'erreurs JSON (evite les fuites de stack en reponse).
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, _next) => {
+    console.error("Erreur non geree :", err);
+    res.status(500).json({ error: "erreur interne" });
+  });
 
   return app;
 }

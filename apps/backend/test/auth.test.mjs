@@ -37,11 +37,11 @@ const post = (base, path, body, token) =>
     body: JSON.stringify(body),
   });
 
-test("hachage scrypt : verifie le bon mot de passe, rejette le mauvais", () => {
-  const h = hashPassword("correct horse battery");
+test("hachage scrypt : verifie le bon mot de passe, rejette le mauvais", async () => {
+  const h = await hashPassword("correct horse battery");
   assert.ok(!h.includes("correct horse battery")); // jamais en clair
-  assert.equal(verifyPassword("correct horse battery", h), true);
-  assert.equal(verifyPassword("mauvais", h), false);
+  assert.equal(await verifyPassword("correct horse battery", h), true);
+  assert.equal(await verifyPassword("mauvais", h), false);
 });
 
 test("AC1 : inscription, connexion, deconnexion", async () => {

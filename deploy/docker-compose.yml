@@ -9,8 +9,10 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      # Ferme les inscriptions une fois vos comptes crees : "closed".
-      KAPSULE_REGISTRATION: ${KAPSULE_REGISTRATION:-open}
+      NODE_ENV: production
+      # Inscriptions fermees par defaut (AC4) : passez "open" le temps de creer
+      # vos comptes, puis repassez a "closed".
+      KAPSULE_REGISTRATION: ${KAPSULE_REGISTRATION:-closed}
     volumes:
       - kapsule-data:/data
     expose:
