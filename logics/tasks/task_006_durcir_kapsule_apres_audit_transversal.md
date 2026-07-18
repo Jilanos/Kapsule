@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95
 > Confidence: 90
-> Progress: 20%
+> Progress: 30%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -88,10 +88,10 @@
   le cache authentifie, puis ajouter les tests de non-regression.
   Livre (code) : contexte Docker cible + `.dockerignore` durci ; garde `canViewDeck`
   sur progression et revision ; refiltrage de visibilite des revisions dues ;
-  cache runtime `/api` passe en `NetworkOnly` (isolation inter-comptes) ; 3 tests
-  de non-regression P0 verts. En attente : (a) rotation/purge de la cle = action
-  operateur ; (b) protection des assets prives = ADR requise (images servies via
-  `<img>` sans Bearer, choix URL signee / cookie / proxy avant implementation).
+  cache runtime `/api` passe en `NetworkOnly` (isolation inter-comptes) ;
+  protection des assets prives par URL signee HMAC (ADR 003) ; tests de
+  non-regression P0 verts. En attente : rotation/purge de la cle = action
+  operateur (seul reliquat code du P0 est clos).
 - [ ] Vague 2 - P1 application : hachage asynchrone, limites de debit et d'entree,
   sessions bornees/purgees, inscription fermee par defaut et migration explicite.
 - [ ] Vague 3 - P1 depot/deploiement : fixtures autonomes, CI et scans obligatoires,
@@ -157,12 +157,26 @@ Validation :
 En attente (hors code) :
 - AC1 : rotation de la cle `cle_hetzner` et purge des caches de build = action
   operateur ; joindre une preuve non sensible.
-- AC2 (assets) : protection des assets de decks prives requiert une decision
-  d'architecture (ADR) — les images sont servies via `<img src>` sans header
-  Bearer, il faut arbitrer URL signee / cookie de session / proxy authentifie
-  avant implementation. Non traite en P0 pour ne pas casser l'affichage legitime.
-- AC3 : reactivation d'un cache hors ligne segmente par utilisateur = ADR
-  cache/session, apres la mesure interim ci-dessus.
+- AC3 : reactivation d'un cache hors ligne segmente par utilisateur = follow-up
+  P2 (ADR 003, decision 2), apres la mesure interim ci-dessus.
+
+## Vague 1 - P0 : signature des assets prives (AC2 assets) - 2026-07-18
+Decision : ADR 003 (assets prives via URL signee HMAC a TTL court). Implemente :
+- `apps/backend/src/asset-signing.mjs` (nouveau) : signature HMAC-SHA256 sur
+  `deckId + chemin canonique + exp` (secret `KAPSULE_ASSET_SECRET`, TTL 600 s),
+  verification a temps constant, helpers `signDeckAssets`/`signCardAssets`.
+- `apps/backend/src/app.mjs` : `GET /api/decks/:id` et `.../cards/:id` renvoient
+  des `image.src` signes ; la route assets verifie la signature (403 sinon)
+  avant tout acces disque. `canViewDeck` est donc applique au moment de la
+  signature (lecture du deck), pas sur la balise `<img>`.
+- `apps/frontend/src/lib/assets.js` : consomme l'URL signee absolue telle quelle.
+- `apps/backend/test/e2e-import.test.mjs` : URL signee -> 200 ; non signee -> 403 ;
+  fichier absent -> 404 ; signature expiree -> 403 ; traversee jamais servie.
+Nouvelle variable d'env `KAPSULE_ASSET_SECRET` a versionner (sans valeur) dans
+`.env.example` en Vague 3 (AC7).
+Validation : backend 37/38 (seul echec = defaillance pre-existante #29,
+`reviews.test.mjs`, hors perimetre) ; `npm run build` frontend OK.
+Reliquat P0 code : neant. Reliquat P0 : rotation de cle (operateur).
 
 # AI Context
 - Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec

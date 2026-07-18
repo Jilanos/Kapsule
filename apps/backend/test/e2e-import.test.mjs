@@ -13,9 +13,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // La route assets lit KAPSULE_UPLOADS a l'import du module : on le fixe avant.
 const uploadsRoot = mkdtempSync(join(tmpdir(), "kapsule-uploads-"));
 process.env.KAPSULE_UPLOADS = uploadsRoot;
+// Secret de signature fixe pour ce process de test (ADR 003) : doit etre pose
+// avant l'import du module de signature (lu au chargement).
+process.env.KAPSULE_ASSET_SECRET = "test-secret-e2e";
 
 const { openDb } = await import("../src/db.mjs");
 const { createApp } = await import("../src/app.mjs");
+const { signAssetUrl } = await import("../src/asset-signing.mjs");
 
 const aiDeck = JSON.parse(
   readFileSync(join(__dirname, "fixtures", "ai-generated-deck.json"), "utf8"),
@@ -73,7 +77,7 @@ test("e2e : un deck genere par IA s'importe, se relit et apparait dans la liste"
   }
 });
 
-test("e2e : la route assets sert une image relative et protege la traversee", async () => {
+test("e2e : la route assets exige une URL signee et protege la traversee", async () => {
   const { base, close } = await startApp();
   try {
     // Place une image dans uploads/<deckId>/img/.
@@ -81,17 +85,33 @@ test("e2e : la route assets sert une image relative et protege la traversee", as
     mkdirSync(deckDir, { recursive: true });
     writeFileSync(join(deckDir, "test.txt"), "pixels");
 
-    const ok = await fetch(`${base}/api/decks/photographie-bases/assets/img/test.txt`);
+    // URL signee valide -> 200.
+    const ok = await fetch(`${base}${signAssetUrl("photographie-bases", "img/test.txt")}`);
     assert.equal(ok.status, 200);
     assert.equal((await ok.text()).trim(), "pixels");
 
-    const missing = await fetch(`${base}/api/decks/photographie-bases/assets/img/nope.png`);
+    // Sans signature -> 403 (l'ancienne route publique est fermee).
+    const unsigned = await fetch(`${base}/api/decks/photographie-bases/assets/img/test.txt`);
+    assert.equal(unsigned.status, 403);
+
+    // Signature valide mais fichier absent -> 404.
+    const missing = await fetch(`${base}${signAssetUrl("photographie-bases", "img/nope.png")}`);
     assert.equal(missing.status, 404);
 
+    // Signature expiree -> 403.
+    const expired = await fetch(
+      `${base}${signAssetUrl("photographie-bases", "img/test.txt", { now: 0 })}`,
+    );
+    assert.equal(expired.status, 403);
+
+    // Traversee : quel que soit le code (400 traversee explicite, 403 signature
+    // absente sur le chemin neutralise, 404 fichier hors dossier), server.mjs
+    // n'est jamais servi.
     const traversal = await fetch(
       `${base}/api/decks/photographie-bases/assets/..%2f..%2fserver.mjs`,
     );
-    assert.ok(traversal.status === 400 || traversal.status === 404);
+    assert.ok([400, 403, 404].includes(traversal.status));
+    assert.notEqual(traversal.status, 200);
   } finally {
     await close();
   }

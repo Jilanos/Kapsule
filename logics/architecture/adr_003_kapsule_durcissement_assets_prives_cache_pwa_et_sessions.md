@@ -1,6 +1,6 @@
 ## adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions - Kapsule durcissement : assets prives, cache PWA et sessions
 > Date: 2026-07-18
-> Status: Proposed
+> Status: Accepted
 > Drivers: isolation inter-comptes (assets prives, cache PWA), reduction de la surface d'attaque des sessions, compatibilite PWA hors-ligne
 > Related request: `req_005_durcir_kapsule_apres_audit_transversal`
 > Related backlog: `item_010_durcir_kapsule_apres_audit_transversal`

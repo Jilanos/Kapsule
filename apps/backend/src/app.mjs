@@ -3,12 +3,18 @@
 
 import express from "express";
 import cors from "cors";
-import { dirname, join, normalize } from "node:path";
+import { dirname, join } from "node:path";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { formatErrors } from "@kapsule/schema";
 import { Store } from "./store.mjs";
 import { AuthStore } from "./auth.mjs";
+import {
+  canonicalAssetPath,
+  verifyAssetSig,
+  signDeckAssets,
+  signCardAssets,
+} from "./asset-signing.mjs";
 import {
   VALID_VISIBILITY,
   canViewDeck,
@@ -81,10 +87,17 @@ export function createApp(db) {
     res.json({ user: req.user, registrationOpen: auth.registrationOpen() });
   });
 
-  // --- Assets images (public : charges via <img>, pas de donnees sensibles) -
+  // --- Assets images (URL signee, ADR 003) ---------------------------------
+  // Servis via <img> (pas d'en-tete Bearer) : l'autorisation est portee par une
+  // signature a duree de vie courte emise a la lecture du deck (gardee par
+  // canViewDeck). Sans signature valide, on ne sert rien.
   app.get("/api/decks/:deckId/assets/*", (req, res) => {
-    const rel = normalize(req.params[0]).replace(/^(\.\.[/\\])+/, "");
+    const rel = canonicalAssetPath(req.params[0]);
     if (rel.includes("..")) return res.status(400).end();
+    // Verification signature/expiration avant tout acces au disque.
+    if (!verifyAssetSig(req.params.deckId, rel, req.query.exp, req.query.sig)) {
+      return res.status(403).json({ error: "acces a l'asset non autorise" });
+    }
     const deckDir = join(UPLOADS_DIR, req.params.deckId);
     const file = join(deckDir, rel);
     if (!file.startsWith(deckDir) || !existsSync(file)) {
@@ -113,7 +126,7 @@ export function createApp(db) {
     if (!access || !canViewDeck(req.user, access)) {
       return res.status(404).json({ error: "deck introuvable" });
     }
-    const deck = store.getDeck(req.params.deckId);
+    const deck = signDeckAssets(store.getDeck(req.params.deckId), req.params.deckId);
     res.json({
       deck,
       progress: store.getDeckProgress(req.params.deckId, req.user.id),
@@ -129,7 +142,7 @@ export function createApp(db) {
     }
     const card = store.getCard(req.params.deckId, req.params.cardId);
     if (!card) return res.status(404).json({ error: "fiche introuvable" });
-    res.json(card);
+    res.json(signCardAssets(card, req.params.deckId));
   });
 
   // Import / mise a jour d'un deck (valide contre le contrat de contenu).
