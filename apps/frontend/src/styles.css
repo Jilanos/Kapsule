@@ -55,11 +55,9 @@
 
   /* Typographie */
   --serif:
-    "Source Serif 4", Charter, "Bitstream Charter", "Iowan Old Style",
-    "Sitka Text", Cambria, Georgia, serif;
-  --mono:
-    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas,
-    monospace;
+    "Source Serif 4", Charter, "Bitstream Charter", "Iowan Old Style", "Sitka Text", Cambria,
+    Georgia, serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
 
   /* Formes — coins quasi droits, pas d'ombres flottantes */
   --radius: 3px;
