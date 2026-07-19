@@ -31,6 +31,19 @@ RUN npm prune --omit=dev
 # --- Etape 2 : runtime (leger) --------------------------------------------
 FROM node:20-bookworm-slim AS runtime
 WORKDIR /app
+
+# Durcissement de l'image finale (gate Trivy CI, severite HIGH/CRITICAL) :
+#  - apt-get upgrade : corrige les CVE du systeme de base (libcap2, gnutls...).
+#  - suppression de npm/npx : inutiles au runtime (le CMD lance `node`), et
+#    seule source des CVE "node-pkg" remontees par Trivy (tar, glob, minimatch,
+#    sigstore, cross-spawn groupes dans le npm de l'image de base). Reduit aussi
+#    la surface d'attaque.
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV KAPSULE_DB=/data/kapsule.sqlite
