@@ -6,6 +6,7 @@
 > Related backlog: `item_010_durcir_kapsule_apres_audit_transversal`
 > Related task: `task_006_durcir_kapsule_apres_audit_transversal`
 > Reminder: Update status, linked refs, decision rationale, consequences, and follow-up work when you edit this doc.
+> Non-semantic edit: ajout du diagramme d'overview requis (aucun changement de decision).
 
 # Overview
 Cet ADR fixe trois choix d'architecture necessaires au durcissement P0/P1 de
@@ -14,6 +15,18 @@ decision explicite : (1) comment proteger les assets d'images des decks prives
 tout en les servant via `<img>`, (2) quelle politique de cache PWA pour eviter
 toute fuite inter-comptes, (3) comment durcir le stockage et le cycle de vie des
 tokens de session herites de l'ADR 002 (90 jours, `localStorage`, SQLite clair).
+
+```mermaid
+%% logics-kind: architecture
+%% logics-signature: architecture|kapsule_durcissement_assets_prives_cache_pwa_et_sessions|generated
+flowchart TD
+    Read[GET /api/decks/:id\ngarde canViewDeck] -->|signe image.src| Signed[URL asset signee\nHMAC + exp court]
+    Signed --> Img[Balise img sans Bearer]
+    Img --> AssetRoute[GET assets/*\nverifie signature -> 403 sinon]
+    SW[Service worker] -->|/api NetworkOnly| NoCache[Aucune reponse authentifiee en cache]
+    Session[Token opaque Bearer] --> Throttle[Ecritures last_used_at throttlees]
+    Session --> Purge[Purge des sessions expirees]
+```
 
 # Context
 - L'ADR 002 a pose une auth par token opaque en `Authorization: Bearer`, stocke

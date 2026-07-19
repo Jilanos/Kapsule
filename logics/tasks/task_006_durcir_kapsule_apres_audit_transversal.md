@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95
 > Confidence: 90
-> Progress: 90%
+> Progress: 95%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -119,8 +119,12 @@
   optionnelle dans backup.sh ; README reecrit ; brief produit aligne (Accepted).
   En attente : run axe automatise + checklist clavier (verif), preuve datee de
   sauvegarde hors site + restauration (operateur), metadata GitHub (operateur).
-- [ ] Vague 5 - Closeout : executer toutes les validations, joindre les preuves,
+- [~] Vague 5 - Closeout : executer toutes les validations, joindre les preuves,
   mettre a jour le rapport Logics et terminer avec `flow closeout`/`flow finish`.
+  Fait : toutes les validations automatisables executees et consignees (voir
+  section Validation) ; lien companion brief<->task corrige. Bloque pour
+  `flow finish` : livraison des preuves operateur (rotation, protection `main`,
+  smoke deploiement, backup hors site + restauration, run axe/clavier).
 
 # Validation
 - `npm test` et `npm run build` passent sur des fixtures autonomes.
@@ -137,6 +141,19 @@
 - Utiliser `logics-manager flow progress task task_006_durcir_kapsule_apres_audit_transversal --progress <n>%`
   a chaque vague significative, puis `flow closeout` et `flow finish` uniquement
   apres livraison de toutes les preuves.
+
+## Preuves de validation executees - 2026-07-19
+- `npm test` : PASSED — 43 tests backend + 10 schema/frontend, 0 echec (sur
+  fixtures autonomes).
+- `npm run build` : PASSED — build de production OK.
+- `npm run budget` : PASSED — JS 58,1 KB / 75, CSS 2,9 KB / 15 (gzip).
+- `npm run format:check` : PASSED — style Prettier respecte.
+- `npm audit --omit=dev` : PASSED — 0 vulnerabilite. `npm audit` complet : 0.
+- `logics-manager lint --require-status` : PASSED.
+- Non executables ici (preuve operateur/CI, cf. checklist closeout) :
+  `docker compose config`/build/scan d'image/smoke HTTPS ; rotation/purge de
+  cle ; protection de branche ; sauvegarde hors site + restauration ; run axe
+  automatise + checklist clavier.
 
 # Report
 - Etat initial : implementation non demarree ; task prete a etre prise en charge.
@@ -275,6 +292,31 @@ et gouvernance (AC6), deploiement reproductible non-root + en-tetes Caddy +
   `npm run format:check` OK ; `npm run budget` OK ; `logics-manager lint` OK.
 - En attente : run axe automatise + checklist clavier WCAG 2.2 AA (verification) ;
   preuve datee de sauvegarde hors site + restauration ; topics/homepage GitHub.
+
+## Vague 5 - Closeout - 2026-07-19
+Etat : durcissement code/depot/produit livre et valide (Vagues 1-4). Toutes les
+validations automatisables passent (voir section Validation). Le brief et l'ADR
+003 sont alignes et `Accepted` ; lien companion corrige.
+
+`flow finish` est volontairement differe : la DoD exige des preuves operateur
+non encore livrees. Checklist de closeout a completer par l'operateur, puis
+`flow closeout` / `flow finish` :
+1. AC1 - Rotation de `cle_hetzner` (nouvelle paire, remplacement sur le VPS et
+   dans GitHub deploy keys) + purge des caches de build Docker. Joindre une
+   preuve non sensible (date, empreinte publique tronquee).
+2. AC5 - Activer la protection de branche `main` (ruleset : checks CI requis,
+   pas de push direct). Joindre une capture non sensible du ruleset.
+3. AC7 - Sur le VPS : definir `KAPSULE_ASSET_SECRET` ; `docker compose config`,
+   build + scan d'image, `docker compose up -d`, verifier le healthcheck et un
+   smoke HTTPS (en-tetes de securite presents). Joindre les sorties non
+   sensibles.
+4. AC8 - Lancer un run axe (ou Lighthouse a11y) sur auth/liste/import/lecture/
+   quiz/revision et derouler la checklist clavier WCAG 2.2 AA. Joindre le
+   rapport.
+5. AC10 - Definir `KAPSULE_OFFSITE_REMOTE`, executer `backup.sh`, verifier la
+   copie hors site, puis tester une restauration. Joindre une preuve datee.
+6. AC11 - Renseigner topics/homepage GitHub et ajouter une capture dans le
+   README (`docs/screenshot.png`).
 
 # AI Context
 - Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec
