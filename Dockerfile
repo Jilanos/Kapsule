@@ -2,7 +2,7 @@
 # Le meme process sert /api/* et la PWA statique (fallback SPA).
 
 # --- Etape 1 : build (deps completes + build frontend) --------------------
-FROM node:20-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 WORKDIR /app
 
 # Outils natifs pour better-sqlite3 si aucun prebuild n'est disponible.
@@ -29,7 +29,7 @@ RUN npm run build --workspace @kapsule/frontend
 RUN npm prune --omit=dev
 
 # --- Etape 2 : runtime (leger) --------------------------------------------
-FROM node:20-bookworm-slim AS runtime
+FROM node:26-bookworm-slim AS runtime
 WORKDIR /app
 
 # Durcissement de l'image finale (gate Trivy CI, severite HIGH/CRITICAL) :
