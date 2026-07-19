@@ -57,6 +57,7 @@ export function DeckList() {
         {decks.map((d) => (
           <li key={d.id}>
             <Link to={`/decks/${d.id}`} className="deck-card">
+              <span className="deck-ref">{deckRef(d.id)}</span>
               <div className="deck-card-head">
                 <h2>{d.title}</h2>
                 {d.visibility && d.visibility !== "general" && (
@@ -67,7 +68,7 @@ export function DeckList() {
               </div>
               {d.description && <p className="deck-desc">{d.description}</p>}
               <div className="deck-meta">
-                <ProgressBar learned={d.progress.learned} total={d.cardCount} />
+                <Graduations learned={d.progress.learned} total={d.cardCount} />
                 <span className="deck-count">
                   {d.progress.learned}/{d.cardCount} apprises
                 </span>
@@ -89,18 +90,35 @@ export function DeckList() {
   );
 }
 
-function ProgressBar({ learned, total }) {
+// Cote de monographie : identifiant court et stable derive de l'id du deck
+// (metaphore « cahier de laboratoire »). Deterministe, sans appel backend.
+function deckRef(id) {
+  let h = 0;
+  for (let i = 0; i < String(id).length; i++) {
+    h = (h * 31 + String(id).charCodeAt(i)) >>> 0;
+  }
+  return `KPS·${String(h % 1000).padStart(3, "0")}`;
+}
+
+// Barre de graduation : une graduation par fiche (plafonnee), les fiches
+// apprises en encre pleine, les restantes en filet. Remplace la barre-pilule.
+const GRAD_CAP = 24;
+function Graduations({ learned, total }) {
   const pct = total ? Math.round((learned / total) * 100) : 0;
+  const ticks = Math.min(total, GRAD_CAP) || 1;
+  const on = total ? Math.round((learned / total) * ticks) : 0;
   return (
     <div
-      className="progress"
+      className="grad"
       role="progressbar"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
       aria-label={`${learned} sur ${total} fiches apprises (${pct}%)`}
     >
-      <div className="progress-fill" style={{ width: `${pct}%` }} />
+      {Array.from({ length: ticks }, (_, i) => (
+        <span key={i} className={`grad-tick${i < on ? " on" : ""}`} aria-hidden />
+      ))}
     </div>
   );
 }

@@ -1,28 +1,111 @@
-:root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --primary: #4f46e5;
-  --primary-contrast: #ffffff;
-  --success: #16a34a;
-  --radius: 14px;
-  --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.04);
+/* ==========================================================================
+   Kapsule — Identite visuelle « Cahier de laboratoire »
+   (redesign req_006 / task_007, 2026-07-19)
+
+   Direction : edition scientifique. Papier + deux encres (bleu de Prusse pour
+   l'action et l'acquis, rouge d'annotation comme unique couleur d'alerte
+   memorielle). Serif d'edition auto-hebergee pour la lecture ; mono technique
+   en petites capitales pour les metadonnees et les etats.
+
+   Tout le styling passe par des tokens : changer d'identite = changer ces
+   variables. L'accessibilite (focus-visible, skip-link, reduced-motion,
+   sr-only) est preservee integralement en fin de fichier.
+   ========================================================================== */
+
+/* --- Fontes auto-hebergees (Source Serif 4, SIL OFL) ---------------------- */
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/source-serif-4-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/source-serif-4-400-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/source-serif-4-600.woff2") format("woff2");
 }
 
+/* --- Tokens --------------------------------------------------------------- */
+:root {
+  /* Palette — mode clair (papier) */
+  --bg: #edeae2; /* papier de fond */
+  --surface: #fbfaf6; /* papier des fiches/cartes */
+  --text: #1d2a32; /* encre */
+  --muted: #56636a; /* encre delavee (AA sur papier) */
+  --border: #cfd4cc; /* filet */
+  --primary: #23566b; /* bleu de Prusse : action + acquis */
+  --primary-contrast: #fbfaf6;
+  --accent: #a63d2a; /* rouge d'annotation : UNIQUE couleur d'alerte */
+  --accent-contrast: #fbfaf6;
+  --success: #23566b; /* l'« acquis » est de la meme encre que l'action */
+
+  /* Teintes derivees (voiles legers pour fonds d'etat) */
+  --primary-veil: color-mix(in srgb, var(--primary) 12%, transparent);
+  --accent-veil: color-mix(in srgb, var(--accent) 12%, transparent);
+
+  /* Typographie */
+  --serif:
+    "Source Serif 4", Charter, "Bitstream Charter", "Iowan Old Style",
+    "Sitka Text", Cambria, Georgia, serif;
+  --mono:
+    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas,
+    monospace;
+
+  /* Formes — coins quasi droits, pas d'ombres flottantes */
+  --radius: 3px;
+  --shadow: none;
+  --rule: 1px solid var(--border);
+}
+
+/* Mode sombre — cahier de nuit (transpose, pas inverse) */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-    --border: #334155;
-    --primary: #818cf8;
-    --primary-contrast: #0f172a;
-    --success: #4ade80;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
+    --bg: #14181b;
+    --surface: #1c2226;
+    --text: #e6e2d8; /* encre papier chaude */
+    --muted: #9aa2a2;
+    --border: #333b3e;
+    --primary: #82b4c6; /* prusse eclairci pour contraste AA sur sombre */
+    --primary-contrast: #14181b;
+    --accent: #e0876c; /* annotation eclaircie */
+    --accent-contrast: #14181b;
+    --success: #82b4c6;
   }
+}
+/* Overrides explicites du bascule de theme (doivent primer sur la media query). */
+:root[data-theme="light"] {
+  --bg: #edeae2;
+  --surface: #fbfaf6;
+  --text: #1d2a32;
+  --muted: #56636a;
+  --border: #cfd4cc;
+  --primary: #23566b;
+  --primary-contrast: #fbfaf6;
+  --accent: #a63d2a;
+  --accent-contrast: #fbfaf6;
+  --success: #23566b;
+}
+:root[data-theme="dark"] {
+  --bg: #14181b;
+  --surface: #1c2226;
+  --text: #e6e2d8;
+  --muted: #9aa2a2;
+  --border: #333b3e;
+  --primary: #82b4c6;
+  --primary-contrast: #14181b;
+  --accent: #e0876c;
+  --accent-contrast: #14181b;
+  --success: #82b4c6;
 }
 
 * {
@@ -31,27 +114,43 @@
 
 body {
   margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  /* App de lecture : la serif d'edition est la voix par defaut. */
+  font-family: var(--serif);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.65;
+  font-variant-numeric: oldstyle-nums;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
   min-height: 100vh;
 }
 
+/* --- Petit utilitaire typographique : etiquette technique mono ------------ */
+/* Utilise pour metadonnees, references, compteurs, badges, etats. */
+.app-header,
+.card-counter,
+.deck-count,
+.deck-ref,
+.tag,
+.visibility-badge,
+.card-row-meta,
+.review-banner-cta,
+.card-duration,
+.import-toggle,
+.grad-legend,
+.sync-status {
+  font-family: var(--mono);
+}
+
+/* --- En-tete -------------------------------------------------------------- */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 10;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--text);
   padding: env(safe-area-inset-top) 1rem 0;
   display: flex;
   align-items: center;
@@ -65,7 +164,7 @@ body {
   min-width: 0;
 }
 .header-email {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--muted);
   max-width: 40vw;
   overflow: hidden;
@@ -81,15 +180,18 @@ body {
   color: var(--primary);
   padding: 0;
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   height: 3.25rem;
-  font-weight: 700;
-  font-size: 1.15rem;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
   color: var(--text);
   text-decoration: none;
 }
@@ -99,20 +201,26 @@ body {
   place-items: center;
   width: 1.75rem;
   height: 1.75rem;
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--primary);
   color: var(--primary-contrast);
-  font-weight: 800;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .app-main {
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 4rem;
+  padding: 1.5rem 1rem 4rem;
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
   margin: 0 0 1.25rem;
 }
 
@@ -121,73 +229,105 @@ h1 {
   padding: 2rem 0;
 }
 .msg.error {
-  color: #dc2626;
+  color: var(--accent);
 }
 .muted {
   color: var(--muted);
 }
 
-/* Deck grid ---------------------------------------------------------------- */
+/* --- Grille de decks (monographies) -------------------------------------- */
 .deck-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
 }
 
 .deck-card {
   display: block;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--rule);
+  border-top: 3px double var(--text);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1.1rem 1.2rem 1.2rem;
   text-decoration: none;
   color: var(--text);
-  box-shadow: var(--shadow);
   transition:
-    transform 0.12s ease,
-    border-color 0.12s ease;
+    border-color 0.12s ease,
+    background 0.12s ease;
   height: 100%;
 }
 .deck-card:hover {
-  transform: translateY(-2px);
   border-color: var(--primary);
+  border-top-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+}
+.deck-ref {
+  display: block;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 0.35rem;
 }
 .deck-card h2 {
-  font-size: 1.1rem;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
   margin: 0 0 0.4rem;
 }
 .deck-desc {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.5;
   margin: 0 0 0.9rem;
 }
 
 .deck-meta {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.75rem;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
 }
 .deck-count {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
   color: var(--muted);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.progress {
-  flex: 1;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--border);
-  overflow: hidden;
+/* Graduations de progression : acquises (encre pleine) vs restantes (filet). */
+.grad {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
 }
-.progress-fill {
-  height: 100%;
-  background: var(--success);
-  transition: width 0.3s ease;
+.grad-tick {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 1px;
+  transition: height 0.2s ease;
+}
+.grad-tick.on {
+  height: 14px;
+  background: var(--primary);
+}
+.grad-tick.due {
+  height: 14px;
+  background: var(--accent);
+}
+.grad-legend {
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
 }
 
 .tags {
@@ -196,21 +336,25 @@ h1 {
   gap: 0.35rem;
 }
 .tag {
-  font-size: 0.72rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   padding: 0.15rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 2px;
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: var(--rule);
   color: var(--muted);
 }
 
-/* Misc --------------------------------------------------------------------- */
+/* --- Divers -------------------------------------------------------------- */
 .back-link {
   display: inline-block;
   margin-bottom: 1rem;
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
 }
 .back-link:hover {
   color: var(--primary);
@@ -223,22 +367,25 @@ h1 {
   margin-bottom: 0.4rem;
 }
 
-/* Boutons ------------------------------------------------------------------ */
+/* --- Boutons ------------------------------------------------------------- */
 .btn-primary {
   appearance: none;
   border: none;
   cursor: pointer;
   background: var(--primary);
   color: var(--primary-contrast);
-  font-size: 1rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
   font-weight: 600;
-  padding: 0.8rem 1.25rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.25rem;
   border-radius: var(--radius);
   width: 100%;
   transition: filter 0.12s ease;
 }
 .btn-primary:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.08);
 }
 button.back-link {
   appearance: none;
@@ -246,13 +393,17 @@ button.back-link {
   background: none;
   cursor: pointer;
   font: inherit;
+  font-family: var(--mono);
   padding: 0;
 }
 
-/* Vue d'ensemble deck ------------------------------------------------------ */
+/* --- Vue d'ensemble d'un deck -------------------------------------------- */
 .deck-summary {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
   margin: 0.25rem 0 1rem;
 }
 .card-overview {
@@ -261,7 +412,11 @@ button.back-link {
   margin: 1.5rem 0 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1px;
+  background: var(--border);
+  border: var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 .card-row {
   display: flex;
@@ -272,39 +427,42 @@ button.back-link {
   appearance: none;
   cursor: pointer;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.85rem 1rem;
+  border: none;
+  padding: 0.8rem 1rem;
   color: var(--text);
   font: inherit;
-  transition: border-color 0.12s ease;
+  font-family: var(--serif);
+  transition: background 0.12s ease;
 }
 .card-row:hover {
-  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
 }
 .card-row-title {
   flex: 1;
-  font-weight: 500;
+  font-weight: 400;
 }
 .card-row-meta {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
   white-space: nowrap;
 }
+/* Marqueur d'echantillon : carre, pas rond (langage instrument). */
 .state-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
   flex-shrink: 0;
   background: var(--border);
 }
 .state-dot.state-seen {
-  background: #f59e0b;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--primary);
 }
 .state-dot.state-learned {
-  background: var(--success);
+  background: var(--primary);
 }
 
-/* Lecture d'une fiche ------------------------------------------------------ */
+/* --- Lecture d'une fiche ------------------------------------------------- */
 .card-view {
   scroll-margin-top: 4rem;
 }
@@ -312,77 +470,121 @@ button.back-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: var(--rule);
 }
 .card-counter {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 .card-title {
-  margin: 0 0 0.25rem;
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin: 0 0 0.35rem;
 }
 .card-duration {
-  font-size: 0.85rem;
-  margin: 0 0 1.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 1.75rem;
 }
 
 .section {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.9rem;
 }
 .section-heading {
-  font-size: 1.1rem;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 600;
   margin: 0 0 0.5rem;
 }
 .section-intro {
-  font-size: 1.1rem;
+  font-family: var(--serif);
+  font-size: 1.18rem;
+  font-style: italic;
+  line-height: 1.55;
   color: var(--text);
   border-left: 3px solid var(--primary);
   padding-left: 1rem;
 }
 .section p {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.8rem;
+  max-width: 68ch;
 }
 .section code {
+  font-family: var(--mono);
   background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 5px;
+  border: var(--rule);
+  border-radius: 3px;
   padding: 0.05rem 0.35rem;
-  font-size: 0.9em;
+  font-size: 0.85em;
 }
 .section-figure {
-  margin: 1rem 0 0;
+  margin: 1.1rem 0 0;
 }
 .section-figure img {
   max-width: 100%;
+  border: var(--rule);
   border-radius: var(--radius);
   display: block;
 }
 .section-figure figcaption {
-  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
   color: var(--muted);
-  margin-top: 0.4rem;
+  margin-top: 0.45rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--border);
 }
 
+/* Encadre « a retenir » : filets doubles, pas de carte flottante. */
 .takeaways-list {
   padding-left: 1.1rem;
   margin: 0;
 }
 .takeaways-list li {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.45rem;
 }
 .section-takeaways {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--text);
+  border-bottom: 3px double var(--text);
+  border-radius: 0;
+  padding: 0.9rem 0 1rem;
+}
+.section-takeaways .section-heading {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
 }
 
-/* Quiz --------------------------------------------------------------------- */
+/* --- Quiz ---------------------------------------------------------------- */
 .section-quiz {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--rule);
+  border-left: 3px solid var(--primary);
   border-radius: var(--radius);
   padding: 1.25rem;
+}
+.section-quiz .section-heading {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
 }
 .quiz-question {
   margin-bottom: 1.25rem;
@@ -391,8 +593,10 @@ button.back-link {
   margin-bottom: 0;
 }
 .quiz-q {
+  font-family: var(--serif);
   font-weight: 600;
-  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  margin: 0 0 0.65rem;
 }
 .quiz-choices {
   display: flex;
@@ -404,9 +608,10 @@ button.back-link {
   text-align: left;
   cursor: pointer;
   font: inherit;
+  font-family: var(--serif);
   padding: 0.65rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border: var(--rule);
   background: var(--bg);
   color: var(--text);
   transition:
@@ -420,42 +625,45 @@ button.back-link {
   cursor: default;
 }
 .quiz-choice.correct {
-  border-color: var(--success);
-  background: color-mix(in srgb, var(--success) 15%, transparent);
+  border-color: var(--primary);
+  box-shadow: inset 3px 0 0 var(--primary);
+  background: var(--primary-veil);
   font-weight: 600;
 }
 .quiz-choice.wrong {
-  border-color: #dc2626;
-  background: color-mix(in srgb, #dc2626 12%, transparent);
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+  background: var(--accent-veil);
 }
 .quiz-explain {
   margin: 0.6rem 0 0;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--muted);
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--border);
 }
 
 .card-footer {
-  margin-top: 2rem;
+  margin-top: 2.25rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 3px double var(--text);
 }
 
-/* Bannière de révision ----------------------------------------------------- */
+/* --- Banniere de revision (rouge d'annotation = alerte memorielle) ------- */
 .review-banner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: var(--primary);
-  color: var(--primary-contrast);
+  gap: 0.85rem;
+  background: var(--accent);
+  color: var(--accent-contrast);
   border-radius: var(--radius);
   padding: 0.9rem 1.1rem;
   text-decoration: none;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow);
+  margin-bottom: 1.75rem;
   transition: filter 0.12s ease;
 }
 .review-banner:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
 }
 .review-banner-count {
   display: grid;
@@ -463,13 +671,18 @@ button.back-link {
   min-width: 2rem;
   height: 2rem;
   padding: 0 0.4rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
-  font-weight: 800;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 .review-banner-cta {
   margin-left: auto;
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 .review-done {
@@ -480,7 +693,7 @@ button.back-link {
   display: inline-block;
 }
 
-/* Ecran d'authentification ------------------------------------------------- */
+/* --- Ecran d'authentification ------------------------------------------- */
 .auth-screen {
   min-height: 100vh;
   display: grid;
@@ -489,11 +702,11 @@ button.back-link {
 }
 .auth-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 390px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--rule);
+  border-top: 3px double var(--text);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   padding: 2rem 1.75rem;
 }
 .auth-brand {
@@ -501,7 +714,9 @@ button.back-link {
   margin-bottom: 1.25rem;
 }
 .auth-title {
-  font-size: 1.35rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 600;
   margin: 0 0 1.25rem;
 }
 .auth-field {
@@ -510,16 +725,20 @@ button.back-link {
 }
 .auth-field span {
   display: block;
-  font-size: 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
 }
 .auth-field input {
   width: 100%;
   font: inherit;
+  font-family: var(--serif);
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border: var(--rule);
+  border-radius: var(--radius);
   background: var(--bg);
   color: var(--text);
 }
@@ -538,7 +757,7 @@ button.back-link {
   text-align: center;
 }
 
-/* Import ------------------------------------------------------------------- */
+/* --- Import -------------------------------------------------------------- */
 .list-head {
   display: flex;
   align-items: center;
@@ -550,7 +769,11 @@ button.back-link {
   appearance: none;
   cursor: pointer;
   font: inherit;
+  font-family: var(--mono);
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--primary);
   background: none;
   border: 1px dashed var(--primary);
@@ -559,11 +782,11 @@ button.back-link {
 }
 .import-panel {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--rule);
+  border-top: 3px double var(--text);
   border-radius: var(--radius);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
-  box-shadow: var(--shadow);
 }
 .import-head {
   display: flex;
@@ -578,18 +801,20 @@ button.back-link {
   appearance: none;
   cursor: pointer;
   font: inherit;
+  font-family: var(--mono);
+  font-size: 0.78rem;
   background: var(--bg);
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border: var(--rule);
+  border-radius: var(--radius);
   padding: 0.55rem 0.9rem;
 }
 .import-textarea {
   width: 100%;
-  font-family: ui-monospace, monospace;
+  font-family: var(--mono);
   font-size: 0.85rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border: var(--rule);
+  border-radius: var(--radius);
   padding: 0.75rem;
   background: var(--bg);
   color: var(--text);
@@ -597,15 +822,16 @@ button.back-link {
   margin-bottom: 0.75rem;
 }
 .import-success {
-  color: var(--success);
-  font-weight: 500;
+  color: var(--primary);
+  font-weight: 600;
 }
 .import-errors {
   margin-top: 0.9rem;
-  border: 1px solid #dc2626;
-  border-radius: 10px;
+  border: 1px solid var(--accent);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
   padding: 0.75rem 1rem;
-  background: color-mix(in srgb, #dc2626 8%, transparent);
+  background: var(--accent-veil);
   font-size: 0.88rem;
 }
 .import-errors ul {
@@ -613,12 +839,13 @@ button.back-link {
   padding-left: 1.1rem;
 }
 .import-errors code {
+  font-family: var(--mono);
   background: var(--bg);
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 0 0.3rem;
 }
 
-/* --- Visibilite des decks (roles) -------------------------------------- */
+/* --- Visibilite des decks (roles) --------------------------------------- */
 .deck-card-head,
 .deck-title-row {
   display: flex;
@@ -631,12 +858,13 @@ button.back-link {
   margin-top: 0.4rem;
 }
 .visibility-badge {
-  font-size: 0.68rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 0.12rem 0.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.14rem 0.5rem;
+  border-radius: 2px;
+  border: var(--rule);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -645,13 +873,14 @@ button.back-link {
   color: var(--muted);
 }
 .visibility-badge.vis-master {
-  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  background: var(--primary-veil);
   color: var(--primary);
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
 }
 .visibility-badge.vis-general {
-  background: color-mix(in srgb, var(--success) 16%, transparent);
-  color: var(--success);
+  background: var(--primary-veil);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
 .import-visibility {
@@ -663,9 +892,10 @@ button.back-link {
   margin-bottom: 0.6rem;
 }
 .import-visibility select {
+  font: inherit;
   padding: 0.4rem 0.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border: var(--rule);
   background: var(--surface);
   color: var(--text);
 }
@@ -674,7 +904,7 @@ button.back-link {
   font-size: 0.85rem;
 }
 
-/* Barre d'administration (visible pour l'admin uniquement). */
+/* Barre d'administration (admin uniquement). */
 .admin-bar {
   display: flex;
   align-items: flex-end;
@@ -690,32 +920,41 @@ button.back-link {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  font-size: 0.82rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
   color: var(--muted);
 }
 .admin-visibility select {
+  font-family: var(--serif);
   padding: 0.4rem 0.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border: var(--rule);
   background: var(--surface);
   color: var(--text);
 }
 .btn-danger {
   appearance: none;
   cursor: pointer;
-  border: 1px solid #dc2626;
+  border: 1px solid var(--accent);
   background: transparent;
-  color: #dc2626;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   padding: 0.5rem 0.9rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
 }
 .btn-danger:hover {
-  background: #dc2626;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-contrast);
 }
 
-/* --- Accessibilite (audit 2026-07-18, AC8) ------------------------------- */
+/* ==========================================================================
+   Accessibilite (audit 2026-07-18, AC8) — preservee a l'identique
+   ========================================================================== */
 
 /* Contenu reserve aux lecteurs d'ecran. */
 .sr-only {
@@ -739,7 +978,7 @@ button.back-link {
   background: var(--primary);
   color: var(--primary-contrast);
   padding: 0.6rem 1rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
   text-decoration: none;
   transition: top 0.15s ease;
 }
@@ -756,14 +995,11 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 3px;
 }
-/* On ne masque le focus par defaut que lorsque :focus-visible prend le relais. */
 :focus:not(:focus-visible) {
   outline: none;
 }
-
-/* La cible de focus de route (le <main>) ne doit pas afficher de contour. */
 main:focus {
   outline: none;
 }
@@ -780,18 +1016,21 @@ main:focus {
   }
 }
 
-/* Bandeau d'etat de synchronisation (fiabilite, AC9). */
+/* Bandeau d'etat de synchronisation (fiabilite, AC9) : alerte = annotation. */
 .sync-status {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin: 0.75rem 0;
   padding: 0.6rem 0.9rem;
-  border: 1px solid #d97706;
-  background: #fffbeb;
-  color: #92400e;
-  border-radius: 10px;
-  font-size: 0.9rem;
+  border: 1px solid var(--accent);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-veil);
+  color: var(--text);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
 }
 .sync-status button {
   appearance: none;
@@ -799,14 +1038,8 @@ main:focus {
   border: 1px solid currentColor;
   background: transparent;
   color: inherit;
+  font-family: var(--mono);
   font-weight: 600;
   padding: 0.3rem 0.7rem;
-  border-radius: 8px;
-}
-@media (prefers-color-scheme: dark) {
-  .sync-status {
-    background: #3b2f14;
-    color: #fcd34d;
-    border-color: #b45309;
-  }
+  border-radius: var(--radius);
 }

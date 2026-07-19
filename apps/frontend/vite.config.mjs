@@ -15,8 +15,8 @@ export default defineConfig({
         name: "Kapsule",
         short_name: "Kapsule",
         description: "Fiches de connaissance courtes en decks.",
-        theme_color: "#4f46e5",
-        background_color: "#0f172a",
+        theme_color: "#23566b",
+        background_color: "#14181b",
         display: "standalone",
         start_url: "/",
         icons: [
