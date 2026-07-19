@@ -1,16 +1,68 @@
-# Kapsule
+<p align="center">
+  <img src="docs/screenshots/banner.svg" alt="Kapsule — fiches de connaissance en decks, révision espacée" width="100%">
+</p>
 
-Visionneuse de **fiches de connaissance courtes** (5–10 min) organisées en
-**decks**. Le contenu suit un **format JSON prédéfini** que des agents IA peuvent
-produire directement, pour un affichage toujours cohérent et une intégration sans
-friction.
+<p align="center">
+  <a href="https://github.com/Jilanos/Kapsule/actions/workflows/ci.yml"><img src="https://github.com/Jilanos/Kapsule/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Jilanos/Kapsule/actions/workflows/codeql.yml"><img src="https://github.com/Jilanos/Kapsule/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="Licence MIT"></a>
+  <img src="https://img.shields.io/badge/node-%E2%89%A5%2020-339933?logo=node.js&logoColor=white" alt="Node ≥ 20">
+  <img src="https://img.shields.io/badge/PWA-installable-5A0FC8?logo=pwa&logoColor=white" alt="PWA installable">
+</p>
 
-Kapsule est une **PWA** installable : lecture, progression et révision espacée
-fonctionnent sur mobile comme sur ordinateur, avec un thème clair/sombre
-automatique.
+**Kapsule** est une visionneuse de **fiches de connaissance courtes** (5–10 min)
+organisées en **decks** : lecture structurée, quiz, puis **répétition espacée
+(SM-2)** pour transformer une lecture d'aujourd'hui en savoir durable. C'est une
+**PWA** installable — mobile comme ordinateur, thème clair/sombre automatique.
 
-> _Ajouter ici une capture d'écran ou un GIF du parcours (liste de decks →
-> lecture d'une fiche → quiz → révision)._ `docs/screenshot.png`
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="Accueil : vos decks, courbes de rétention et fiches à réviser aujourd'hui" width="85%">
+</p>
+
+## Ajouter un deck ? 30 secondes.
+
+Le contenu suit un **format JSON prédéfini** ([`SPEC.md`](SPEC.md)) que des
+**agents IA peuvent produire directement** : donnez `SPEC.md` comme consignes à
+votre agent préféré (« fais-moi un deck sur les réseaux »), collez le JSON dans
+l'UI — c'est tout. Le deck est **validé contre un contrat strict**
+(jusqu'à 200 fiches/deck) : un JSON accepté s'affiche toujours correctement.
+
+<p align="center">
+  <img src="docs/screenshots/import.png" alt="Import d'un deck : un fichier .json ou un copier-coller, et le deck est en ligne" width="85%">
+</p>
+
+- **Fichier ou copier-coller** : `.json` ou collage direct, import instantané.
+- **Validation à l'entrée** : erreurs expliquées champ par champ, jamais de deck cassé.
+- **Aussi par API** : `POST /api/decks` pour automatiser l'import.
+- **Vérifiable en CLI** : `npm run validate-deck -- decks/reseaux-essentiels.json`.
+
+## Apprendre au quotidien
+
+Chaque fiche se lit comme une page de **cahier de laboratoire** : intro,
+concepts, exemples, points clés, puis un **quiz** dont le score alimente la
+planification SM-2. Kapsule vous rappelle **quoi réviser, et quand** — la vue
+« Révisions du jour » regroupe les fiches dues, tous decks confondus, et la
+**courbe de rétention** de chaque deck montre ce que votre mémoire retient.
+
+|                                                 Lecture structurée                                                  |                                                   Révisions du jour                                                    |
+| :-----------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------: |
+| <img src="docs/screenshots/card-reading.png" alt="Lecture d'une fiche : Les adresses IP (deck Réseaux essentiels)"> | <img src="docs/screenshots/reviews.png" alt="Session de révision : les fiches dues aujourd'hui, tous decks confondus"> |
+
+<table align="center">
+  <tr>
+    <td width="62%"><img src="docs/screenshots/card-content.png" alt="Contenu riche : notation CIDR, exemples, code inline"></td>
+    <td width="38%"><img src="docs/screenshots/mobile-dark.png" alt="Sur mobile, en thème sombre : la même app, installable en PWA"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Du contenu dense et lisible — ici le deck « Réseaux essentiels »</em></td>
+    <td align="center"><em>Sur mobile, thème sombre automatique</em></td>
+  </tr>
+</table>
+
+- **Des sessions courtes** : 5–10 min par fiche, pensées pour un rituel quotidien.
+- **La bonne fiche au bon moment** : SM-2 replanifie chaque fiche selon votre score de quiz.
+- **Une progression visible** : fiches acquises, fiches dues, rétention estimée par deck.
+- **Partout** : PWA installable, progression synchronisée entre vos appareils.
 
 ## Fonctionnalités
 

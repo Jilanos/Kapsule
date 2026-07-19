@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="Kapsule — fiches de connaissance en decks, révision espacée">
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#d9d4c8" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- fond papier -->
+  <rect width="1280" height="320" fill="#edeae2"/>
+  <rect width="1280" height="320" fill="url(#grid)"/>
+
+  <!-- règle supérieure / inférieure façon cahier de laboratoire -->
+  <rect x="0" y="0" width="1280" height="6" fill="#1f4b5e"/>
+  <rect x="0" y="314" width="1280" height="6" fill="#1f4b5e"/>
+
+  <!-- cartouche logo -->
+  <rect x="88" y="96" width="128" height="128" rx="14" fill="#1f4b5e"/>
+  <text x="152" y="186" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-weight="bold" fill="#f4f1e8" text-anchor="middle">K</text>
+
+  <!-- titre -->
+  <text x="256" y="158" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="bold" fill="#1f3a47">Kapsule</text>
+  <text x="256" y="204" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-style="italic" fill="#4a5a63">Des fiches de 5–10 min, en decks. Retenues pour de bon.</text>
+
+  <!-- étiquette de référence façon spécimen -->
+  <text x="256" y="244" font-family="'Courier New', monospace" font-size="15" letter-spacing="3" fill="#8a2f27">KPS·2026 — LECTURE · QUIZ · SM-2 · PWA</text>
+
+  <!-- courbe de rétention stylisée -->
+  <g transform="translate(940, 88)">
+    <rect x="-24" y="-20" width="290" height="184" rx="10" fill="#faf8f2" stroke="#c9c3b4"/>
+    <text x="121" y="8" font-family="'Courier New', monospace" font-size="13" letter-spacing="2" fill="#6a7a83" text-anchor="middle">COURBE DE RÉTENTION</text>
+    <line x1="0" y1="132" x2="242" y2="132" stroke="#b8b2a3" stroke-width="1"/>
+    <line x1="0" y1="24" x2="0" y2="132" stroke="#b8b2a3" stroke-width="1"/>
+    <!-- oubli sans révision -->
+    <path d="M 0 28 C 40 96, 90 116, 242 126" fill="none" stroke="#b8b2a3" stroke-width="2" stroke-dasharray="5 5"/>
+    <!-- rétention avec révisions -->
+    <path d="M 0 28 C 28 70, 42 82, 60 88 L 60 40 C 96 74, 116 82, 140 86 L 140 46 C 186 72, 214 78, 242 80" fill="none" stroke="#a23b32" stroke-width="3"/>
+    <circle cx="60" cy="40" r="4" fill="#a23b32"/>
+    <circle cx="140" cy="46" r="4" fill="#a23b32"/>
+    <text x="242" y="72" font-family="'Courier New', monospace" font-size="12" fill="#a23b32" text-anchor="end">révisé</text>
+    <text x="242" y="142" font-family="'Courier New', monospace" font-size="12" fill="#8a8474" text-anchor="end">oublié</text>
+  </g>
+</svg>
