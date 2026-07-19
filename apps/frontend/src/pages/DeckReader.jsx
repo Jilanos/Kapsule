@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { CardView } from "../components/CardView.jsx";
+import { SyncBanner } from "../components/SyncBanner.jsx";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { VISIBILITY_LABEL, VISIBILITY_ORDER, isAdmin } from "../lib/visibility.js";
 
@@ -20,6 +21,7 @@ export function DeckReader() {
   const [visibility, setVisibility] = useState(null);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null); // null = vue d'ensemble
+  const [syncError, setSyncError] = useState(null); // { message, retry } | null
 
   useEffect(() => {
     api
@@ -54,9 +56,27 @@ export function DeckReader() {
     [deckId],
   );
 
+  // Persiste une ecriture de progression ; en cas d'echec reseau, expose un
+  // etat "non synchronise" avec une action de reessai (AC9) plutot qu'un simple
+  // console.warn perdu.
+  const persistState = useCallback(
+    (cardId, state, quizScore) => {
+      api
+        .setProgress(deckId, cardId, state, quizScore)
+        .then(() => setSyncError(null))
+        .catch((e) =>
+          setSyncError({
+            message: `Progression non synchronisee : ${e.message}`,
+            retry: () => persistState(cardId, state, quizScore),
+          }),
+        );
+    },
+    [deckId],
+  );
+
   // Met a jour la progression : mise a jour optimiste locale immediate, puis
-  // persistance backend en arriere-plan (tolerant hors-ligne : un echec reseau
-  // ne perd pas l'etat affiche).
+  // persistance backend en arriere-plan (l'etat affiche n'est jamais perdu ;
+  // un echec est signale et rejouable).
   const setCardState = useCallback(
     (cardId, state, quizScore = null) => {
       let persist = true;
@@ -68,17 +88,23 @@ export function DeckReader() {
         }
         return { ...prev, [cardId]: { state, quizScore } };
       });
-      if (persist) {
-        api
-          .setProgress(deckId, cardId, state, quizScore)
-          .catch((e) => console.warn("Progression non synchronisee :", e.message));
-      }
+      if (persist) persistState(cardId, state, quizScore);
     },
-    [deckId],
+    [persistState],
   );
 
-  if (error) return <p className="msg error">{error}</p>;
-  if (!deck) return <p className="msg">Chargement…</p>;
+  if (error)
+    return (
+      <p className="msg error" role="alert">
+        {error}
+      </p>
+    );
+  if (!deck)
+    return (
+      <p className="msg" role="status">
+        Chargement…
+      </p>
+    );
 
   const cards = deck.cards;
   const learnedCount = cards.filter((c) => progress[c.id]?.state === "learned").length;
@@ -88,20 +114,23 @@ export function DeckReader() {
     const card = cards[activeIndex];
     const isLast = activeIndex === cards.length - 1;
     return (
-      <CardView
-        card={card}
-        deckId={deckId}
-        index={activeIndex}
-        total={cards.length}
-        isLast={isLast}
-        onSeen={() => setCardState(card.id, "seen")}
-        onBack={() => setActiveIndex(null)}
-        onLearnAndNext={(quizScore) => {
-          setCardState(card.id, "learned", quizScore);
-          if (isLast) setActiveIndex(null);
-          else setActiveIndex(activeIndex + 1);
-        }}
-      />
+      <>
+        <SyncBanner error={syncError} />
+        <CardView
+          card={card}
+          deckId={deckId}
+          index={activeIndex}
+          total={cards.length}
+          isLast={isLast}
+          onSeen={() => setCardState(card.id, "seen")}
+          onBack={() => setActiveIndex(null)}
+          onLearnAndNext={(quizScore) => {
+            setCardState(card.id, "learned", quizScore);
+            if (isLast) setActiveIndex(null);
+            else setActiveIndex(activeIndex + 1);
+          }}
+        />
+      </>
     );
   }
 
@@ -109,6 +138,7 @@ export function DeckReader() {
   const firstUnlearned = cards.findIndex((c) => progress[c.id]?.state !== "learned");
   return (
     <section>
+      <SyncBanner error={syncError} />
       <Link to="/" className="back-link">
         ← Tous les decks
       </Link>

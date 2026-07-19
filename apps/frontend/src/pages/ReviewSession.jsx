@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { CardView } from "../components/CardView.jsx";
+import { SyncBanner } from "../components/SyncBanner.jsx";
 
 // Vue "Revisions du jour" : enchaine les fiches dues, tous decks confondus.
 export function ReviewSession() {
@@ -9,7 +10,22 @@ export function ReviewSession() {
   const [index, setIndex] = useState(0);
   const [card, setCard] = useState(null); // fiche complete courante
   const [error, setError] = useState(null);
+  const [syncError, setSyncError] = useState(null); // { message, retry } | null
   const navigate = useNavigate();
+
+  // Enregistre une revision ; en cas d'echec, la signale et la rend rejouable
+  // (AC9) au lieu de l'avaler en console.
+  const persistReview = useCallback((deckId, cardId, quizScore) => {
+    api
+      .reviewCard(deckId, cardId, quizScore)
+      .then(() => setSyncError(null))
+      .catch((e) =>
+        setSyncError({
+          message: `Revision non synchronisee : ${e.message}`,
+          retry: () => persistReview(deckId, cardId, quizScore),
+        }),
+      );
+  }, []);
 
   useEffect(() => {
     api
@@ -29,8 +45,18 @@ export function ReviewSession() {
       .catch((e) => setError(e.message));
   }, [due, index]);
 
-  if (error) return <p className="msg error">{error}</p>;
-  if (!due) return <p className="msg">Chargement…</p>;
+  if (error)
+    return (
+      <p className="msg error" role="alert">
+        {error}
+      </p>
+    );
+  if (!due)
+    return (
+      <p className="msg" role="status">
+        Chargement…
+      </p>
+    );
 
   if (due.length === 0) {
     return (
@@ -59,30 +85,36 @@ export function ReviewSession() {
     );
   }
 
-  if (!card) return <p className="msg">Chargement de la fiche…</p>;
+  if (!card)
+    return (
+      <p className="msg" role="status">
+        Chargement de la fiche…
+      </p>
+    );
 
   const current = due[index];
   const isLast = index === due.length - 1;
 
   return (
-    <CardView
-      card={card}
-      deckId={current.deckId}
-      index={index}
-      total={due.length}
-      isLast={isLast}
-      backLabel="← Accueil"
-      nextLabel="Valider la révision & suivante →"
-      lastLabel="Valider la dernière révision"
-      onSeen={() => {}}
-      onBack={() => navigate("/")}
-      onLearnAndNext={(quizScore) => {
-        // Enregistre la revision (reprogrammation SM-2) puis passe a la suivante.
-        api
-          .reviewCard(current.deckId, current.cardId, quizScore)
-          .catch((e) => console.warn("Révision non synchronisée :", e.message));
-        setIndex((i) => i + 1);
-      }}
-    />
+    <>
+      <SyncBanner error={syncError} />
+      <CardView
+        card={card}
+        deckId={current.deckId}
+        index={index}
+        total={due.length}
+        isLast={isLast}
+        backLabel="← Accueil"
+        nextLabel="Valider la révision & suivante →"
+        lastLabel="Valider la dernière révision"
+        onSeen={() => {}}
+        onBack={() => navigate("/")}
+        onLearnAndNext={(quizScore) => {
+          // Enregistre la revision (reprogrammation SM-2) puis passe a la suivante.
+          persistReview(current.deckId, current.cardId, quizScore);
+          setIndex((i) => i + 1);
+        }}
+      />
+    </>
   );
 }

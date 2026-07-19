@@ -1,10 +1,10 @@
 ## prod_001_kapsule_product_brief - Kapsule product brief
-> Date: 2026-07-17
-> Status: Proposed
-> Related request: `req_000_cadrer_et_creer_le_mvp_kapsule`
+> Date: 2026-07-19
+> Status: Accepted
+> Related request: `req_000_cadrer_et_creer_le_mvp_kapsule`, `req_005_durcir_kapsule_apres_audit_transversal`
 > Related backlog: `item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia`, `item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api`, `item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck`, `item_004_suivre_la_progression_et_la_persister_via_le_backend`, `item_005_importer_et_valider_des_decks_generes_par_ia`
 > Related task: `task_001_orchestrer_le_mvp_kapsule`
-> Related architecture: `adr_001_kapsule_architecture_direction`, `adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement`
+> Related architecture: `adr_001_kapsule_architecture_direction`, `adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement`, `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
@@ -35,16 +35,29 @@ flowchart LR
 - Repetition espacee SM-2 alimentee par les scores de quiz : les fiches apprises reviennent au bon moment, vue "Revisions du jour".
 - Mise en ligne sur VPS OVH (Docker + Caddy) mutualisable avec les autres projets de l'operateur.
 
+# Delivered (v0.2 + durcissement)
+- Livre depuis le MVP : format ferme, lecteur, decks/etats, progression
+  synchronisee, PWA installable.
+- Livre en v0.2 : authentification multi-appareils, repetition espacee SM-2,
+  roles/visibilite (dont decks prives par utilisateur), deploiement VPS.
+- Livre au durcissement (`req_005`/`adr_003`) : autorisation uniforme sur toutes
+  les routes de deck, assets prives par URL signee, isolation du cache PWA,
+  rate limiting + hachage non bloquant, CI et scans, licence/gouvernance,
+  accessibilite (focus, live regions, progressbar, reduced-motion),
+  fiabilite (retry visible des ecritures) et budgets de performance.
+
 # Non-goals
-- Application native Android/iOS au MVP.
+- Application native Android/iOS (la PWA couvre le besoin).
 - Editeur de fiches WYSIWYG integre (la production passe par le format JSON).
-- Partage social, classements, ou decks prives par utilisateur (bibliotheque de decks commune).
+- Partage social et classements.
 - Generation de fiches IA integree dans l'app (la generation se fait hors app via SPEC.md).
-- Notifications push et verification/reset d'email en v0.2 (follow-ups identifies).
+- Notifications push et verification/reset d'email (follow-ups identifies).
+- Lecture hors ligne des reponses authentifiees tant que le cache segmente par
+  utilisateur n'est pas livre (choix d'isolation, ADR 003).
 
 # Scope and guardrails
-- In: format de fiche ferme (JSON Schema + SPEC.md), lecteur de fiches, decks avec etats et enchainement, progression persistee via backend, import de decks avec validation, PWA installable.
-- Out: appli native, editeur WYSIWYG, repetition espacee, social/partage, generation IA integree a l'app.
+- In: format de fiche ferme (JSON Schema + SPEC.md), lecteur de fiches, decks avec etats et enchainement, progression persistee via backend, import de decks avec validation, PWA installable, authentification et roles/visibilite, repetition espacee SM-2, deploiement durci.
+- Out: appli native, editeur WYSIWYG, social/partage, generation IA integree a l'app, notifications push.
 
 # Key product decisions
 - Le format JSON predefini est le contrat central entre les agents IA et l'app : types de sections fermes, validation stricte a l'import.

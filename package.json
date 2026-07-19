@@ -15,7 +15,8 @@
     "build": "npm run build --workspaces --if-present",
     "validate-deck": "node packages/schema/bin/validate-deck.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "budget": "node scripts/check-bundle-budget.mjs"
   },
   "engines": {
     "node": ">=20"

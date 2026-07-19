@@ -25,12 +25,20 @@ export function CardView({
 }) {
   const [quizScore, setQuizScore] = useState(null);
   const topRef = useRef(null);
+  const titleRef = useRef(null);
 
-  // A l'ouverture (ou changement de fiche) : marquer "vue" et remonter en haut.
+  // A l'ouverture (ou changement de fiche) : marquer "vue", remonter en haut,
+  // deplacer le focus sur le titre de la fiche et mettre a jour le titre de
+  // document (AC8 : gestion du focus apres changement de fiche).
   useEffect(() => {
     setQuizScore(null);
     onSeen();
     topRef.current?.scrollIntoView({ block: "start" });
+    titleRef.current?.focus();
+    document.title = `${card.title} — Kapsule`;
+    return () => {
+      document.title = "Kapsule";
+    };
     // onSeen est stable pour une meme fiche ; on ne depend que de la fiche.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.id]);
@@ -46,7 +54,9 @@ export function CardView({
         </span>
       </div>
 
-      <h1 className="card-title">{card.title}</h1>
+      <h1 className="card-title" tabIndex={-1} ref={titleRef}>
+        {card.title}
+      </h1>
       {card.durationMin && (
         <p className="card-duration muted">⏱ {card.durationMin} min de lecture</p>
       )}

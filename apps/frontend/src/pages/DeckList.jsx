@@ -24,8 +24,18 @@ export function DeckList() {
     load();
   }, [load]);
 
-  if (error) return <p className="msg error">Impossible de charger les decks : {error}</p>;
-  if (!decks) return <p className="msg">Chargement…</p>;
+  if (error)
+    return (
+      <p className="msg error" role="alert">
+        Impossible de charger les decks : {error}
+      </p>
+    );
+  if (!decks)
+    return (
+      <p className="msg" role="status">
+        Chargement…
+      </p>
+    );
 
   return (
     <section>
@@ -82,7 +92,14 @@ export function DeckList() {
 function ProgressBar({ learned, total }) {
   const pct = total ? Math.round((learned / total) * 100) : 0;
   return (
-    <div className="progress" aria-label={`${pct}% appris`}>
+    <div
+      className="progress"
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={pct}
+      aria-label={`${learned} sur ${total} fiches apprises (${pct}%)`}
+    >
       <div className="progress-fill" style={{ width: `${pct}%` }} />
     </div>
   );

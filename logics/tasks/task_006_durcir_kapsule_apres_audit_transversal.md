@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 95
 > Confidence: 90
-> Progress: 70%
+> Progress: 90%
 > Complexity: High
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -109,9 +109,16 @@
   chemin distant `deploy.sh`. En attente : protection de `main` (operateur) ;
   validation Logics en CI non incluse (outil local, non publie) -> gardee en
   pre-push local ; smoke `docker compose`/HTTPS (operateur).
-- [ ] Vague 4 - P2 experience/operations : accessibilite, retry/offline,
+- [~] Vague 4 - P2 experience/operations : accessibilite, retry/offline,
   confirmation destructive, budgets de performance, sauvegarde hors site,
   restauration, README, GitHub et brief produit.
+  Livre : accessibilite (skip link, focus de route + de fiche, live regions,
+  progressbar, annonce quiz, focus-visible, prefers-reduced-motion) ; bandeau
+  de retry visible sur les ecritures progression/revision ; confirmation de
+  suppression (deja presente) ; budget de bundle en CI ; copie hors site
+  optionnelle dans backup.sh ; README reecrit ; brief produit aligne (Accepted).
+  En attente : run axe automatise + checklist clavier (verif), preuve datee de
+  sauvegarde hors site + restauration (operateur), metadata GitHub (operateur).
 - [ ] Vague 5 - Closeout : executer toutes les validations, joindre les preuves,
   mettre a jour le rapport Logics et terminer avec `flow closeout`/`flow finish`.
 
@@ -242,6 +249,32 @@ et gouvernance (AC6), deploiement reproductible non-root + en-tetes Caddy +
 - En attente (operateur/hors CI local) : protection de branche `main` (ruleset
   GitHub) ; `docker compose config` + build/scan d'image + smoke HTTPS a
   executer en CI/serveur ; validation Logics gardee en local.
+
+## Vague 4 - P2 experience/operations - 2026-07-19
+- Accessibilite (AC8) : `styles.css` (skip link, `.sr-only`, `:focus-visible`
+  global, `prefers-reduced-motion`, bandeau sync) ; `App.jsx` (skip link,
+  landmark `main` focusable, focus de route sur changement d'URL) ; `CardView`
+  (focus sur le titre + `document.title` a chaque fiche) ; `Quiz` (annonce
+  `role="status"` correct/incorrect, au-dela des symboles aria-hidden) ;
+  `DeckList` `ProgressBar` (`role=progressbar` + aria-valuemin/max/now) ;
+  chargements/erreurs en `role="status"`/`role="alert"`.
+- Fiabilite (AC9) : `SyncBanner.jsx` (nouveau) + retry visible des ecritures de
+  progression (`DeckReader`) et de revision (`ReviewSession`) au lieu de
+  `console.warn`. Confirmation de suppression deja presente (`window.confirm`).
+- Performance (AC10) : `scripts/check-bundle-budget.mjs` (JS gzip <= 75 KB,
+  CSS <= 15 KB) + script `budget` + etape CI. Mesure actuelle : JS 58,1 KB,
+  CSS 2,9 KB gzip.
+- Operations (AC10) : `deploy/backup.sh` copie hors site optionnelle
+  (`KAPSULE_OFFSITE_REMOTE`, rclone) ; la preuve datee sauvegarde/restauration
+  reste operateur.
+- Presentation (AC11) : `README.md` reecrit (fonctionnalites, prerequis, verif,
+  configuration, architecture, securite, limites, licence, placeholder capture) ;
+  `prod_001_kapsule_product_brief` aligne sur le livre et passe `Accepted`
+  (non-objectifs obsoletes corriges : decks prives et SM-2 sont livres).
+- Validation : `npm test` 43 backend + 10 schema/frontend ; `npm run build` OK ;
+  `npm run format:check` OK ; `npm run budget` OK ; `logics-manager lint` OK.
+- En attente : run axe automatise + checklist clavier WCAG 2.2 AA (verification) ;
+  preuve datee de sauvegarde hors site + restauration ; topics/homepage GitHub.
 
 # AI Context
 - Summary: Executer le durcissement Kapsule issu de l'audit en vagues P0/P1/P2 avec

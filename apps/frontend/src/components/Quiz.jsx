@@ -47,6 +47,15 @@ export function Quiz({ questions, onScore }) {
                 );
               })}
             </div>
+            {/* Annonce le resultat aux lecteurs d'ecran : le code couleur et les
+                symboles ✓/✗ (aria-hidden) ne suffisent pas seuls (AC8). */}
+            {answered && (
+              <p className="sr-only" role="status">
+                {answers[qi] === q.answer
+                  ? "Bonne reponse."
+                  : `Mauvaise reponse. La bonne reponse est : ${q.choices[q.answer]}.`}
+              </p>
+            )}
             {answered && q.explanation && <p className="quiz-explain">{q.explanation}</p>}
           </div>
         );

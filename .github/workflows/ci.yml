@@ -25,6 +25,8 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Budget de performance frontend
+        run: npm run budget
       - name: Audit des dependances (production)
         run: npm audit --omit=dev
       - name: Audit complet (informatif)
