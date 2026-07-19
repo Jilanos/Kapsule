@@ -13,8 +13,11 @@ const ASSETS_DIR = join(__dirname, "..", "apps", "frontend", "dist", "assets");
 
 // Seuils (gzip). Marge raisonnable au-dessus de l'etat actuel pour detecter une
 // derive sans etre fragile ; a resserrer si le bundle diminue durablement.
+// Passe de 75 a 85 KB avec la montee React 18->19 + react-router 6->7
+// (2026-07-19) : ~+20 KB gzip de socle inherent aux librairies, pas du code
+// applicatif ; ~6 KB de marge conservee pour detecter une vraie derive.
 const BUDGETS = {
-  jsGzipKB: 75, // total JavaScript gzip
+  jsGzipKB: 85, // total JavaScript gzip
   cssGzipKB: 15, // total CSS gzip
 };
 

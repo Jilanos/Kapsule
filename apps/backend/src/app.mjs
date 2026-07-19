@@ -114,8 +114,11 @@ export function createApp(db, options = {}) {
   // Servis via <img> (pas d'en-tete Bearer) : l'autorisation est portee par une
   // signature a duree de vie courte emise a la lecture du deck (gardee par
   // canViewDeck). Sans signature valide, on ne sert rien.
-  app.get("/api/decks/:deckId/assets/*", (req, res) => {
-    const rel = canonicalAssetPath(req.params[0]);
+  app.get("/api/decks/:deckId/assets/*assetPath", (req, res) => {
+    // Express 5 (path-to-regexp v8) : le wildcard doit etre nomme et expose un
+    // tableau de segments, la ou Express 4 donnait la chaine complete via req.params[0].
+    const splat = req.params.assetPath;
+    const rel = canonicalAssetPath(Array.isArray(splat) ? splat.join("/") : (splat ?? ""));
     if (rel.includes("..")) return res.status(400).end();
     // Verification signature/expiration avant tout acces au disque.
     if (!verifyAssetSig(req.params.deckId, rel, req.query.exp, req.query.sig)) {
