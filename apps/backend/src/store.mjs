@@ -3,6 +3,7 @@
 
 import { validateDeck } from "@kapsule/schema";
 import { schedule, gradeFromQuiz, addDays } from "./sm2.mjs";
+import { retentionOfDeck, retentionSeries } from "./retention.mjs";
 
 export const VALID_STATES = ["unseen", "seen", "learned"];
 const DEFAULT_USER = "default";
@@ -158,6 +159,43 @@ export class Store {
     const map = {};
     for (const r of rows) map[r.cardId] = { state: r.state, quizScore: r.quizScore };
     return map;
+  }
+
+  /**
+   * Synthese de revision par deck pour l'utilisateur : nombre de fiches dues
+   * (echeance <= aujourd'hui), retention estimee agregee et serie de la courbe
+   * de decroissance. Une seule requete indexee (idx_reviews_due) ; les decks
+   * sans fiche en cycle sont simplement absents de la map (valeurs neutres
+   * appliquees par l'appelant).
+   * @param {string} userId
+   * @param {Date} [now] horloge injectable (tests).
+   * @returns {Record<string,{dueCount:number, retention:number|null, retentionSeries:number[]}>}
+   */
+  getReviewSummary(userId = DEFAULT_USER, now = new Date()) {
+    const rows = this.db
+      .prepare(
+        `SELECT deck_id AS deckId, interval_days AS interval,
+                due_date AS dueDate, updated_at AS updatedAt
+         FROM reviews WHERE user_id = ?`,
+      )
+      .all(userId);
+
+    const todayStr = now.toISOString().slice(0, 10);
+    const byDeck = new Map();
+    for (const r of rows) {
+      if (!byDeck.has(r.deckId)) byDeck.set(r.deckId, []);
+      byDeck.get(r.deckId).push(r);
+    }
+
+    const summary = {};
+    for (const [deckId, reviews] of byDeck) {
+      summary[deckId] = {
+        dueCount: reviews.filter((r) => r.dueDate <= todayStr).length,
+        retention: retentionOfDeck(reviews, now),
+        retentionSeries: retentionSeries(reviews, now),
+      };
+    }
+    return summary;
   }
 
   /** Toute la progression de l'utilisateur, agregee par deck. */

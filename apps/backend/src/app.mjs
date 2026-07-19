@@ -138,10 +138,15 @@ export function createApp(db, options = {}) {
     // Le filtrage par visibilite/role se fait cote SQL.
     const decks = store.listDecks(req.user);
     const summary = store.getProgressSummary(req.user.id);
+    const reviews = store.getReviewSummary(req.user.id);
     res.json(
       decks.map((d) => ({
         ...d,
         progress: summary[d.id] ?? { learned: 0, seen: 0 },
+        // Champs additifs (retention memorielle) : neutres si aucune fiche en cycle.
+        dueCount: reviews[d.id]?.dueCount ?? 0,
+        retention: reviews[d.id]?.retention ?? null,
+        retentionSeries: reviews[d.id]?.retentionSeries ?? [],
       })),
     );
   });
