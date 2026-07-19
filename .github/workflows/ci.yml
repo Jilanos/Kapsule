@@ -51,7 +51,7 @@ jobs:
       - name: Build de l'image
         run: docker build -t kapsule:ci .
       - name: Scan de l'image (Trivy)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: kapsule:ci
           format: table
