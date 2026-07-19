@@ -21,6 +21,10 @@
   "engines": {
     "node": ">=20"
   },
+  "overrides": {
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
   "allowScripts": {
     "better-sqlite3@12.11.1": true,
     "esbuild@0.28.1": true
