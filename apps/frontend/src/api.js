@@ -64,6 +64,12 @@ export const api = {
   getCard: (deckId, cardId) =>
     req(`/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}`),
   getDueReviews: () => req("/reviews/due"),
+  markDeckLearned: (deckId) =>
+    req(`/decks/${encodeURIComponent(deckId)}/progress`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ state: "learned" }),
+    }),
   reviewCard: (deckId, cardId, quizScore) =>
     req(`/decks/${encodeURIComponent(deckId)}/cards/${encodeURIComponent(cardId)}/review`, {
       method: "POST",

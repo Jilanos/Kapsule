@@ -281,14 +281,60 @@ export class Store {
 
   /**
    * Cree l'entree de revision quand une fiche devient "apprise", si absente.
-   * La note initiale derive du score de quiz enregistre.
+   * La note initiale derive du score de quiz quand il existe ; une action
+   * manuelle sans score entre dans le cycle avec la note neutre "sans quiz".
    */
   ensureReview(deckId, cardId, quizScore, userId = DEFAULT_USER) {
     if (this.getReview(deckId, cardId, userId)) return; // deja dans le cycle
     const card = this.getCard(deckId, cardId);
     if (!card) return;
-    const grade = gradeFromQuiz(quizScore ?? 0, countQuizQuestions(card));
+    const grade =
+      quizScore == null ? gradeFromQuiz(0, 0) : gradeFromQuiz(quizScore, countQuizQuestions(card));
     this._writeReview(userId, deckId, cardId, schedule(null, grade), grade);
+  }
+
+  /**
+   * Marque toutes les fiches non apprises d'un deck comme apprises pour un
+   * utilisateur. Idempotent et atomique : les fiches deja apprises gardent leur
+   * progression et leurs revisions existantes.
+   * @returns {{ ok:boolean, error?:string, changed?:number, progress?:{learned:number,seen:number} }}
+   */
+  markDeckLearned(deckId, userId = DEFAULT_USER) {
+    const cards = this.db
+      .prepare(`SELECT card_id AS cardId FROM cards WHERE deck_id = ? ORDER BY position ASC`)
+      .all(deckId);
+    if (cards.length === 0 && !this.getDeckAccess(deckId)) {
+      return { ok: false, error: `deck introuvable : ${deckId}` };
+    }
+
+    const tx = this.db.transaction(() => {
+      const existingRows = this.db
+        .prepare(
+          `SELECT card_id AS cardId, state
+           FROM progress WHERE user_id = ? AND deck_id = ?`,
+        )
+        .all(userId, deckId);
+      const existing = new Map(existingRows.map((row) => [row.cardId, row.state]));
+      const writeProgress = this.db.prepare(
+        `INSERT INTO progress (user_id, deck_id, card_id, state, quiz_score, updated_at)
+         VALUES (?, ?, ?, 'learned', NULL, ?)
+         ON CONFLICT(user_id, deck_id, card_id) DO UPDATE SET
+           state='learned', quiz_score=excluded.quiz_score, updated_at=excluded.updated_at`,
+      );
+      const now = new Date().toISOString();
+      let changed = 0;
+      for (const card of cards) {
+        if (existing.get(card.cardId) === "learned") continue;
+        writeProgress.run(userId, deckId, card.cardId, now);
+        this.ensureReview(deckId, card.cardId, null, userId);
+        changed++;
+      }
+      return changed;
+    });
+
+    const changed = tx();
+    const progress = this.getProgressSummary(userId)[deckId] ?? { learned: 0, seen: 0 };
+    return { ok: true, changed, progress };
   }
 
   /**

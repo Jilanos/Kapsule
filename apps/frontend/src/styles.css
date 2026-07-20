@@ -212,6 +212,13 @@ body {
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;
 }
+.app-main-decks {
+  max-width: 1280px;
+}
+.deck-list-page:not(.deck-list-page-wide) {
+  max-width: 720px;
+  margin: 0 auto;
+}
 
 h1 {
   font-family: var(--serif);
@@ -229,6 +236,12 @@ h1 {
 .msg.error {
   color: var(--accent);
 }
+.msg.success {
+  color: var(--primary);
+}
+.msg.compact {
+  padding: 0.25rem 0 1rem;
+}
 .muted {
   color: var(--muted);
 }
@@ -242,15 +255,17 @@ h1 {
   gap: 1.1rem;
   grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
 }
+.deck-list-page-wide .deck-grid {
+  grid-template-columns: repeat(auto-fill, minmax(286px, 1fr));
+}
 
 .deck-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: var(--rule);
   border-top: 3px double var(--text);
   border-radius: var(--radius);
-  padding: 1.1rem 1.2rem 1.2rem;
-  text-decoration: none;
   color: var(--text);
   transition:
     border-color 0.12s ease,
@@ -261,6 +276,13 @@ h1 {
   border-color: var(--primary);
   border-top-color: var(--primary);
   background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+}
+.deck-card-link {
+  display: block;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+  padding: 1.1rem 1.2rem 1.2rem;
 }
 .deck-ref {
   display: block;
@@ -788,6 +810,107 @@ button.back-link {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+}
+.list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.deck-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.1rem;
+}
+.deck-search {
+  flex: 1 1 16rem;
+}
+.deck-search input {
+  width: 100%;
+  font: inherit;
+  font-family: var(--serif);
+  padding: 0.65rem 0.8rem;
+  border: var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.search-clear,
+.deck-learned-action,
+.deck-options summary {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+}
+.search-clear {
+  border: var(--rule);
+  background: var(--surface);
+  color: var(--primary);
+  padding: 0.6rem 0.85rem;
+}
+.deck-options {
+  position: relative;
+}
+.deck-options summary {
+  list-style: none;
+  color: var(--primary);
+  background: var(--surface);
+  border: var(--rule);
+  padding: 0.5rem 0.9rem;
+}
+.deck-options summary::-webkit-details-marker {
+  display: none;
+}
+.deck-options-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 8;
+  min-width: min(20rem, calc(100vw - 2rem));
+  background: var(--surface);
+  border: var(--rule);
+  border-top: 3px double var(--text);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+}
+.option-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--text);
+  padding: 0.35rem 0;
+}
+.option-toggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+}
+.deck-learned-action {
+  align-self: flex-start;
+  margin: 0 1.2rem 1.15rem;
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  padding: 0.5rem 0.75rem;
+}
+.deck-learned-action:hover:not(:disabled) {
+  background: var(--primary);
+  color: var(--primary-contrast);
+}
+.deck-learned-action:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 .import-toggle {
   appearance: none;

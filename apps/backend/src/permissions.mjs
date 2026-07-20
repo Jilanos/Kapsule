@@ -55,3 +55,8 @@ export function canDeleteDeck(user) {
 export function canChangeVisibility(user) {
   return user.role === "admin";
 }
+
+/** Maitres et admins peuvent marquer leur propre progression de deck comme apprise. */
+export function canMarkDeckLearned(user) {
+  return user.role === "master" || user.role === "admin";
+}

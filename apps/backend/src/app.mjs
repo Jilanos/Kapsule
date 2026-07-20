@@ -23,6 +23,7 @@ import {
   canCreateWithVisibility,
   canDeleteDeck,
   canChangeVisibility,
+  canMarkDeckLearned,
 } from "./permissions.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -264,6 +265,28 @@ export function createApp(db, options = {}) {
     );
     if (!result.ok) return res.status(422).json({ error: result.error });
     res.json({ ok: true, state });
+  });
+
+  app.put("/api/decks/:deckId/progress", requireAuth, (req, res) => {
+    const access = store.getDeckAccess(req.params.deckId);
+    if (!access || !canViewDeck(req.user, access)) {
+      return res.status(404).json({ error: "deck introuvable" });
+    }
+    if (!canMarkDeckLearned(req.user)) {
+      return res.status(403).json({ error: "action reservee aux maitres et administrateurs" });
+    }
+    const { state } = req.body ?? {};
+    if (state !== "learned") {
+      return res.status(422).json({ error: 'etat invalide (attendu : "learned")' });
+    }
+    const result = store.markDeckLearned(req.params.deckId, req.user.id);
+    if (!result.ok) return res.status(404).json({ error: result.error });
+    res.json({
+      ok: true,
+      state: "learned",
+      changed: result.changed,
+      progress: result.progress,
+    });
   });
 
   // --- Repetition espacee (SM-2) -------------------------------------------

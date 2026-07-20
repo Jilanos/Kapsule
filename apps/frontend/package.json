@@ -9,7 +9,7 @@
     "prebuild": "node scripts/generate-icons.mjs",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node test/ssr-smoke.mjs"
+    "test": "node --test test/*.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",

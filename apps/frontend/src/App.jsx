@@ -47,7 +47,12 @@ export function App() {
           </button>
         </div>
       </header>
-      <main className="app-main" id="main" tabIndex={-1} ref={mainRef}>
+      <main
+        className={`app-main${pathname === "/" ? " app-main-decks" : ""}`}
+        id="main"
+        tabIndex={-1}
+        ref={mainRef}
+      >
         <Routes>
           <Route path="/" element={<DeckList />} />
           <Route path="/reviews" element={<ReviewSession />} />

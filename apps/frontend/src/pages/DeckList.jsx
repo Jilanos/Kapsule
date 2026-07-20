@@ -1,13 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
+import { useAuth } from "../auth/AuthContext.jsx";
 import { ImportDeck } from "../components/ImportDeck.jsx";
+import { filterDecks, readDeckListOptions, writeDeckListOptions } from "../lib/deckListOptions.js";
 import { VISIBILITY_LABEL } from "../lib/visibility.js";
 
 export function DeckList() {
+  const { user } = useAuth();
   const [decks, setDecks] = useState(null);
   const [dueCount, setDueCount] = useState(0);
   const [error, setError] = useState(null);
+  const [query, setQuery] = useState("");
+  const [options, setOptions] = useState(() => readDeckListOptions());
+  const [actionMessage, setActionMessage] = useState(null);
+  const [actionError, setActionError] = useState(null);
+  const [busyDeckId, setBusyDeckId] = useState(null);
 
   const load = useCallback(() => {
     api
@@ -24,6 +32,40 @@ export function DeckList() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    writeDeckListOptions(options);
+  }, [options]);
+
+  const updateOption = (key, value) => {
+    setOptions((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const canMarkDeckLearned = user?.role === "master" || user?.role === "admin";
+  const visibleDecks = decks ? filterDecks(decks, query) : [];
+
+  const markDeckLearned = async (deck) => {
+    const remaining = Math.max(0, deck.cardCount - (deck.progress?.learned ?? 0));
+    const confirmed = window.confirm(
+      `Marquer toutes les fiches non apprises du deck "${deck.title}" comme apprises ?\n\n${remaining} fiche${remaining > 1 ? "s" : ""} seront modifiee${remaining > 1 ? "s" : ""}.`,
+    );
+    if (!confirmed) return;
+
+    setBusyDeckId(deck.id);
+    setActionError(null);
+    setActionMessage(null);
+    try {
+      const result = await api.markDeckLearned(deck.id);
+      setActionMessage(
+        `${result.changed} fiche${result.changed > 1 ? "s" : ""} marquee${result.changed > 1 ? "s" : ""} comme apprise${result.changed > 1 ? "s" : ""}.`,
+      );
+      load();
+    } catch (e) {
+      setActionError(e.message);
+    } finally {
+      setBusyDeckId(null);
+    }
+  };
+
   if (error)
     return (
       <p className="msg error" role="alert">
@@ -38,7 +80,7 @@ export function DeckList() {
     );
 
   return (
-    <section>
+    <section className={`deck-list-page${options.wide ? " deck-list-page-wide" : ""}`}>
       {dueCount > 0 && (
         <Link to="/reviews" className="review-banner">
           <span className="review-banner-count">{dueCount}</span>
@@ -48,50 +90,121 @@ export function DeckList() {
       )}
       <div className="list-head">
         <h1>Vos decks</h1>
-        <ImportDeck onImported={load} />
+        <div className="list-actions">
+          <DeckListOptions options={options} onChange={updateOption} />
+          <ImportDeck onImported={load} />
+        </div>
       </div>
-      {decks.length === 0 && (
+      <div className="deck-search-row">
+        <label className="deck-search">
+          <span className="sr-only">Chercher un deck</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Chercher un deck"
+            autoComplete="off"
+          />
+        </label>
+        {query && (
+          <button type="button" className="search-clear" onClick={() => setQuery("")}>
+            Effacer
+          </button>
+        )}
+      </div>
+      {actionMessage && (
+        <p className="msg compact success" role="status">
+          {actionMessage}
+        </p>
+      )}
+      {actionError && (
+        <p className="msg compact error" role="alert">
+          Action impossible : {actionError}
+        </p>
+      )}
+      {decks.length === 0 && !query && (
         <p className="msg">Aucun deck pour l'instant. Importez-en un pour commencer.</p>
       )}
+      {decks.length > 0 && visibleDecks.length === 0 && (
+        <p className="msg">Aucun resultat pour cette recherche.</p>
+      )}
       <ul className="deck-grid">
-        {decks.map((d) => (
+        {visibleDecks.map((d) => (
           <li key={d.id}>
-            <Link to={`/decks/${d.id}`} className="deck-card">
-              <span className="deck-ref">{deckRef(d.id)}</span>
-              <div className="deck-card-head">
-                <h2>{d.title}</h2>
-                {d.visibility && d.visibility !== "general" && (
-                  <span className={`visibility-badge vis-${d.visibility}`}>
-                    {VISIBILITY_LABEL[d.visibility]}
-                  </span>
-                )}
-              </div>
-              {d.description && <p className="deck-desc">{d.description}</p>}
-              <div className="deck-meta">
-                <Graduations
-                  learned={d.progress.learned}
-                  due={d.dueCount ?? 0}
-                  total={d.cardCount}
-                />
-                {d.retentionSeries?.length >= 2 && (
-                  <RetentionTrace series={d.retentionSeries} retention={d.retention} />
-                )}
-                <span className="deck-count">{deckLegend(d)}</span>
-              </div>
-              {d.tags?.length > 0 && (
-                <div className="tags">
-                  {d.tags.map((t) => (
-                    <span key={t} className="tag">
-                      {t}
+            <article className="deck-card">
+              <Link to={`/decks/${d.id}`} className="deck-card-link">
+                <span className="deck-ref">{deckRef(d.id)}</span>
+                <div className="deck-card-head">
+                  <h2>{d.title}</h2>
+                  {d.visibility && d.visibility !== "general" && (
+                    <span className={`visibility-badge vis-${d.visibility}`}>
+                      {VISIBILITY_LABEL[d.visibility]}
                     </span>
-                  ))}
+                  )}
                 </div>
+                {d.description && <p className="deck-desc">{d.description}</p>}
+                <div className="deck-meta">
+                  <Graduations
+                    learned={d.progress.learned}
+                    due={d.dueCount ?? 0}
+                    total={d.cardCount}
+                  />
+                  {options.showRetention && d.retentionSeries?.length >= 2 && (
+                    <RetentionTrace series={d.retentionSeries} retention={d.retention} />
+                  )}
+                  <span className="deck-count">{deckLegend(d)}</span>
+                </div>
+                {d.tags?.length > 0 && (
+                  <div className="tags">
+                    {d.tags.map((t) => (
+                      <span key={t} className="tag">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </Link>
+              {canMarkDeckLearned && (
+                <button
+                  type="button"
+                  className="deck-learned-action"
+                  onClick={() => markDeckLearned(d)}
+                  disabled={busyDeckId === d.id}
+                >
+                  {busyDeckId === d.id ? "Marquage..." : "Marquer appris"}
+                </button>
               )}
-            </Link>
+            </article>
           </li>
         ))}
       </ul>
     </section>
+  );
+}
+
+function DeckListOptions({ options, onChange }) {
+  return (
+    <details className="deck-options">
+      <summary>Options</summary>
+      <div className="deck-options-panel">
+        <label className="option-toggle">
+          <input
+            type="checkbox"
+            checked={options.wide}
+            onChange={(e) => onChange("wide", e.target.checked)}
+          />
+          <span>Utiliser la largeur de l'ecran</span>
+        </label>
+        <label className="option-toggle">
+          <input
+            type="checkbox"
+            checked={options.showRetention}
+            onChange={(e) => onChange("showRetention", e.target.checked)}
+          />
+          <span>Afficher les courbes de retention</span>
+        </label>
+      </div>
+    </details>
   );
 }
 
