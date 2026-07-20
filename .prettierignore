@@ -7,5 +7,6 @@ decks
 logics
 docs
 apps/frontend/dist
+apps/frontend/test/.ssr-smoke-*
 apps/backend/data
 apps/backend/uploads

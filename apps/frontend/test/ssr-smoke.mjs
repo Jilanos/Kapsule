@@ -2,7 +2,7 @@
 // et les rend en chaine (SSR) avec le deck d'exemple. Confirme que chaque type
 // de section + le quiz se rendent sans erreur.
 import { build } from "esbuild";
-import { readFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToString } from "react-dom/server";
@@ -14,15 +14,16 @@ const deck = JSON.parse(
   readFileSync(join(root, "..", "..", "decks", "reseaux-essentiels.json"), "utf8"),
 );
 
-// Entree qui reexporte les composants a tester.
-const entry = join(root, "test", ".entry.jsx");
+// Entree temporaire qui reexporte les composants a tester.
+const tempDir = mkdtempSync(join(root, "test", ".ssr-smoke-"));
+const entry = join(tempDir, "entry.jsx");
 writeFileSync(
   entry,
-  `export { Section } from "../src/components/Section.jsx";
-   export { CardView } from "../src/components/CardView.jsx";
-   export { Markdown } from "../src/lib/markdown.jsx";`,
+  `export { Section } from "${join(root, "src", "components", "Section.jsx")}";
+   export { CardView } from "${join(root, "src", "components", "CardView.jsx")}";
+   export { Markdown } from "${join(root, "src", "lib", "markdown.jsx")}";`,
 );
-const outfile = join(root, "test", ".bundle.mjs");
+const outfile = join(tempDir, "bundle.mjs");
 
 await build({
   entryPoints: [entry],
@@ -74,8 +75,7 @@ for (const c of deck.cards) {
   });
 }
 
-rmSync(entry, { force: true });
-rmSync(outfile, { force: true });
+rmSync(tempDir, { recursive: true, force: true });
 
 if (failures) {
   console.error(`\n${failures} echec(s).`);

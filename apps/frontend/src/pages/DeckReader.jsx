@@ -117,6 +117,7 @@ export function DeckReader() {
       <>
         <SyncBanner error={syncError} />
         <CardView
+          key={card.id}
           card={card}
           deckId={deckId}
           index={activeIndex}

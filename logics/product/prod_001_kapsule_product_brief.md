@@ -1,9 +1,9 @@
 ## prod_001_kapsule_product_brief - Kapsule product brief
 > Date: 2026-07-19
 > Status: Settled
-> Related request: `req_008_ameliorer_l_exploration_et_l_affichage_des_decks`
-> Related backlog: `item_013_ameliorer_l_exploration_et_l_affichage_des_decks`
-> Related task: `task_009_ameliorer_l_exploration_et_l_affichage_des_decks`
+> Related request: `req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader`
+> Related backlog: `item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader`
+> Related task: `task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader`
 > Related architecture: `adr_001_kapsule_architecture_direction`, `adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement`, `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -71,5 +71,5 @@ flowchart LR
 - La progression est retrouvee intacte apres changement d'appareil.
 
 # References
-- Product back-reference: `item_013_ameliorer_l_exploration_et_l_affichage_des_decks`
-- Task back-reference: `task_009_ameliorer_l_exploration_et_l_affichage_des_decks`
+- Product back-reference: `item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader`
+- Task back-reference: `task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader`
