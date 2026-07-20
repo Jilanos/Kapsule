@@ -1,9 +1,9 @@
 ## prod_001_kapsule_product_brief - Kapsule product brief
 > Date: 2026-07-19
-> Status: Accepted
-> Related request: `req_000_cadrer_et_creer_le_mvp_kapsule`, `req_005_durcir_kapsule_apres_audit_transversal`
-> Related backlog: `item_001_definir_le_schema_de_fiche_et_le_spec_md_pour_agents_ia`, `item_002_creer_le_socle_monorepo_pwa_frontend_et_backend_api`, `item_003_construire_le_lecteur_de_fiches_et_la_navigation_en_deck`, `item_004_suivre_la_progression_et_la_persister_via_le_backend`, `item_005_importer_et_valider_des_decks_generes_par_ia`
-> Related task: `task_001_orchestrer_le_mvp_kapsule`, `task_006_durcir_kapsule_apres_audit_transversal`
+> Status: Settled
+> Related request: `req_008_ameliorer_l_exploration_et_l_affichage_des_decks`
+> Related backlog: `item_013_ameliorer_l_exploration_et_l_affichage_des_decks`
+> Related task: `task_009_ameliorer_l_exploration_et_l_affichage_des_decks`
 > Related architecture: `adr_001_kapsule_architecture_direction`, `adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement`, `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -71,5 +71,5 @@ flowchart LR
 - La progression est retrouvee intacte apres changement d'appareil.
 
 # References
-- Product back-reference: `req_000_cadrer_et_creer_le_mvp_kapsule`
-- Task back-reference: `task_001_orchestrer_le_mvp_kapsule`
+- Product back-reference: `item_013_ameliorer_l_exploration_et_l_affichage_des_decks`
+- Task back-reference: `task_009_ameliorer_l_exploration_et_l_affichage_des_decks`
