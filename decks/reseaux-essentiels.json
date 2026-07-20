@@ -1,57 +1,148 @@
 {
   "schemaVersion": 1,
   "id": "reseaux-essentiels",
-  "title": "Reseaux essentiels",
-  "description": "Trois fiches courtes pour comprendre les bases des reseaux : adresses IP, le handshake TCP et le DNS.",
-  "tags": ["reseau", "informatique", "protocoles"],
+  "title": "Réseaux essentiels",
+  "description": "Trois fiches denses pour raisonner sur les fondations d'Internet : l'adressage IP (v4/v6, sous-réseaux, NAT), l'établissement d'une connexion TCP fiable, et la résolution DNS. Objectif : savoir diagnostiquer, pas seulement reconnaitre.",
+  "tags": [
+    "reseau",
+    "informatique",
+    "protocoles",
+    "tcp-ip",
+    "dns"
+  ],
   "cards": [
     {
       "id": "adresses-ip",
-      "title": "Les adresses IP",
-      "durationMin": 5,
-      "level": "debutant",
+      "title": "Les adresses IP : adressage, sous-réseaux et NAT",
+      "durationMin": 10,
+      "level": "intermediaire",
       "sections": [
         {
           "type": "intro",
-          "content": "Une **adresse IP** est l'identifiant d'une machine sur un reseau. Sans elle, impossible de savoir a qui envoyer les donnees."
+          "content": "Une **adresse IP** est l'identifiant qui permet d'acheminer un paquet de données d'une machine à une autre à travers Internet. C'est l'équivalent de l'adresse postale, mais avec une contrainte forte : elle doit être **unique dans son domaine de routage**. Comprendre l'adressage, ce n'est pas retenir `192.168.1.1` ; c'est savoir lire un masque, distinguer une adresse routable d'une adresse privée, et comprendre pourquoi une connexion entrante échoué derrière une box. Cette fiche descend jusqu'aux bits."
         },
         {
           "type": "concept",
-          "heading": "IPv4 et IPv6",
-          "content": "Une adresse **IPv4** s'ecrit sur 4 nombres de 0 a 255, par exemple `192.168.1.10`. Le stock d'adresses IPv4 etant epuise, **IPv6** prend le relais avec des adresses bien plus longues (`2001:db8::1`)."
+          "heading": "La place de l'IP dans la pile réseau",
+          "content": "L'adresse IP appartient à la **couche 3** (réseau) du modèle en couches. En dessous, la couche 2 (Ethernet, Wi-Fi) achemine les trames entre machines *voisines* via des adresses **MAC** (48 bits, gravees dans la carte). Au-dessus, la couche 4 (TCP/UDP) gère le dialogue de bout en bout via des **ports**.\n\nDistinction clé : l'adresse MAC ne change pas et n'est valable que sur le lien local ; l'adresse IP est **logique**, reattribuable, et c'est la seule qui permet le routage *entre* réseaux. Un paquet traverse des dizaines de routeurs : à chaque saut, l'adresse MAC destination change (celle du routeur suivant), mais l'adresse IP destination reste **constante** de bout en bout. C'est le protocole **ARP** qui, sur chaque lien, traduit une IP locale en MAC. Retenir cette separation evite 80 % des confusions de débutant : IP = *où aller*, MAC = *prochain saut physique*."
         },
         {
           "type": "concept",
-          "heading": "Adresses privees et publiques",
-          "content": "Les adresses *privees* (comme `192.168.x.x`) ne sont valides que dans un reseau local. L'adresse *publique*, fournie par le fournisseur d'acces, est celle vue depuis Internet."
+          "heading": "IPv4 : 32 bits, 4 octets, ~4,3 milliards d'adresses",
+          "content": "Une adresse **IPv4** tient sur **32 bits**, ecrits en notation *decimale pointee* : quatre octets de 0 à 255 separes par des points, ex. `192.168.1.10`. Chaque octet = 8 bits, donc 256 valeurs (2^8). L'espace total vaut 2^32 ~ **4,29 milliards** d'adresses.\n\nCe chiffre parait énorme mais il est **épuise** depuis 2011 (allocation des derniers blocs par l'IANA) : la Terre compte plus d'appareils connectes que d'adresses IPv4, et de larges plages sont réservées (multicast, documentation, usages historiques). L'ordre de grandeur à retenir : ~4,3 milliards, dont une fraction seulement réellement routable sur Internet. Cet épuisement est la raison d'être du **NAT** (voir plus loin) et d'**IPv6**. Piège classique : croire qu'une adresse comme `256.1.1.1` existe — impossible, un octet plafonne à 255."
+        },
+        {
+          "type": "concept",
+          "heading": "Masque de sous-réseau et notation CIDR",
+          "content": "Une adresse IPv4 se coupe en deux parties : un **prefixe réseau** (commun a toutes les machines du même réseau) et un **identifiant d'hôte** (propre à la machine). La frontiere est fixee par le **masque de sous-réseau**.\n\nEn notation **CIDR**, on écrit `192.168.1.10/24` : le `/24` signifie que les **24 premiers bits** désignent le réseau, les 8 restants les hôtes. Un `/24` offre donc 2^8 = 256 adresses, dont **254 utilisables** (la première = adresse réseau, la dernière = broadcast). Autres reperes : `/16` = 65 536 adresses, `/8` = ~16,7 millions, `/30` = 4 adresses (2 utilisables, typique d'un lien point a point). Règle de calcul : nombre d'hôtes = 2^(32 - prefixe) - 2. Deux machines communiquent *directement* seulement si elles partagent le même prefixe réseau ; sinon, elles doivent passer par la **passerelle** (routeur)."
+        },
+        {
+          "type": "concept",
+          "heading": "Adresses privées, publiques et NAT",
+          "content": "Trois plages sont **privées** (RFC 1918), non routables sur Internet, réutilisables librement dans chaque réseau local :\n- `10.0.0.0/8` (16,7 M d'adresses)\n- `172.16.0.0/12` (~1 M)\n- `192.168.0.0/16` (65 k)\n\nUne adresse **publique**, elle, est unique mondialement et attribuée par un opérateur. Le pont entre les deux est le **NAT** (Network Address Translation) : la box remplace, dans chaque paquet sortant, l'IP privée source par son IP publique unique, et mémorise la correspondance (avec le port) pour rerouter la réponse. C'est ce qui permet a des dizaines d'appareils de partager **une seule** IP publique — le principal palliatif à l'épuisement IPv4. Corollaire important : derrière un NAT, une machine n'est **pas joignable spontanement de l'extérieur** ; il faut une redirection de port explicite. C'est pour cela qu'héberger un serveur chez soi demande une configuration, alors que naviguer fonctionne sans rien."
+        },
+        {
+          "type": "concept",
+          "heading": "IPv6 : 128 bits pour en finir avec la penurie",
+          "content": "**IPv6** porte l'adresse à **128 bits**, notee en hexadecimal par groupes de 16 bits separes par `:`, ex. `2001:db8::1`. Le `::` compresse une suite de zeros consecutifs (une seule fois par adresse). L'espace est vertigineux : 2^128 ~ **3,4 x 10^38** adresses, soit assez pour attribuer des milliards d'adresses à chaque mètre carré de la planète.\n\nConséquences pratiques : IPv6 rend le NAT **inutile** (chaque appareil peut avoir une adresse publique), supporte l'**autoconfiguration** (SLAAC : la machine se forge une adresse à partir du prefixe annonce par le routeur), et impose des mécanismes distincts (NDP remplace ARP, ICMPv6 est indispensable — le bloquer casse la connectivité). Piège frequent : IPv4 et IPv6 coexistent (pile *dual-stack*) mais ne sont **pas interoperables** directement ; un service en IPv6 seul est invisible pour un client IPv4-only, et inversement."
+        },
+        {
+          "type": "concept",
+          "heading": "Pièges, adresses speciales et modes de défaillance",
+          "content": "Les erreurs d'adressage se ressemblent toutes en surface (\"pas de réseau\") mais ont des causes distinctes :\n- **127.0.0.1** (`localhost`, tout le bloc `127.0.0.0/8`) : boucle locale, ne quitte jamais la machine. Un service qui n'écoute que la ne sera **jamais** joignable de l'extérieur.\n- **0.0.0.0** : signifie \"toutes les interfaces\" côté serveur, ou \"aucune adresse\" côté client.\n- **169.254.x.x** (APIPA / link-local) : la machine s'est auto-attribue une adresse **parce que le DHCP a échoué**. La voir = signe que la config d'adresse a raté.\n- **Conflit d'IP** : deux machines avec la même adresse sur un lien -> connexions erratiques.\n- **Mauvais masque** : deux machines censées se parler mais dans des prefixes différents -> le trafic part inutilement vers la passerelle.\n- **NAT** : une connexion entrante non redirigee est simplement rejetee/ignoree, sans message clair. Diagnostiquer, c'est vérifier dans l'ordre : adresse valide ? bon masque/passerelle ? DNS ? route ?"
+        },
+        {
+          "type": "concept",
+          "heading": "DHCP : comment une machine obtient son adresse",
+          "content": "Rares sont les machines configurées à la main. La plupart obtiennent leur adresse via **DHCP** (Dynamic Host Configuration Protocol), un échange en quatre temps souvent résumé par l'acronyme **DORA** :\n- **Discover** : le client, sans adresse, diffuse en broadcast \"un serveur DHCP est-il là ?\".\n- **Offer** : un serveur propose une adresse (un *bail*), avec masque, passerelle et serveurs DNS.\n- **Request** : le client demande formellement cette offre.\n- **Ack** : le serveur confirme et fixe la durée du bail.\n\nLe **bail** (lease) a une durée limitée (quelques heures à quelques jours) : le client doit le renouveler à mi-parcours, sinon l'adresse retourne au pool. Ce que DHCP fournit va bien au-delà de l'IP : c'est aussi lui qui pousse la **passerelle par défaut** et les **serveurs DNS**. Conséquence pour le diagnostic : un DHCP défaillant se traduit soit par une adresse `169.254.x.x` (aucune réponse), soit par une adresse valide mais une passerelle ou un DNS erronés — d'où des symptômes trompeurs ou \"j'ai une IP mais rien ne marche\"."
         },
         {
           "type": "example",
-          "heading": "Chez vous",
-          "content": "Votre box a une adresse publique unique. Derriere elle, votre ordinateur, votre telephone et votre TV ont chacun une adresse privee attribuee par la box."
+          "heading": "Lire une configuration réelle",
+          "content": "Sur un poste connecté a une box domestique, `ip addr` (Linux) ou `ipconfig` (Windows) affiche typiquement `192.168.1.42/24`, passerelle `192.168.1.1`. Interprétation : réseau `192.168.1.0/24`, 254 hôtes possibles, la box est la passerelle et fait le NAT vers une IP publique fournie par l'opérateur.\n\nOn peut vérifier l'IP publique vue de l'extérieur avec un service comme `curl ifconfig.me` — elle diffère de l'IP privée locale : preuve du NAT. Si `ip addr` affiche `169.254.x.x`, le DHCP a échoué (câble, Wi-Fi, ou serveur DHCP HS). Pour tester si une machine distante est joignable au niveau IP (couche 3), `ping <ip>` : une réponse confirme le routage, mais un `ping` sans réponse ne prouve pas la panne (beaucoup de serveurs bloquent l'ICMP par politique de sécurité)."
         },
         {
           "type": "takeaways",
+          "heading": "À retenir",
           "items": [
-            "Une adresse IP identifie une machine sur un reseau.",
-            "IPv4 est limitee, IPv6 offre un espace quasi illimite.",
-            "Les adresses privees sont locales, l'adresse publique est visible sur Internet."
+            "IP = couche 3 (routage de bout en bout, logique) ; MAC = couche 2 (prochain saut, physique). ARP fait le lien local.",
+            "IPv4 = 32 bits, 4 octets 0-255, ~4,3 milliards d'adresses, espace épuise depuis 2011.",
+            "CIDR /24 = 256 adresses (254 utilisables) ; hôtes = 2^(32 - prefixe) - 2.",
+            "Plages privées RFC 1918 : 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 ; non routables sur Internet.",
+            "Le NAT partage une IP publique entre plusieurs machines mais bloque les connexions entrantes non redirigees.",
+            "IPv6 = 128 bits (~3,4x10^38), rend le NAT inutile, mais n'est pas interoperable directement avec IPv4.",
+            "127.0.0.1 ne quitte jamais la machine ; 169.254.x.x = échec DHCP ; 0.0.0.0 côté serveur = toutes interfaces.",
+            "Diagnostiquer dans l'ordre : adresse valide -> masque/passerelle -> route -> DNS."
           ]
         },
         {
           "type": "quiz",
           "questions": [
             {
-              "q": "Combien de nombres composent une adresse IPv4 ?",
-              "choices": ["2", "4", "6", "8"],
+              "q": "Un serveur web n'écoute que sur 127.0.0.1:443. Un client distant ne parvient jamais a s'y connecter. Pourquoi ?",
+              "choices": [
+                "127.0.0.1 est une adresse IPv6 incompatible avec le client",
+                "127.0.0.1 est la boucle locale : le service n'est joignable que depuis la machine elle-même",
+                "Le port 443 est réservé à IPv6",
+                "Il manque un enregistrement DNS"
+              ],
               "answer": 1,
-              "explanation": "Une IPv4 s'ecrit sur 4 octets, par exemple 192.168.1.10."
+              "explanation": "127.0.0.0/8 est la loopback : le trafic ne quitte jamais l'hôte. Pour être joignable de l'extérieur, le service doit écouter sur 0.0.0.0 (toutes interfaces) ou sur l'IP réelle. Le DNS n'a rien à voir : le problème est au niveau de l'interface d'écoute."
             },
             {
-              "q": "Quelle adresse est typiquement privee ?",
-              "choices": ["8.8.8.8", "192.168.1.10", "2001:db8::1"],
+              "q": "Combien d'adresses d'hôtes utilisables offre un réseau en /26 ?",
+              "choices": [
+                "64",
+                "62",
+                "126",
+                "30"
+              ],
               "answer": 1,
-              "explanation": "La plage 192.168.x.x est reservee aux reseaux locaux."
+              "explanation": "Un /26 laisse 32-26 = 6 bits d'hôte, soit 2^6 = 64 adresses, moins 2 (adresse réseau et broadcast) = 62 utilisables. L'erreur 64 oublie de retrancher les deux adresses réservées ; 126 correspondrait a un /25."
+            },
+            {
+              "q": "Une machine affiche l'adresse 169.254.12.7. Que faut-il en conclure en priorite ?",
+              "choices": [
+                "Elle a une IP publique et est joignable depuis Internet",
+                "Elle est correctement configuree en IPv6",
+                "Son attribution d'adresse (DHCP) a échoué : c'est une adresse auto-attribuée link-local",
+                "Elle est victime d'un conflit d'adresse IP"
+              ],
+              "answer": 2,
+              "explanation": "169.254.0.0/16 (APIPA / link-local) est ce que la machine se donne quand elle ne reçoit pas de réponse DHCP. Ce n'est ni une IP publique, ni de l'IPv6, ni forcement un conflit : c'est d'abord le signe d'un DHCP injoignable (câble, Wi-Fi, serveur HS)."
+            },
+            {
+              "q": "Pourquoi un ordinateur derrière une box domestique n'est-il pas joignable spontanement depuis Internet ?",
+              "choices": [
+                "Parce qu'il utilise IPv6",
+                "Parce que le NAT ne crée une correspondance que pour les connexions initiees de l'intérieur",
+                "Parce que son adresse MAC est privée",
+                "Parce que le pare-feu bloque le protocole ARP"
+              ],
+              "answer": 1,
+              "explanation": "Le NAT mémorise une correspondance IP:port privée <-> publique uniquement quand la machine interne initie un échange. Une connexion entrante non sollicitee ne correspond a aucune entrée, donc la box ne sait pas vers quelle machine la router : il faut une redirection de port explicite. L'adresse MAC et ARP restent locaux et ne jouent aucun rôle ici."
+            },
+            {
+              "q": "Un service est publie uniquement en IPv6. Un client dont le fournisseur ne fournit que de l'IPv4 tente d'y acceder. Que se passe-t-il ?",
+              "choices": [
+                "La connexion fonctionne : IPv4 et IPv6 sont interoperables",
+                "Le NAT convertit automatiquement l'IPv4 en IPv6",
+                "Le client ne peut pas joindre le service : les deux protocoles ne dialoguent pas directement",
+                "Le client bascule automatiquement en IPv6"
+              ],
+              "answer": 2,
+              "explanation": "IPv4 et IPv6 sont deux protocoles distincts et non interoperables au niveau paquet. Sans mécanisme de transition dédié (dual-stack côté serveur, proxy, NAT64...), un client IPv4-only ne peut pas atteindre un service IPv6-only. C'est pourquoi on publie souvent en dual-stack (A + AAAA)."
+            },
+            {
+              "q": "Deux postes du même bureau ne parviennent pas a se pinguer, alors qu'ils accedent tous deux a Internet. Adresses : 192.168.1.5/25 et 192.168.1.200/25. Cause la plus probable ?",
+              "choices": [
+                "Un conflit d'adresse IP",
+                "Ils sont dans deux sous-réseaux différents à cause du masque /25",
+                "Le DNS est mal configuré",
+                "Le NAT bloque le trafic local"
+              ],
+              "answer": 1,
+              "explanation": "En /25, la frontiere tombe a 128 : 192.168.1.0/25 couvre .1-.126, et 192.168.1.128/25 couvre .129-.254. Le .5 et le .200 sont donc dans deux sous-réseaux distincts et ne peuvent se joindre directement ; le trafic part vers la passerelle. Ce n'est pas un conflit (adresses différentes), et le DNS n'intervient pas dans un ping par IP."
             }
           ]
         }
@@ -59,39 +150,131 @@
     },
     {
       "id": "handshake-tcp",
-      "title": "Le handshake TCP",
-      "durationMin": 6,
+      "title": "TCP : handshake, fiabilité et modes de défaillance",
+      "durationMin": 10,
       "level": "intermediaire",
       "sections": [
         {
           "type": "intro",
-          "content": "Avant d'echanger des donnees, deux machines TCP etablissent une connexion fiable via une poignee de main en trois temps."
+          "content": "**TCP** (Transmission Control Protocol) est le protocole qui transforme un réseau IP fondamentalement *non fiable* (paquets perdus, dupliqués, desordonnes) en un flux d'octets ordonne et sans perte. Avant tout échange, deux machines négocient une connexion via une **poignee de main en trois temps**. Comprendre TCP, c'est comprendre pourquoi une connexion \"rame\", pourquoi un port \"filtre\" ne répond pas comme un port \"ferme\", et ce que garantit réellement le protocole. Cette fiche va au-delà du simple SYN/SYN-ACK/ACK."
         },
         {
           "type": "concept",
-          "heading": "SYN, SYN-ACK, ACK",
-          "content": "Le client envoie **SYN** (je veux me connecter), le serveur repond **SYN-ACK** (d'accord, et moi aussi), le client confirme avec **ACK**. La connexion est alors ouverte."
+          "heading": "Pourquoi TCP existe : IP ne garantit rien",
+          "content": "La couche IP fait du *best effort* : elle achemine les paquets sans promesse. Un paquet peut être **perdu** (routeur sature), **duplique**, **reordonne** (deux paquets empruntant des chemins différents), ou **corrompu**. Sans surcouche, une application recevrait un flux inutilisable.\n\nTCP ajoute quatre garanties au-dessus d'IP :\n1. **Fiabilité** : tout octet perdu est retransmis (grace aux accuses de réception, les ACK).\n2. **Ordre** : chaque octet porte un numéro de séquence ; le récepteur reassemble dans le bon ordre.\n3. **Contrôle de flux** : la *fenêtre* annoncée empêche l'émetteur de noyer un récepteur lent.\n4. **Contrôle de congestion** : TCP ralentit quand le réseau montré des signes de saturation.\n\nÀ l'opposé, **UDP** n'offre aucune de ces garanties : plus rapide et sans établissement de connexion, il est préféré quand la latence prime sur la completude (voix, jeux, DNS)."
+        },
+        {
+          "type": "concept",
+          "heading": "Le three-way handshake : SYN, SYN-ACK, ACK",
+          "content": "Avant tout échange de données, TCP établit la connexion en **trois messages** :\n1. Le client envoie **SYN** avec un numéro de séquence initial aléatoire *x* (\"je veux me connecter, ma séquence commence à x\").\n2. Le serveur répond **SYN-ACK** : il accuse réception (ACK = x+1) *et* annonce sa propre séquence initiale *y*.\n3. Le client renvoie **ACK** (= y+1). La connexion est **établie** (état ESTABLISHED) des deux côtés.\n\nPourquoi trois messages et pas deux ? Parce qu'il faut que **chaque** partie confirme à l'autre que sa séquence a bien été reçue : c'est ce qui synchronise les deux compteurs et protège contre les vieux paquets d'une connexion précédente. Les numéros de séquence initiaux sont aléatoires précisément pour empêcher qu'un attaquant devine la séquence et injecte des données. Coût : le handshake ajoute **un aller-retour** (RTT) complet avant le moindre octet utile — d'où l'importance de la latence."
+        },
+        {
+          "type": "concept",
+          "heading": "Fiabilité : numéros de séquence, ACK et retransmission",
+          "content": "Une fois la connexion ouverte, chaque octet transmis est numéroté. Le récepteur renvoie des **ACK** cumulatifs indiquant \"j'ai tout reçu jusqu'à l'octet N\". Si l'émetteur ne reçoit pas d'ACK avant l'expiration d'un **timer** (le RTO, base sur le RTT mesuré), il **retransmet**.\n\nDeux mécanismes accélèrent la détection de perte sans attendre le timer :\n- Les **ACK dupliqués** : trois ACK identiques signalent qu'un segment manque -> *fast retransmit*.\n- Les **SACK** (Selective ACK) permettent d'indiquer précisément quels blocs manquent, évitant de tout retransmettre.\n\nOrdre de grandeur : sur une liaison à 30 ms de RTT, une seule perte peut couter plusieurs dizaines de ms (le temps de détecter et retransmettre). C'est pourquoi la perte de paquets dégrade davantage le débit TCP que la latence seule : le contrôle de congestion **réduit la fenêtre** à chaque perte, cassant le débit bien au-delà du seul paquet perdu."
+        },
+        {
+          "type": "concept",
+          "heading": "Contrôle de flux et de congestion : la fenêtre",
+          "content": "TCP ne peut pas envoyer les données aussi vite qu'il veut. Deux limites s'imposent :\n- La **fenêtre de réception** (rwnd), annoncée par le récepteur : \"je peux absorber X octets de plus\". Elle protège un récepteur lent (contrôle de *flux*).\n- La **fenêtre de congestion** (cwnd), interne à l'émetteur : elle estime ce que le *réseau* peut absorber (contrôle de *congestion*).\n\nLe débit réel est plafonne par la plus petite des deux. Au démarrage, le **slow start** double la cwnd à chaque RTT (croissance exponentielle) jusqu'à une perte, puis passe en croissance linéaire prudente. Conséquence contre-intuitive : une connexion TCP n'atteint pas son débit maximal instantanément ; sur un lien à fort produit débit x délai (satellite, longue distance), la montée en régime peut prendre plusieurs secondes. C'est pourquoi de gros transferts sur liaison à forte latence deçoivent même quand la bande passante est large."
+        },
+        {
+          "type": "concept",
+          "heading": "Fermeture, TIME_WAIT et fuites d'état",
+          "content": "Fermer proprement une connexion TCP demande **quatre** messages (FIN / ACK dans chaque sens), car chaque côté ferme son sens de transmission independamment. Le côté qui ferme en premier passe ensuite par l'état **TIME_WAIT**, ou il reste bloque ~2xMSL (souvent **60 s**) avant de libérer le port.\n\nPourquoi ? Pour absorber d'eventuels paquets retardataires de la connexion qui vient de finir et éviter qu'ils polluent une nouvelle connexion réutilisant le même couple de ports. Piège opérationnel classique : un serveur qui ouvre et ferme des milliers de connexions courtes accumule des dizaines de milliers de sockets en TIME_WAIT, épuisant les ports éphémères disponibles (~28 000 par défaut) -> nouvelles connexions refusees. Solution : connexions persistantes (*keep-alive*), pooling, ou réglages noyau. C'est un mode de défaillance invisible tant qu'on ne regarde pas `ss -s` ou `netstat`."
+        },
+        {
+          "type": "concept",
+          "heading": "Ports, sockets et identite d'une connexion",
+          "content": "TCP ne relie pas deux machines mais deux **sockets** : une connexion est identifiée de facon unique par un **quintuplet** — protocole + IP source + port source + IP destination + port destination. C'est ce qui permet a un serveur d'entretenir des milliers de connexions simultanées sur le *même* port 443 : chaque client a un port source différent, donc un quintuplet distinct.\n\nLes **ports** vont de 0 à 65535. On distingue : les ports **bien connus** (0-1023, réservés aux services standards : 80 HTTP, 443 HTTPS, 22 SSH, 25 SMTP) dont l'ouverture demande des privilèges ; les ports **enregistrés** (1024-49151) ; et les ports **éphémères** (~49152-65535, ou 32768+ selon l'OS) que le système attribue automatiquement comme port *source* d'une connexion sortante. Piège classique : deux services ne peuvent pas écouter sur le même couple IP:port (\"address already in use\") ; et l'épuisement des ports éphémères (voir TIME_WAIT) limite le nombre de connexions sortantes simultanées vers une même destination à quelques dizaines de milliers."
         },
         {
           "type": "example",
-          "content": "Ouvrir une page web declenche un handshake TCP avec le serveur avant meme que la moindre donnee HTML ne circule."
+          "heading": "Diagnostiquer : refuse, filtre, ou timeout ?",
+          "content": "Trois symptômes de connexion, trois causes distinctes :\n- **Connection refused** (immédiat) : le SYN a atteint la machine, mais **aucun service n'écoute** sur ce port -> le système répond un RST. Le réseau va bien ; c'est le service qui manque.\n- **Timeout** (long, puis échec) : le SYN n'obtient aucune réponse (ni SYN-ACK, ni RST). Typiquement un **pare-feu qui filtre** silencieusement (DROP), ou une machine injoignable. On ne peut pas distinguer les deux depuis l'extérieur — c'est le but du filtrage.\n- **Connexion établie mais lente** : le handshake passe, mais le débit est faible -> suspecter la **perte de paquets** (retransmissions) ou une fenêtre trop petite, pas un problème de port.\n\nOutils : `curl -v`, `ss -tan` (états des sockets), `tcpdump`/Wireshark pour voir les SYN/SYN-ACK/RST réels. Voir un SYN partir sans SYN-ACK en retour pointe vers un filtrage ou une route morte, pas vers un service absent."
         },
         {
           "type": "takeaways",
+          "heading": "À retenir",
           "items": [
-            "Le handshake TCP se fait en trois messages : SYN, SYN-ACK, ACK.",
-            "Il garantit que les deux parties sont pretes avant l'echange.",
-            "C'est ce qui rend TCP fiable, contrairement a UDP."
+            "TCP fiabilise IP (best effort) : fiabilité, ordre, contrôle de flux et de congestion. UDP n'offre aucune de ces garanties.",
+            "Handshake en 3 temps : SYN (seq x) -> SYN-ACK (ack x+1, seq y) -> ACK (ack y+1) ; il coute 1 RTT avant le premier octet utile.",
+            "Les 3 messages (pas 2) synchronisent les deux numéros de séquence et protègent contre les vieux paquets.",
+            "Une perte déclenche retransmission (timer RTO ou 3 ACK dupliqués -> fast retransmit) ET réduction de la fenêtre de congestion.",
+            "Le débit est plafonne par min(fenêtre de réception, fenêtre de congestion) ; le slow start empêche le débit max instantané.",
+            "Fermeture = 4 messages ; TIME_WAIT (~60 s) peut épuiser les ports éphémères sur un serveur à connexions courtes.",
+            "Connection refused = RST, service absent (réseau OK) ; timeout = SYN sans réponse, souvent pare-feu qui filtre.",
+            "Sur liaison à forte latence, la perte de paquets dégrade le débit plus que la bande passante ne l'aide."
           ]
         },
         {
           "type": "quiz",
           "questions": [
             {
-              "q": "Quel message le client envoie-t-il en premier ?",
-              "choices": ["ACK", "SYN", "SYN-ACK", "FIN"],
+              "q": "Un client reçoit immédiatement 'Connection refused' en tentant de joindre un port. Qu'est-ce que cela indique ?",
+              "choices": [
+                "Un pare-feu filtre silencieusement le paquet",
+                "Le paquet SYN a atteint la machine mais aucun service n'écoute sur ce port (RST renvoye)",
+                "La machine est totalement injoignable au niveau IP",
+                "La connexion est établie mais lente"
+              ],
               "answer": 1,
-              "explanation": "Le client initie toujours avec un SYN."
+              "explanation": "Un refus immédiat signifie que le SYN est arrivé et que le système a répondu un RST parce qu'aucun service n'écoute sur ce port : le réseau fonctionne. Un pare-feu qui filtre produit au contraire un timeout (aucune réponse du tout), ce qui est le cas exactement oppose."
+            },
+            {
+              "q": "Pourquoi le handshake TCP utilise-t-il trois messages plutôt que deux ?",
+              "choices": [
+                "Pour chiffrer la connexion",
+                "Pour que chaque partie confirme à l'autre la bonne réception de son numéro de séquence",
+                "Parce que le troisieme message transporte les premières données",
+                "Pour négocier l'adresse IP à utiliser"
+              ],
+              "answer": 1,
+              "explanation": "Il faut que le client ET le serveur voient leur numéro de séquence initial accusé par l'autre : SYN annonce x, SYN-ACK accusé x et annonce y, ACK accusé y. Deux messages ne suffiraient pas a synchroniser les deux compteurs. TCP ne chiffre rien (c'est TLS par-dessus), et le handshake ne négocie pas d'adresse."
+            },
+            {
+              "q": "Un transfert TCP sur une liaison a 250 ms de RTT plafonne bien en dessous de la bande passante disponible. Explication la plus plausible ?",
+              "choices": [
+                "L'adresse IP du serveur est privée",
+                "Le slow start et la taille de fenêtre limitent le débit tant que le produit débit x délai n'est pas rempli",
+                "Le DNS résout trop lentement",
+                "Le port est filtre"
+              ],
+              "answer": 1,
+              "explanation": "Sur un lien à forte latence, le débit est borne par fenêtre / RTT : tant que la fenêtre n'atteint pas le produit débit x délai, la bande passante reste sous-exploitee, et le slow start met du temps à y arriver. Le DNS n'affecte que la résolution initiale, et un port filtre empecherait toute connexion, pas seulement le débit."
+            },
+            {
+              "q": "Un serveur qui ouvre des milliers de connexions très courtes commence à refuser de nouvelles connexions sortantes. Cause typique liée à TCP ?",
+              "choices": [
+                "Épuisement des ports éphémères par accumulation de sockets en TIME_WAIT",
+                "Le masque de sous-réseau est trop petit",
+                "La fenêtre de congestion est saturee",
+                "Le certificat TLS a expire"
+              ],
+              "answer": 0,
+              "explanation": "Le côté qui ferme en premier reste ~60 s en TIME_WAIT ; des milliers de connexions courtes accumulent autant de sockets, épuisant la plage de ports éphémères (~28 000). Solutions : keep-alive, pooling, réglages noyau. Le masque, la congestion et TLS ne provoquent pas ce symptôme précis."
+            },
+            {
+              "q": "Quelle affirmation sur UDP par rapport à TCP est FAUSSE ?",
+              "choices": [
+                "UDP n'établit pas de connexion préalable",
+                "UDP ne retransmet pas automatiquement les paquets perdus",
+                "UDP garantit l'ordre de réception des paquets",
+                "UDP est souvent préféré quand la latence prime sur la completude"
+              ],
+              "answer": 2,
+              "explanation": "UDP ne garantit NI l'ordre, NI la livraison : c'est justement ce qui le rend léger et rapide. Les trois autres affirmations sont vraies. C'est à l'application (ou a un protocole comme QUIC) de reintroduire ordre et fiabilité si elle en a besoin."
+            },
+            {
+              "q": "Lors d'une perte de paquet détectée par trois ACK dupliqués, que fait TCP ?",
+              "choices": [
+                "Il ferme la connexion et la rouvre",
+                "Il retransmet le segment manquant (fast retransmit) et réduit sa fenêtre de congestion",
+                "Il ignore la perte car les ACK sont cumulatifs",
+                "Il bascule automatiquement en UDP"
+              ],
+              "answer": 1,
+              "explanation": "Trois ACK dupliqués signalent un trou sans attendre l'expiration du timer : TCP retransmet immédiatement le segment manquant (fast retransmit) et réduit sa fenêtre de congestion, car une perte est interprétée comme un signe de saturation. Il ne ferme pas la connexion et ne change pas de protocole."
             }
           ]
         }
@@ -99,37 +282,131 @@
     },
     {
       "id": "dns",
-      "title": "Le DNS",
-      "durationMin": 5,
-      "level": "debutant",
+      "title": "Le DNS : résolution, cache et modes de défaillance",
+      "durationMin": 10,
+      "level": "intermediaire",
       "sections": [
         {
           "type": "intro",
-          "content": "Le **DNS** est l'annuaire d'Internet : il traduit un nom de domaine lisible en adresse IP."
+          "content": "Le **DNS** (Domain Name System) est l'annuaire distribué d'Internet : il traduit des noms lisibles (`exemple.fr`) en adresses IP routables. Mais réduire le DNS à \"un annuaire\" masque l'essentiel : c'est un système **hiérarchique, cache à plusieurs niveaux**, dont les délais de propagation et les erreurs de configuration expliquent une part énorme des incidents \"le site ne répond pas\". Cette fiche explique le mécanisme de résolution, les types d'enregistrements, le rôle du TTL, et surtout comment diagnostiquer quand ça casse."
         },
         {
           "type": "concept",
-          "heading": "Du nom a l'adresse",
-          "content": "Quand vous tapez `exemple.fr`, votre machine interroge un serveur DNS qui renvoie l'adresse IP correspondante. Le navigateur peut alors contacter le bon serveur."
+          "heading": "Une hiérarchie, pas un annuaire unique",
+          "content": "Aucune machine ne contient tout le DNS. Le système est un **arbre** lu de droite à gauche :\n- La **racine** (`.`), servie par 13 groupes de serveurs racines mondiaux, connaît les TLD.\n- Les **TLD** (`.fr`, `.com`...) connaissent les serveurs de chaque domaine qu'ils delegent.\n- Les **serveurs faisant autorité** d'un domaine (`exemple.fr`) détiennent ses enregistrements réels.\n\nCette **délégation** est ce qui rend le DNS scalable : personne ne centralise, chaque niveau ne connaît que le niveau suivant. Un nom comme `www.exemple.fr.` se lit `www` sous `exemple` sous `fr` sous racine. Le point final (souvent implicite) représente la racine. Comprendre la hiérarchie explique pourquoi une mauvaise délégation chez le registraire (serveurs de noms erronés) rend un domaine totalement injoignable, même si sa zone est parfaite : personne ne sait ou la trouver."
+        },
+        {
+          "type": "concept",
+          "heading": "La résolution recursive, étape par étape",
+          "content": "Quand une application veut l'IP de `www.exemple.fr`, elle interroge un **résolveur récursif** (celui du fournisseur d'acces, ou un public comme `1.1.1.1` / `8.8.8.8`). Ce résolveur fait le travail :\n1. Il demande a un serveur **racine** : \"qui gère `.fr` ?\" -> réponse : les serveurs du TLD.\n2. Il demande au **TLD** : \"qui gère `exemple.fr` ?\" -> réponse : les serveurs faisant autorité.\n3. Il demande à ces serveurs : \"quelle est l'IP de `www.exemple.fr` ?\" -> réponse finale.\n\nCe parcours est **récursif** du point de vue du client (une seule question, une seule réponse) mais **itératif** du point de vue du résolveur (plusieurs allers-retours). Sans cache, chaque nom couterait 3 à 4 requêtes ; c'est pourquoi le cache est vital. Piège : un résolveur mal configuré ou injoignable rend *tout* Internet \"casse\" pour le client, alors que la connectivité IP est intacte."
+        },
+        {
+          "type": "concept",
+          "heading": "Les enregistrements : A, AAAA, CNAME, MX, TXT, NS",
+          "content": "Une zone DNS est une liste d'**enregistrements** typés :\n- **A** : nom -> adresse IPv4.\n- **AAAA** : nom -> adresse IPv6.\n- **CNAME** : alias, un nom pointe vers *un autre nom* (jamais vers une IP). Règle stricte : un nom portant un CNAME ne peut porter aucun autre enregistrement, ce qui interdit un CNAME à l'apex du domaine (`exemple.fr` nu).\n- **MX** : serveur(s) de messagerie du domaine, avec une priorite (plus petit = prioritaire).\n- **TXT** : texte libre, utilise pour SPF/DKIM/DMARC (anti-usurpation d'e-mail) et pour prouver la propriété d'un domaine.\n- **NS** : delegue une zone a ses serveurs faisant autorité.\n\nErreur frequente : vouloir un CNAME sur l'apex (`exemple.fr`) pour pointer vers un service tiers — interdit par le standard ; on utilise alors un enregistrement A, ou des extensions propriétaires (ALIAS/ANAME) selon l'hebergeur."
+        },
+        {
+          "type": "concept",
+          "heading": "Le TTL et la propagation",
+          "content": "Chaque enregistrement porte un **TTL** (Time To Live) en secondes : la durée pendant laquelle un résolveur a le droit de garder la réponse en cache avant de la redemander. Un TTL de 3600 = 1 h ; de 300 = 5 min.\n\nLa fameuse \"**propagation DNS**\" n'est pas une diffusion active : c'est simplement l'**expiration progressive des caches**. Si vous changez une IP alors que l'ancien enregistrement avait un TTL de 24 h, certains résolveurs continueront a servir l'ancienne valeur jusqu'à 24 h. D'où la stratégie avant une migration : **abaisser le TTL** (ex. à 300 s) *plusieurs jours avant* le changement, migrer, vérifier, puis le remonter. Ordre de grandeur : un TTL bas accélère les changements mais augmente le nombre de requêtes (charge et latence) ; un TTL haut fait l'inverse. Il n'y a pas de \"bouton propagation\" : on ne peut pas forcer les caches tiers a oublier avant l'expiration."
+        },
+        {
+          "type": "concept",
+          "heading": "Modes de défaillance et sécurité",
+          "content": "Le DNS casse de façons subtiles :\n- **NXDOMAIN** : le nom n'existe pas (faute de frappe, enregistrement absent, mauvaise zone).\n- **SERVFAIL** : le résolveur n'a pas pu obtenir de réponse (serveur autoritaire HS, DNSSEC invalide, boucle).\n- **Délégation cassée** : les NS chez le registraire ne pointent pas vers les bons serveurs -> domaine injoignable partout.\n- **Cache empoisonné** : historiquement, un attaquant pouvait injecter de fausses réponses. **DNSSEC** signe cryptographiquement les enregistrements pour prévenir cela (mais une mauvaise config DNSSEC provoque des SERVFAIL massifs).\n- **Cache négatif** : un NXDOMAIN est lui aussi cache (TTL du SOA), donc créer un enregistrement peut ne pas être visible immédiatement si le \"n'existe pas\" a été mis en cache.\n\nPiège majeur de sécurité : le DNS classique est **en clair** ; DoH/DoT le chiffrent pour éviter l'espionnage des requêtes. Et un DNS défaillant se manifeste souvent comme une \"panne générale\" trompeuse alors que le réseau va bien."
+        },
+        {
+          "type": "concept",
+          "heading": "Côté client : ordre de résolution et pièges locaux",
+          "content": "Avant même d'interroger le réseau, la machine suit un **ordre de résolution** local. Sous Linux, il est fixé par `/etc/nsswitch.conf` ; typiquement, le fichier **hosts** (`/etc/hosts`, `C:\\Windows\\System32\\drivers\\etc\\hosts`) est consulté **avant** le DNS. Une ligne dans ce fichier écrase donc totalement la résolution DNS pour ce nom — outil pratique pour tester une migration, mais piège redoutable si une vieille entrée y traîne (\"le site marche pour tout le monde sauf sur mon poste\").\n\nEnsuite intervient le **cache du système** (ou du navigateur), puis le résolveur configuré. Autres pièges côté client :\n- Un **VPN** ou un réseau d'entreprise peut imposer ses propres résolveurs, donnant des réponses différentes selon qu'on est connecté ou non (*split DNS*).\n- Le navigateur peut activer **DoH** (DNS over HTTPS) et court-circuiter le résolveur système, rendant un diagnostic `dig` trompeur.\n- Un cache local obsolète se vide avec `ipconfig /flushdns` (Windows) ou en redémarrant le service résolveur. Toujours se demander \"quel résolveur répond réellement ?\" avant d'accuser la zone."
+        },
+        {
+          "type": "example",
+          "heading": "Diagnostiquer avec dig et nslookup",
+          "content": "Pour isolér un problème DNS, on interroge directement :\n- `dig www.exemple.fr` : montre la réponse, le TTL restant et la section ANSWER. Pas de section ANSWER -> nom inexistant ou pas d'enregistrement de ce type.\n- `dig www.exemple.fr @1.1.1.1` : force un résolveur précis, pour distinguer un problème local d'un problème global.\n- `dig +trace www.exemple.fr` : rejoue toute la chaîne racine -> TLD -> autoritaire, révélant où la délégation casse.\n- `dig exemple.fr NS` : vérifie les serveurs faisant autorité.\n- `dig exemple.fr MX` / `TXT` : contrôle mail et vérifications de propriété.\n\nMéthode : si `dig @serveur-autoritaire` donne la bonne réponse mais que le résolveur public la refuse, c'est un problème de cache ou de délégation, pas de zone. Si même l'autoritaire ne répond pas, la zone elle-même est en cause. Confronter TTL restant et heure du dernier changement explique la plupart des \"j'ai modifie mais je vois encore l'ancien site\"."
         },
         {
           "type": "takeaways",
+          "heading": "À retenir",
           "items": [
-            "Le DNS traduit les noms de domaine en adresses IP.",
-            "Sans DNS, il faudrait retenir des adresses IP pour chaque site."
+            "Le DNS est une hiérarchie deleguee (racine -> TLD -> serveurs autoritaires), lue de droite à gauche, pas un annuaire central.",
+            "Le résolveur récursif fait le travail itératif (3-4 requêtes) ; le client ne posé qu'une question.",
+            "A = IPv4, AAAA = IPv6, CNAME = alias vers un nom (jamais une IP, interdit à l'apex), MX = mail, TXT = SPF/DKIM/verif, NS = délégation.",
+            "Le TTL fixé la durée de cache ; la 'propagation' n'est que l'expiration progressive des caches, non forcable.",
+            "Avant une migration : baisser le TTL a ~300 s plusieurs jours avant, migrer, vérifier, puis remonter.",
+            "NXDOMAIN = nom inexistant ; SERVFAIL = résolveur en échec (autoritaire HS ou DNSSEC casse).",
+            "Un cache négatif fait qu'un enregistrement nouvellement crée peut rester invisible le temps du TTL du SOA.",
+            "dig +trace revele ou la chaîne casse ; dig @résolveur distingue problème local et global."
           ]
         },
         {
           "type": "quiz",
           "questions": [
             {
-              "q": "A quoi sert le DNS ?",
+              "q": "Vous changez l'IP d'un site dont l'enregistrement A avait un TTL de 24 h. Certains visiteurs voient encore l'ancien serveur. Pourquoi ?",
               "choices": [
-                "A chiffrer les donnees",
-                "A traduire un nom de domaine en adresse IP",
-                "A acccelerer le telechargement"
+                "Le nouveau serveur est mal configuré",
+                "Les résolveurs gardent l'ancienne réponse en cache jusqu'à expiration du TTL",
+                "Le registraire n'a pas valide le changement",
+                "Il manque un enregistrement AAAA"
               ],
-              "answer": 1
+              "answer": 1,
+              "explanation": "La 'propagation' est en réalité l'expiration des caches : tant que le TTL de 24 h n'est pas ecoule, les résolveurs qui avaient l'ancienne valeur continuent de la servir. On ne peut pas forcer un cache tiers a oublier ; d'où l'interet de baisser le TTL avant une migration."
+            },
+            {
+              "q": "Pourquoi ne peut-on pas mettre un CNAME sur l'apex d'un domaine (exemple.fr nu) ?",
+              "choices": [
+                "Parce que l'apex n'accepte que l'IPv6",
+                "Parce qu'un nom portant un CNAME ne peut porter aucun autre enregistrement, or l'apex doit porter NS et SOA",
+                "Parce que le TTL serait ignore",
+                "Parce que les CNAME sont interdits par tous les registraires"
+              ],
+              "answer": 1,
+              "explanation": "Le standard interdit qu'un nom avec CNAME porte d'autres enregistrements ; or l'apex doit obligatoirement porter des NS et un SOA. On utilise donc un A à l'apex, ou une extension ALIAS/ANAME propre à l'hebergeur. Ce n'est ni une question d'IPv6 ni de TTL."
+            },
+            {
+              "q": "Une commande dig contre le serveur faisant autorité renvoie la bonne IP, mais le résolveur public de l'utilisateur renvoie l'ancienne. où est le problème ?",
+              "choices": [
+                "Dans la zone du domaine",
+                "Dans le cache du résolveur (où la délégation), pas dans la zone autoritaire",
+                "Dans le fichier hosts du serveur",
+                "Dans le protocole TCP"
+              ],
+              "answer": 1,
+              "explanation": "Si l'autoritaire est correct, la zone est bonne : la divergence vient du cache du résolveur (TTL non expire) ou d'une délégation incoherente. Comparer autoritaire et résolveur est justement la méthode pour isolér cache/délégation vs erreur de zone."
+            },
+            {
+              "q": "Un domaine renvoie SERVFAIL depuis plusieurs résolveurs alors que sa zone semble correcte. Cause plausible ?",
+              "choices": [
+                "Une faute de frappe dans le nom demande",
+                "Une configuration DNSSEC invalide ou des serveurs autoritaires injoignables",
+                "Un TTL trop bas",
+                "L'absence d'enregistrement MX"
+              ],
+              "answer": 1,
+              "explanation": "SERVFAIL signifie que le résolveur n'a pas pu obtenir de réponse valide : souvent DNSSEC casse (signatures invalides) ou serveurs autoritaires HS. Une faute de frappe donnerait NXDOMAIN, un TTL bas n'empêche pas la résolution, et l'absence de MX n'affecte que le mail, pas la résolution du nom."
+            },
+            {
+              "q": "Quel rôle joue le résolveur récursif dans la résolution d'un nom ?",
+              "choices": [
+                "Il héberge les enregistrements du domaine",
+                "Il interroge successivement racine, TLD puis serveurs autoritaires, et renvoie une réponse unique au client",
+                "Il attribue les adresses IP publiques",
+                "Il signe les enregistrements avec DNSSEC"
+              ],
+              "answer": 1,
+              "explanation": "Le résolveur récursif fait le parcours itératif (racine -> TLD -> autoritaire) et cache le résultat, pour ne renvoyer qu'une seule réponse au client. Il n'héberge pas la zone (c'est l'autoritaire), n'attribue pas d'IP, et ne signe pas les enregistrements (c'est le détenteur de la zone qui signe en DNSSEC)."
+            },
+            {
+              "q": "Vous venez de créer un enregistrement pour un sous-domaine qui n'existait pas, mais il renvoie encore NXDOMAIN. Explication la plus probable ?",
+              "choices": [
+                "Le DNS ne supporte pas les nouveaux sous-domaines",
+                "Le 'nom inexistant' précédent a été mis en cache négatif jusqu'à expiration du TTL du SOA",
+                "Il faut redemarrer sa carte réseau",
+                "Le port 53 est ferme"
+              ],
+              "answer": 1,
+              "explanation": "Le DNS met aussi en cache les réponses négatives (NXDOMAIN), pour une durée fixee par le SOA. Un enregistrement crée après qu'un NXDOMAIN a été cache peut rester invisible le temps de ce cache négatif. Ce n'est ni une limite du DNS, ni un problème de carte réseau ou de port."
             }
           ]
         }

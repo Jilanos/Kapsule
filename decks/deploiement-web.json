@@ -1,0 +1,1276 @@
+{
+  "schemaVersion": 1,
+  "id": "deploiement-web",
+  "title": "Déployer un site web : les notions essentielles",
+  "description": "De l'adresse IP au HTTPS automatique, des conteneurs aux sauvegardes : toutes les briques qui interviennent quand on met une application en ligne, illustrées par le déploiement réel de Kapsule (VPS + Docker + Caddy + SQLite). Objectif : savoir dimensionner et diagnostiquer, pas seulement nommer.",
+  "tags": [
+    "web",
+    "deploiement",
+    "reseau",
+    "devops",
+    "docker"
+  ],
+  "cards": [
+    {
+      "id": "client-serveur-ip",
+      "title": "Le web côté coulisses : clients, serveurs, IP et ports",
+      "durationMin": 10,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Quand vous tapez une adresse dans votre navigateur, une conversation précise s'engage entre deux programmes : le vôtre (le **client**) et un autre quelque part sur Internet (le **serveur**). Tout le reste du déploiement — DNS, HTTPS, conteneurs, reverse proxy — n'existe que pour fiabiliser et sécuriser ce dialogue. Comprendre ce socle, ce n'est pas savoir que « le client demande » ; c'est savoir *comment* un paquet trouve la bonne machine, le bon service, et pourquoi il échoue parfois silencieusement."
+        },
+        {
+          "type": "concept",
+          "heading": "Le modèle client-serveur",
+          "content": "Le **client** est le programme qui **initie** la conversation : navigateur, application mobile, `curl`. Le **serveur** est le programme qui **attend en permanence** des requêtes et y répond : il renvoie des pages, des images, des données. Point crucial : c'est **toujours** le client qui parle en premier ; un serveur ne contacte jamais spontanément un navigateur.\n\nUn serveur n'est pas une machine magique : c'est un ordinateur ordinaire, allumé 24h/24, exécutant un logiciel serveur (Nginx, Caddy, Node…). Le web est majoritairement **sans état** (*stateless*) : chaque requête HTTP est indépendante et le serveur ne « se souvient » de rien entre deux requêtes, sauf via des mécanismes explicites (cookies, jetons de session, base de données). Cette propriété est ce qui permet de faire tourner plusieurs copies d'un serveur derrière un répartiteur de charge : n'importe laquelle peut traiter n'importe quelle requête."
+        },
+        {
+          "type": "concept",
+          "heading": "L'adresse IP : la machine",
+          "content": "Pour se joindre, les machines s'identifient par une **adresse IP**, l'équivalent d'une adresse postale : `203.0.113.42` en **IPv4** (32 bits, 4 nombres de 0 à 255) ou `2001:db8::1` en **IPv6** (128 bits, plus récent et quasi illimité). L'espace IPv4 (~4,3 milliards d'adresses) est épuisé depuis 2011, d'où la coexistence des deux protocoles.\n\nOn distingue les adresses **publiques** (uniques mondialement, routables sur Internet) des adresses **privées** (`192.168.x.x`, `10.x.x.x`, valables seulement dans un réseau local). Chez vous, la box a **une** IP publique ; vos appareils ont des IP privées, et la box fait la traduction (**NAT**). Conséquence directe pour l'hébergement : une machine derrière un NAT domestique n'est **pas joignable spontanément** depuis Internet — c'est précisément pourquoi on loue un serveur avec IP publique fixé plutôt que d'héberger chez soi."
+        },
+        {
+          "type": "concept",
+          "heading": "Le port : le service",
+          "content": "L'IP identifié la **machine** ; le **port** identifié le **service** sur cette machine. Un port est un nombre de 0 à 65535. Quelques ports « bien connus » à retenir : **80** (HTTP), **443** (HTTPS), **22** (SSH), **25** (SMTP/mail). Un même serveur peut donc faire tourner le web *et* le mail *et* SSH simultanément : c'est le port qui les distingue.\n\nUne connexion complète est identifiée par un **quintuplet** : protocole + IP source + port source + IP destination + port destination. C'est ce qui permet à un serveur d'entretenir des milliers de connexions sur le seul port 443 — chaque client a un port source différent. Deux services ne peuvent en revanche pas écouter sur le **même** couple IP:port (erreur « address already in use »), piège fréquent quand deux conteneurs veulent tous deux le port 80."
+        },
+        {
+          "type": "concept",
+          "heading": "Pièges : port fermé, filtré, ou machine injoignable",
+          "content": "Quand « ça ne répond pas », trois causes bien distinctes se cachent derrière le même écran d'erreur :\n- **Connection refused** (immédiat) : le paquet a atteint la machine mais **aucun service n'écoute** sur ce port. Le réseau va bien ; c'est le service qui manque ou n'est pas démarré.\n- **Timeout** (long puis échec) : aucune réponse du tout. Typiquement un **pare-feu qui filtre** silencieusement, ou une machine éteinte. De l'extérieur, on ne peut pas distinguer les deux — c'est le but du filtrage.\n- **Certificat/HTTPS en erreur** : la connexion réseau passe, mais la couche de sécurité échoue (voir fiche HTTPS).\n\nAutre piège : une **IP publique dynamique** (fréquente en résidentiel) change au gré du fournisseur, cassant tout service qu'on y aurait exposé. Un hébergement sérieux fournit une IP **fixé**. Réflexe de diagnostic : `ping` teste la couche 3 (mais souvent bloqué), `curl -v` montré où exactement l'échange casse."
+        },
+        {
+          "type": "concept",
+          "heading": "Le voyage d'un paquet : couches, routeurs et TTL",
+          "content": "Entre le client et le serveur, un message ne saute pas directement : il traverse une succession de **routeurs**, parfois des dizaines, à travers des réseaux distincts. À chaque saut, le routeur lit l'adresse IP de destination et décide vers quel voisin transmettre le paquet — c'est le **routage**. L'adresse IP de destination reste constante de bout en bout ; seule l'adresse de liaison (MAC) change à chaque saut.\n\nDeux mécanismes clés encadrent ce voyage :\n- Le **TTL** (Time To Live) : un compteur décrémenté à chaque routeur. À zéro, le paquet est jeté et une erreur remonte. C'est ce qui empêche un paquet de tourner en boucle indéfiniment, et c'est le principe exploité par l'outil `traceroute`, qui révèle chaque saut du chemin.\n- La **MTU** (taille maximale d'un paquet, ~1500 octets sur Ethernet) : un message plus gros est fragmenté. Une MTU mal négociée (fréquent avec certains VPN ou tunnels) provoque des blocages subtils où de petites requêtes passent mais les grosses échouent. Comprendre le chemin explique pourquoi la distance géographique se paie en latence : chaque saut et chaque kilomètre ajoute du délai."
+        },
+        {
+          "type": "concept",
+          "heading": "Latence et bande passante : deux choses distinctes",
+          "content": "On confond souvent « connexion lente » avec « peu de débit ». Ce sont deux grandeurs indépendantes :\n- La **bande passante** est le débit maximal, en Mb/s ou Gb/s : combien de données passent par seconde. C'est la largeur du tuyau.\n- La **latence** (souvent mesurée par le **RTT**, aller-retour) est le délai pour qu'un paquet fasse le trajet, en millisecondes. C'est la longueur du tuyau.\n\nOrdres de grandeur utiles : ~1 ms au sein d'un datacenter, ~10-30 ms vers un serveur du même pays, ~150 ms vers l'autre bout du monde, ~500 ms+ par satellite. Une page web moderne déclenche des dizaines de requêtes ; si chacune attend un aller-retour, une latence élevée ruine l'expérience **même avec une bande passante énorme**. C'est pourquoi on regroupe les requêtes, on utilise des connexions persistantes (HTTP/2, keep-alive) et on rapproche le contenu de l'utilisateur (CDN). Retenir : augmenter la bande passante n'accélère pas une application bavarde et sensible à la latence ; réduire le nombre d'allers-retours, si."
+        },
+        {
+          "type": "concept",
+          "heading": "Pare-feu et redirection de ports",
+          "content": "Entre le réseau et un service se dresse presque toujours un **pare-feu** (*firewall*) : un filtre qui décide, port par port et selon l'origine, ce qui passe. Sur un serveur, le pare-feu (ex. `ufw`, `iptables`) applique le principe de **fermeture par défaut** : tout est bloqué, sauf ce qu'on autorise explicitement (typiquement 22, 80, 443). Un port « filtré » ne renvoie rien du tout — d'où le timeout côté client, différent du refus immédiat d'un port simplement fermé sans pare-feu.\n\nCôté réseau domestique, le pendant du NAT est la **redirection de port** (*port forwarding*) : pour rendre joignable une machine interne, on configuré la box afin qu'une connexion entrante sur un port public soit relayée vers l'IP privée et le port d'une machine précise. Sans cette règle, la connexion entrante n'a pas de destination et est ignorée. C'est laborieux et fragile (IP publique dynamique, IP privée qui change) — encore une raison de préférer un VPS à IP fixé pour de la production. Retenir : deux barrières filtrent les connexions entrantes — le pare-feu de la machine et, en résidentiel, le NAT de la box. Diagnostiquer « ça ne répond pas » suppose de vérifier les deux."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : Kapsule sur un VPS",
+          "content": "Quand Kapsule est déployé sur un VPS, celui-ci reçoit une **IP publique fixé**, par exemple `65.108.x.x` chez Hetzner. N'importe quel navigateur du monde peut alors envoyer une requête à cette IP sur le port **443** — et c'est le logiciel qui écoute sur ce port (**Caddy**, ici) qui répond, puis relaie en interne vers l'application Node.\n\nLe pare-feu du serveur (`ufw`) ne laisse ouverts que **trois** ports : 22 (SSH, pour l'administration), 80 et 443 (le web). Tout le reste est filtré. Ainsi, l'API Node qui écoute sur un port interne (ex. 3000) n'est **jamais** joignable directement depuis Internet : seul Caddy l'est, et lui seul parle à l'application sur le réseau interne. On vérifie que la chaîne fonctionne de bout en bout avec `curl -s https://kapsule.mondomaine.fr/api/health`, qui doit répondre `{\"ok\":true}`."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Le client initie toujours la conversation ; le serveur attend et répond. Le web est majoritairement sans état.",
+            "L'IP identifié la machine (IPv4 32 bits épuisé, IPv6 128 bits) ; le port identifié le service sur cette machine.",
+            "Ports clés : 80 (HTTP), 443 (HTTPS), 22 (SSH), 25 (mail). Deux services ne partagent pas un même IP:port.",
+            "Une machine derrière un NAT (box domestique) n'est pas joignable spontanément depuis Internet.",
+            "Connection refused = service absent (réseau OK) ; timeout = pare-feu qui filtre ou machine injoignable.",
+            "Un hébergement sérieux fournit une IP publique fixé ; une IP résidentielle dynamique casse tout service exposé.",
+            "Bonne pratique : n'ouvrir que les ports nécessaires (ex. 22, 80, 443) et garder les services applicatifs en interne."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Un navigateur reçoit immédiatement « Connection refused » sur le port 443 d'un serveur. Que faut-il en conclure en priorité ?",
+              "choices": [
+                "Un pare-feu filtre silencieusement le trafic",
+                "Le paquet a atteint la machine mais aucun service n'écoute sur 443 (ex. Caddy non démarré)",
+                "Le DNS est mal configuré",
+                "La machine est éteinte"
+              ],
+              "answer": 1,
+              "explanation": "Un refus immédiat signifie que la machine a répondu qu'aucun service n'écoute sur ce port : le réseau fonctionne. Un pare-feu qui filtre produirait un timeout (aucune réponse), et un DNS cassé empêcherait même de trouver l'IP. Là cause typique est le serveur web arrêté."
+            },
+            {
+              "q": "Pourquoi héberge-t-on rarement un site en production derrière sa box domestique ?",
+              "choices": [
+                "Parce que les box ne supportent pas HTTPS",
+                "Parce que le NAT rend la machine non joignable spontanément et l'IP publique est souvent dynamique",
+                "Parce que le HTTP est interdit en résidentiel",
+                "Parce que Docker ne fonctionne pas sur une box"
+              ],
+              "answer": 1,
+              "explanation": "Derrière un NAT, une connexion entrante non redirigée n'aboutit pas, et une IP résidentielle change souvent, cassant tout service exposé. Un VPS fournit une IP publique fixé et joignable. HTTPS et Docker n'ont rien à voir avec cette limite."
+            },
+            {
+              "q": "Sur le VPS de Kapsule, l'API Node écoute sur le port interne 3000. Pourquoi n'est-elle pas joignable directement depuis Internet ?",
+              "choices": [
+                "Parce que Node ne peut pas être exposé publiquement",
+                "Parce que le pare-feu (ufw) n'ouvre que 22, 80 et 443, et que seul Caddy parle à l'application en interne",
+                "Parce que le port 3000 est réservé au DNS",
+                "Parce que l'IP du VPS est privée"
+              ],
+              "answer": 1,
+              "explanation": "Le pare-feu ne laisse passer que SSH (22) et le web (80/443). L'API sur 3000 reste sur le réseau interne, atteignable seulement par Caddy, qui sert de point d'entrée unique. Ce n'est pas une limite de Node, et l'IP du VPS est bien publique."
+            },
+            {
+              "q": "Qu'est-ce qui identifié de façon unique une connexion TCP donnée ?",
+              "choices": [
+                "L'adresse IP de destination seule",
+                "Le quintuplet : protocole + IP source + port source + IP destination + port destination",
+                "Le seul port de destination (443)",
+                "L'adresse MAC de la carte réseau"
+              ],
+              "answer": 1,
+              "explanation": "Le quintuplet distingue chaque connexion, ce qui permet à un serveur d'entretenir des milliers de sessions sur le même port 443 (chaque client ayant un port source différent). L'IP ou le port de destination seuls ne suffisent pas, et la MAC ne vaut que sur le lien local."
+            },
+            {
+              "q": "Deux conteneurs tentent tous deux d'écouter sur le port 80 de l'hôte. Que se passe-t-il ?",
+              "choices": [
+                "Ils se répartissent automatiquement le trafic",
+                "Le second échoue avec « address already in use » : un couple IP:port ne peut être lié qu'une fois",
+                "Docker crée un second port 80 virtuel",
+                "Le trafic est dupliqué vers les deux"
+              ],
+              "answer": 1,
+              "explanation": "Un même couple IP:port ne peut être lié que par un seul processus. Le second obtient « address already in use ». C'est pourquoi on place un reverse proxy unique sur 80/443 qui route ensuite vers plusieurs applications internes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dns",
+      "title": "Le DNS : l'annuaire d'Internet et sa propagation",
+      "durationMin": 10,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Personne ne retient `65.108.24.171`. On retient `kapsule.mondomaine.fr`. Le **DNS** (Domain Name System) est le système mondial qui traduit les noms lisibles en adresses IP. Mais le réduire à « un annuaire » masque l'essentiel : c'est un système **hiérarchique et fortement mis en cache**, dont les délais de propagation et les erreurs de configuration expliquent une grande part des incidents de mise en ligne — y compris « pourquoi mon HTTPS ne s'installe pas »."
+        },
+        {
+          "type": "concept",
+          "heading": "Nom de domaine, registrar et zone",
+          "content": "Un **nom de domaine** (`mondomaine.fr`) se loue auprès d'un **registrar** (OVH, Gandi, Cloudflare…) pour ~10 €/an. Le registrar (ou le service à qui l'on délègue) héberge la **zone DNS** : la liste des enregistrements du domaine.\n\nLe DNS est une **hiérarchie déléguée**, lue de droite à gauche : la racine (`.`) connaît les serveurs des TLD (`.fr`, `.com`) ; chaque TLD connaît les serveurs **faisant autorité** de chaque domaine ; ces derniers détiennent les enregistrements réels. Cette délégation rend le système scalable : personne ne centralise. Corollaire à connaître : si les **serveurs de noms** (NS) déclarés chez le registrar ne pointent pas vers la bonne zone, le domaine est injoignable **partout**, même si la zone est parfaite — parce que personne ne sait où la trouver."
+        },
+        {
+          "type": "concept",
+          "heading": "La résolution : du nom à l'IP",
+          "content": "Quand un navigateur veut joindre `kapsule.mondomaine.fr`, il interroge un **résolveur récursif** (celui du fournisseur d'accès, ou un public comme `1.1.1.1` / `8.8.8.8`). Ce résolveur fait le travail à sa place : il interroge un serveur racine (« qui gère `.fr` ? »), puis le TLD (« qui gère `mondomaine.fr` ? »), puis le serveur faisant autorité (« quelle est l'IP ? »).\n\nDu point de vue du client, c'est **une** question, **une** réponse. Sans cache, chaque nom coûterait 3 à 4 requêtes : d'où l'importance vitale de la mise en cache. Piège de diagnostic : un résolveur injoignable rend *tout* Internet « cassé » pour l'utilisateur, alors que la connectivité IP est intacte — un `ping 1.1.1.1` réussit mais aucun nom ne se résout."
+        },
+        {
+          "type": "concept",
+          "heading": "Les enregistrements DNS",
+          "content": "La configuration d'un domaine est une liste d'**enregistrements** typés :\n- **A** : associe un nom à une adresse IPv4.\n- **AAAA** : idem pour une IPv6.\n- **CNAME** : alias, un nom pointe vers *un autre nom* (jamais vers une IP). Règle stricte : un nom avec CNAME ne peut porter aucun autre enregistrement, ce qui **interdit un CNAME à l'apex** (`mondomaine.fr` nu).\n- **MX** : où livrer les e-mails du domaine (avec une priorité).\n- **TXT** : texte libre, pour SPF/DKIM/DMARC (anti-usurpation d'e-mail) ou prouver la propriété du domaine.\n- **NS** : délègue la zone à ses serveurs faisant autorité.\n\nOn édite tout cela dans l'interface du registrar. Erreur classique : vouloir un CNAME sur l'apex pour pointer vers un service tiers — impossible ; on utilise un A, ou une extension propriétaire (ALIAS/ANAME)."
+        },
+        {
+          "type": "concept",
+          "heading": "TTL, propagation et pièges",
+          "content": "Chaque enregistrement porte un **TTL** (Time To Live) en secondes : la durée pendant laquelle un résolveur garde la réponse en cache. La fameuse « **propagation DNS** » n'est pas une diffusion active : c'est simplement l'**expiration progressive des caches**. Si vous changez une IP alors que l'ancien enregistrement avait un TTL de 24 h, certains résolveurs serviront l'ancienne valeur jusqu'à 24 h.\n\nStratégie avant une migration : **abaisser le TTL** (ex. à 300 s) plusieurs jours *avant* le changement, migrer, vérifier, puis le remonter. Autres modes de défaillance : **NXDOMAIN** (le nom n'existe pas — faute de frappe ou enregistrement absent) ; **cache négatif** (un « n'existe pas » est aussi mis en cache, donc un enregistrement fraîchement créé peut rester invisible un moment) ; **fichier hosts local** qui écrase le DNS pour un seul poste (« ça marche pour tout le monde sauf chez moi »). Il n'existe aucun bouton pour forcer les caches tiers à oublier avant expiration."
+        },
+        {
+          "type": "concept",
+          "heading": "Sous-domaines, apex et wildcard",
+          "content": "Un même domaine se décline en autant de **sous-domaines** que voulu, chacun pointant où l'on veut : `www.mondomaine.fr`, `kapsule.mondomaine.fr`, `blog.mondomaine.fr`, `api.mondomaine.fr`. Créer un sous-domaine ne coûte rien et n'implique pas d'achat : il suffit d'ajouter un enregistrement dans la zone. C'est ce qui permet d'héberger plusieurs services derrière un seul reverse proxy.\n\nDistinctions à maîtriser :\n- L'**apex** (ou racine, `mondomaine.fr` nu) est un cas particulier : il porte obligatoirement NS et SOA, ce qui **interdit** d'y mettre un CNAME. On y met un A, ou une extension ALIAS/ANAME.\n- Le **wildcard** (`*.mondomaine.fr`) répond pour *tout* sous-domaine non explicitement défini — pratique pour du multi-tenant, mais dangereux si mal maîtrisé (il capte aussi les fautes de frappe).\n- La convention `www` : historiquement un sous-domaine, souvent redirigé vers l'apex (ou l'inverse). Choisir une version canonique et rediriger l'autre évite le contenu dupliqué. Piège fréquent : configurer `www` mais oublier l'apex (ou l'inverse), si bien que le site marche avec `www.` mais pas sans."
+        },
+        {
+          "type": "concept",
+          "heading": "DNS et e-mail : MX, SPF, DKIM, DMARC",
+          "content": "Le DNS ne sert pas qu'au web : il gouverne aussi la **délivrabilité de l'e-mail**, un domaine où les erreurs sont fréquentes et coûteuses. Quatre éléments interviennent :\n- **MX** : désigne le(s) serveur(s) qui reçoivent le courrier du domaine, avec une **priorité** (le plus petit nombre est prioritaire ; les autres servent de secours).\n- **SPF** (enregistrement TXT) : liste les serveurs autorisés à *envoyer* du courrier au nom du domaine. Un serveur non listé voit ses messages rejetés ou classés en spam.\n- **DKIM** (TXT) : une signature cryptographique ajoutée aux messages, vérifiable via une clé publique publiée dans le DNS — elle prouve que le message n'a pas été altéré et vient bien du domaine.\n- **DMARC** (TXT) : la politique qui dit aux serveurs receveurs quoi faire quand SPF/DKIM échouent (rien, quarantaine, rejet) et où envoyer les rapports.\n\nConséquence pratique : configurer un domaine pour un service (ex. envoi d'e-mails transactionnels) exige souvent d'ajouter des enregistrements TXT précis. Les oublier, c'est voir ses e-mails atterrir en spam sans erreur visible côté serveur."
+        },
+        {
+          "type": "concept",
+          "heading": "Résolveurs publics, vie privée et DNS chiffré",
+          "content": "Par défaut, une machine utilise le **résolveur** poussé par le DHCP — souvent celui du fournisseur d'accès. On peut le remplacer par un **résolveur public** : `1.1.1.1` (Cloudflare), `8.8.8.8` (Google), `9.9.9.9` (Quad9), réputés rapides et parfois filtrants (Quad9 bloque les domaines malveillants connus). Le choix du résolveur a un effet direct sur la latence de résolution et sur ce qui est joignable ou filtré.\n\nEnjeu majeur souvent ignoré : le DNS classique circule **en clair**. N'importe quel intermédiaire (fournisseur d'accès, réseau Wi-Fi public) peut donc **observer** tous les noms que vous résolvez — un historique de navigation en creux — voire les **falsifier**. Deux protocoles y répondent : **DoT** (DNS over TLS, port dédié 853) et **DoH** (DNS over HTTPS, mêlé au trafic web sur 443). Ils chiffrent les requêtes DNS. Effet de bord pour le diagnostic : un navigateur qui active DoH court-circuite le résolveur système, si bien qu'un `dig` en ligne de commande peut donner une réponse différente de ce que voit réellement le navigateur. Toujours se demander « quel résolveur, chiffré ou non, répond réellement ici ? »."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : mettre Kapsule en ligne",
+          "content": "Le déploiement de Kapsule exige une seule chose côté DNS : un enregistrement **A** faisant pointer `kapsule.mondomaine.fr` vers l'IP du VPS (et un **AAAA** si le VPS a une IPv6). Une fois la propagation faite (de quelques minutes à quelques heures selon le TTL), **Caddy peut obtenir son certificat HTTPS** — car Let's Encrypt vérifie justement que le domaine pointe bien vers le serveur qui demande le certificat.\n\nD'où un enchaînement de causes fréquent lors d'une première mise en ligne : DNS pas encore propagé -> Caddy n'obtient pas son certificat -> le navigateur affiche une erreur de sécurité. Diagnostic : `dig kapsule.mondomaine.fr` doit renvoyer l'IP du VPS ; `dig ... @1.1.1.1` teste un résolveur public ; les logs `docker compose logs -f caddy` montrent la tentative (réussie ou non) d'obtention du certificat. Tant que le `dig` ne renvoie pas la bonne IP, inutile de chercher ailleurs."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Le DNS est une hiérarchie déléguée (racine -> TLD -> serveurs autoritaires), pas un annuaire central.",
+            "Un domaine se loue chez un registrar (~10 €/an) qui héberge la zone ; de mauvais NS rendent le domaine injoignable partout.",
+            "A = IPv4, AAAA = IPv6, CNAME = alias vers un nom (interdit à l'apex), MX = mail, TXT = SPF/DKIM/vérif, NS = délégation.",
+            "Le TTL fixé la durée de cache ; la « propagation » n'est que l'expiration des caches, non forçable.",
+            "Avant une migration : baisser le TTL à ~300 s plusieurs jours avant, migrer, vérifier, puis remonter.",
+            "NXDOMAIN = nom inexistant ; le cache négatif peut masquer un enregistrement fraîchement créé.",
+            "Sans DNS correctement propagé, Caddy/Let's Encrypt ne peut pas obtenir de certificat HTTPS.",
+            "dig est l'outil de vérification : tant qu'il ne renvoie pas la bonne IP, le problème est côté DNS."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Vous mettez Kapsule en ligne mais le navigateur affiche une erreur de certificat. `dig` renvoie une IP différente de celle du VPS. Cause la plus probable ?",
+              "choices": [
+                "Caddy est mal configuré",
+                "Le DNS n'est pas (encore) correctement propagé, donc Let's Encrypt ne peut pas valider le domaine",
+                "Le port 443 est fermé",
+                "SQLite est corrompu"
+              ],
+              "answer": 1,
+              "explanation": "Let's Encrypt vérifie que le domaine pointe vers le serveur demandeur. Si `dig` ne renvoie pas l'IP du VPS, la validation échoue et Caddy n'obtient pas de certificat. Le problème est en amont (DNS), pas dans Caddy, le port ou la base."
+            },
+            {
+              "q": "Vous changez l'IP d'un site (ancien TTL : 24 h). Certains visiteurs voient encore l'ancien serveur. Pourquoi ?",
+              "choices": [
+                "Le nouveau serveur est en panne",
+                "Les résolveurs conservent l'ancienne réponse en cache jusqu'à expiration du TTL",
+                "Le registrar n'a pas validé le changement",
+                "Il faut redémarrer le VPS"
+              ],
+              "answer": 1,
+              "explanation": "La « propagation » est l'expiration des caches : tant que le TTL de 24 h n'est pas écoulé, les résolveurs qui avaient l'ancienne valeur la servent encore. On ne peut pas forcer un cache tiers ; d'où l'intérêt de baisser le TTL avant une migration."
+            },
+            {
+              "q": "Pourquoi ne peut-on pas mettre un CNAME sur `mondomaine.fr` (l'apex) ?",
+              "choices": [
+                "Parce que l'apex n'accepte que l'IPv6",
+                "Parce qu'un nom avec CNAME ne peut porter aucun autre enregistrement, or l'apex doit porter NS et SOA",
+                "Parce que le TTL serait ignoré",
+                "Parce que les CNAME sont payants"
+              ],
+              "answer": 1,
+              "explanation": "Le standard interdit qu'un nom avec CNAME porte d'autres enregistrements ; or l'apex doit obligatoirement porter NS et SOA. On utilise donc un A à l'apex, ou une extension ALIAS/ANAME de l'hébergeur."
+            },
+            {
+              "q": "Un utilisateur ne résout aucun nom de domaine, mais `ping 1.1.1.1` fonctionne. Que faut-il suspecter ?",
+              "choices": [
+                "Un câble réseau débranché",
+                "Un résolveur DNS injoignable ou mal configuré : la connectivité IP est intacte mais la traduction nom -> IP échoue",
+                "Une panne de la racine DNS mondiale",
+                "Un certificat expiré"
+              ],
+              "answer": 1,
+              "explanation": "Le ping par IP prouve que la couche réseau fonctionne ; c'est la résolution de noms qui échoue, donc le résolveur configuré est en cause. Une panne mondiale de la racine est extrêmement improbable, et un certificat n'intervient pas dans la résolution."
+            },
+            {
+              "q": "Quel enregistrement fait pointer un nom vers une adresse IPv4 ?",
+              "choices": [
+                "CNAME",
+                "MX",
+                "A",
+                "TXT"
+              ],
+              "answer": 2,
+              "explanation": "L'enregistrement A (Address) associe un nom à une IPv4 ; AAAA fait de même pour IPv6. CNAME est un alias vers un autre nom, MX désigne le serveur mail, TXT porte du texte (SPF, vérifications)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hebergement-web",
+      "title": "Héberger un site : mutualisé, VPS, PaaS ou cloud ?",
+      "durationMin": 10,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Un site web doit tourner sur une machine allumée en permanence et joignable depuis Internet. C'est le rôle de l'**hébergeur**. Mais tous les hébergements ne se ressemblent pas : le bon choix arbitre entre le **contrôle** voulu, le **temps d'administration** qu'on accepte d'y consacrer, la **persistance des données** et le **coût**. Se tromper de famille d'hébergement, c'est soit se retrouver bloqué (mutualisé trop rigide), soit payer et administrer bien plus que nécessaire."
+        },
+        {
+          "type": "concept",
+          "heading": "Les grandes familles d'hébergement",
+          "content": "Quatre modèles couvrent l'essentiel des besoins :\n- **Hébergement mutualisé** : des dizaines de sites partagent un serveur géré par l'hébergeur. Très bon marché (~3-5 €/mois), zéro administration, mais peu flexible : pas d'accès root, versions logicielles imposées (typique d'un blog WordPress).\n- **VPS** (Virtual Private Server) : une machine virtuelle rien qu'à vous, avec accès administrateur complet. Liberté totale, responsabilité totale.\n- **PaaS** (Platform as a Service, ex. Vercel, Railway, Heroku) : vous poussez votre code, la plateforme build, déploie et scale. Très confortable, mais moins de contrôle et des coûts qui grimpent vite, surtout pour l'état persistant.\n- **Cloud à la demande** (AWS, GCP, Azure) : des briques infiniment composables (calcul, stockage, base managée…), pour des besoins complexes ou à forte variabilité — puissant mais avec une courbe d'apprentissage et une facturation à surveiller."
+        },
+        {
+          "type": "concept",
+          "heading": "Le VPS en détail",
+          "content": "Un VPS est une **tranche virtualisée** d'un gros serveur physique dans un **datacenter**. L'hyperviseur découpe la machine physique en plusieurs VM isolées. Pour 4 à 10 €/mois (Hetzner, OVH…), on obtient une IP publique fixé, quelques **vCPU**, de la **RAM** (2-8 Go typiquement en entrée de gamme) et un disque **SSD/NVMe** (40-160 Go).\n\nOn s'y connecté en **SSH** : une connexion terminal chiffrée, authentifiée idéalement par une **paire de clés** (clé privée sur votre poste, clé publique sur le serveur) plutôt qu'un mot de passe — bien plus sûr et non sujet au brute-force. On y installe ensuite ce qu'on veut. Ordre de grandeur : un VPS d'entrée de gamme encaisse sans peine des milliers de visiteurs/jour pour une petite application ; ce qui limite d'abord, c'est souvent la **RAM** et les **IOPS disque**, pas le CPU."
+        },
+        {
+          "type": "concept",
+          "heading": "Le critère décisif : la persistance des données",
+          "content": "Le facteur qui tranche souvent le choix, c'est **où vivent les données**. Un site vitrine sans état s'héberge partout, même sur du statique gratuit. Mais des qu'il faut une **base de données sur disque**, des **fichiers uploadés** persistants ou des **traitements longs**, les modèles divergent fortement :\n- Le **mutualisé** offre en général une base MySQL bridée, sans contrôle fin.\n- Le **PaaS** est souvent **éphémère** par conception : le système de fichiers est réinitialisé à chaque déploiement, ce qui oblige à externaliser tout état (base managée payante, stockage objet). Idéal pour du sans-état, coûteux et contraignant pour du persistant local.\n- Le **VPS** offre un disque durable qu'on maîtrise — mais la sauvegarde devient **votre** responsabilité (voir dernière fiche).\n\nMauvais choix classique : déployer sur un PaaS une app qui écrit dans une base SQLite locale, puis perdre les données à chaque redéploiement."
+        },
+        {
+          "type": "concept",
+          "heading": "Sécuriser et exploiter un VPS : les pièges",
+          "content": "Le VPS donne la liberté… et toute la responsabilité. Un serveur laissé nu est scanné et attaqué en **quelques minutes**. À faire dès le provisionnement :\n- **Pare-feu** (`ufw`) : n'ouvrir que 22, 80, 443 ; tout le reste fermé.\n- **SSH par clé uniquement** : désactiver l'authentification par mot de passe et la connexion **root** directe ; créer un utilisateur non-root (`deploy`).\n- **Mises à jour de sécurité automatiques** (`unattended-upgrades`) : un serveur non maintenu finit compromis.\n- **fail2ban** pour endiguer le brute-force sur SSH.\n\nPièges d'exploitation : un **disque qui se remplit** (logs, images Docker inutilisées) fait planter l'app sans erreur applicative claire ; l'**OOM killer** du noyau tue un processus quand la RAM est saturée ; l'oubli de **sauvegardes hors-site** transforme une panne matérielle en perte définitive. Le confort du PaaS, c'est précisément de déléguer tout cela — au prix du contrôle et de la facture."
+        },
+        {
+          "type": "concept",
+          "heading": "Dimensionner : vCPU, RAM, disque, bande passante",
+          "content": "Choisir la taille d'un serveur, c'est estimer quatre ressources — et savoir laquelle sature en premier :\n- **vCPU** : suffisant pour la plupart des petites apps ; le calcul intensif (traitement d'images, chiffrement massif) est l'exception qui en demande plus.\n- **RAM** : souvent le premier goulot. Chaque processus (Node, base, proxy) en consomme ; la saturation déclenche l'**OOM killer** du noyau, qui tue brutalement un processus. Prévoir une marge (ne jamais viser 100 %).\n- **Disque** : capacité *et* vitesse (**IOPS**). Une base de données transactionnelle est sensible aux IOPS ; un disque NVMe surpasse largement un HDD. Attention au disque qui se **remplit** (logs, sauvegardes, images Docker) et fige l'app.\n- **Bande passante / trafic** : beaucoup d'hébergeurs incluent un quota mensuel (ex. plusieurs To) ; le dépasser coûte ou bride.\n\nMéthode : partir petit, **mesurer** l'usage réel (RAM, disque, charge), et ajuster. Surdimensionner « au cas où » gaspille ; sous-dimensionner la RAM provoque des crashs difficiles à diagnostiquer."
+        },
+        {
+          "type": "concept",
+          "heading": "Scalabilité : vertical, horizontal et le problème de l'état",
+          "content": "Quand une application sature, deux façons de grandir :\n- **Scaling vertical** : prendre une machine plus grosse (plus de RAM/CPU). Simple, sans changement d'architecture, mais plafonné par la plus grosse machine disponible et par un **point de défaillance unique**.\n- **Scaling horizontal** : ajouter *plusieurs* instances derrière un répartiteur de chargé. Quasi illimité et résilient (une instance tombe, les autres tiennent), mais exige que l'application soit **sans état**.\n\nC'est là qu'est la vraie difficulté : l'**état**. Si chaque instance garde en mémoire les sessions ou écrit dans un fichier local, deux instances divergent. Il faut donc externaliser l'état — base de données partagée, cache distribué (Redis), stockage objet pour les fichiers. Une base **SQLite locale**, par exemple, est excellente pour une instance unique (scaling vertical) mais se prête mal au horizontal, car le fichier vit sur une seule machine. Le choix d'architecture (état local simple vs état externalisé scalable) doit être conscient : la plupart des projets commencent vertical, ce qui est le bon choix tant que la charge le permet."
+        },
+        {
+          "type": "concept",
+          "heading": "Responsabilité partagée et coût total",
+          "content": "Choisir un hébergement, c'est aussi choisir **jusqu'où** on délègue — et donc ce qui reste à sa chargé. C'est le **modèle de responsabilité partagée** : plus on monte vers le managé, plus le fournisseur assume, moins on contrôle.\n- **VPS** : le fournisseur garantit le matériel et le réseau ; **tout le reste** (système, mises à jour, sécurité, sauvegardes, supervision) est à vous.\n- **PaaS** : le fournisseur gère aussi le système, le runtime et le scaling ; vous ne gérez que le code et la configuration.\n- **Managé/serverless** : jusqu'à la base de données et la disponibilité assurées par le fournisseur.\n\nCorollaire crucial : sur un VPS, **les sauvegardes et la sécurité ne se font pas toutes seules** — beaucoup l'apprennent au premier disque perdu. Le **coût total de possession** ne se résume donc pas au prix affiché : un VPS à 5 €/mois peut coûter cher en heures d'administration ; un PaaS à 50 €/mois peut être moins cher tout compris pour une petite équipe. La bonne question n'est pas « quel est le moins cher ? » mais « quel temps d'administration puis-je et veux-je assumer, pour quel niveau de contrôle ? »."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : le choix de Kapsule",
+          "content": "Kapsule tourne sur un **VPS** (Hetzner CX ou OVH, sous Debian/Ubuntu). Pourquoi ce choix ? L'application a besoin d'un backend Node, d'une **base SQLite sur disque** et d'uploads persistants. Un hébergement mutualisé ne le permet pas (pas de process Node long, pas de contrôle du disque), et un PaaS compliquerait la persistance : SQLite locale + système de fichiers éphémère = perte de données.\n\nLe provisionnement se fait **une fois** : mises à jour système, pare-feu `ufw` (seuls 22, 80 et 443 ouverts), **SSH par clé** uniquement, utilisateur `deploy` non-root, puis installation de Docker. Ce compromis privilégie le **contrôle et le coût maîtrisé** (~5 €/mois) contre un peu d'administration initiale — cohérent pour une petite application à état persistant, là où un PaaS aurait été plus cher et plus contraignant sur les données."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "L'hébergeur fournit une machine allumée 24h/24 et joignable ; le bon choix arbitre contrôle, administration, persistance et coût.",
+            "Mutualisé = simple mais rigide ; VPS = contrôle total mais admin à votre charge ; PaaS = confort contre flexibilité et coût ; cloud = composable mais complexe.",
+            "Un VPS d'entrée de gamme (~5 €/mois) : IP fixé, quelques vCPU, 2-8 Go RAM, disque SSD ; la RAM et les IOPS limitent avant le CPU.",
+            "Le critère décisif est souvent la persistance : un PaaS éphémère fait perdre une base SQLite locale à chaque déploiement.",
+            "On administre un VPS via SSH, idéalement par paire de clés (pas de mot de passe, pas de root direct).",
+            "Sécuriser dès le départ : ufw, SSH par clé, mises à jour automatiques, fail2ban.",
+            "Pièges d'exploitation VPS : disque plein, OOM killer, absence de sauvegarde hors-site.",
+            "Kapsule a choisi le VPS car il a besoin d'un backend Node et d'une base SQLite + uploads persistants."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Une application écrit ses données dans une base SQLite locale. Sur quel type d'hébergement risque-t-on de les perdre à chaque déploiement ?",
+              "choices": [
+                "Un VPS",
+                "Un PaaS au système de fichiers éphémère",
+                "Un serveur dédié",
+                "Un hébergement mutualisé"
+              ],
+              "answer": 1,
+              "explanation": "Beaucoup de PaaS réinitialisent le système de fichiers à chaque déploiement : une base SQLite locale y est éphémère. Le VPS offre un disque durable. C'est précisément pourquoi Kapsule, qui utilise SQLite + uploads, a choisi un VPS."
+            },
+            {
+              "q": "Quelle est la principale différence entre un hébergement mutualisé et un VPS ?",
+              "choices": [
+                "Le VPS est toujours moins cher",
+                "Sur un VPS, on a un accès administrateur complet à sa propre machine virtuelle",
+                "Le mutualisé est toujours plus rapide",
+                "Le VPS n'a pas d'IP publique"
+              ],
+              "answer": 1,
+              "explanation": "Le mutualisé partage un serveur géré par l'hébergeur, sans accès root ; le VPS donne une machine virtuelle dédiée dont vous êtes administrateur. Le VPS n'est pas systématiquement moins cher, et il dispose bien d'une IP publique."
+            },
+            {
+              "q": "Pourquoi authentifier SSH par paire de clés plutôt que par mot de passe ?",
+              "choices": [
+                "C'est plus rapide à taper",
+                "Une clé n'est pas sujette au brute-force et n'est jamais transmise sur le réseau",
+                "Les mots de passe ne fonctionnent pas sous Docker",
+                "C'est obligatoire pour Caddy"
+              ],
+              "answer": 1,
+              "explanation": "L'authentification par clé résiste au brute-force (contrairement à un mot de passe devinable) et la clé privée ne quitte jamais votre poste. C'est indépendant de Docker ou de Caddy ; c'est une bonne pratique de sécurité SSH générale."
+            },
+            {
+              "q": "Sur un VPS d'entrée de gamme, quelle ressource limite le plus souvent une petite application avant le CPU ?",
+              "choices": [
+                "La fréquence d'horloge",
+                "La RAM et les IOPS disque",
+                "Le nombre d'adresses IP",
+                "La version du noyau"
+              ],
+              "answer": 1,
+              "explanation": "Pour une petite app, c'est généralement la RAM (saturation -> OOM killer) et les entrées/sorties disque qui plafonnent avant le CPU. Le nombre d'IP et la version du noyau ne sont pas des goulots de performance."
+            },
+            {
+              "q": "Quel réflexe n'est PAS nécessaire lors du provisionnement sécurisé d'un VPS ?",
+              "choices": [
+                "Configurer un pare-feu n'ouvrant que 22, 80, 443",
+                "Désactiver la connexion root par mot de passe",
+                "Activer les mises à jour de sécurité automatiques",
+                "Ouvrir tous les ports pour faciliter le débogage"
+              ],
+              "answer": 3,
+              "explanation": "Ouvrir tous les ports est exactement l'inverse d'une bonne pratique : un serveur nu est attaqué en quelques minutes. Les trois autres (pare-feu restrictif, pas de root par mot de passe, mises à jour automatiques) sont indispensables."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "site-statique-dynamique",
+      "title": "Site statique ou dynamique : deux façons de servir le web",
+      "durationMin": 10,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "« Site statique » ne veut pas dire site figé ou moche. C'est une distinction technique fondamentale qui gouverne le coût, la sécurité et la scalabilité : le serveur renvoie-t-il des fichiers **tout prêts**, ou **fabrique-t-il** la réponse à chaque requête ? La réponse détermine comment on héberge, comment on met en cache, et où se cachent les failles."
+        },
+        {
+          "type": "concept",
+          "heading": "Le site statique",
+          "content": "Un site **statique** est un ensemble de fichiers finis — HTML, CSS, JavaScript, images — que le serveur se contente d'envoyer **tels quels**. Aucun calcul côté serveur : les mêmes fichiers sont servis à tout le monde. Avantages majeurs :\n- **Rapide** : servir un fichier est trivial ; on tient des milliers de requêtes/seconde sur une machine modeste.\n- **Sûr côté serveur** : sans code exécuté à la demande, la surface d'attaque serveur est quasi nulle (pas d'injection SQL, pas d'exécution de code).\n- **Facile à mettre en cache et à distribuer** via un **CDN** (réseau de serveurs répartis mondialement qui servent une copie proche du visiteur).\n- **Hébergeable gratuitement** (GitHub Pages, Netlify, Cloudflare Pages).\n\nAttention au contresens : statique ne veut pas dire non-interactif. Le **JavaScript** téléchargé rend la page très vivante **dans le navigateur** (c'est le cas d'une application React)."
+        },
+        {
+          "type": "concept",
+          "heading": "Le site dynamique et l'API",
+          "content": "Un site **dynamique** **fabrique** ses réponses à la volée : un programme côté serveur (Node, PHP, Python…) lit une base de données et génère un contenu propre à chaque utilisateur ou à chaque instant (fil d'actualité, panier, tableau de bord). Cela suppose un processus serveur permanent, une base de données, et donc plus de ressources et une surface d'attaque plus large.\n\nL'architecture moderne courante combine les deux : un **frontend statique** (l'interface, buildée une fois) qui appelle une **API** (le backend dynamique) pour lire et écrire les données, généralement au format **JSON**. Cette séparation permet d'héberger le frontend sur un CDN bon marché et de réserver le serveur dynamique aux seules opérations sur les données — on met à l'échelle chaque partie indépendamment."
+        },
+        {
+          "type": "concept",
+          "heading": "Le build : du code source aux fichiers servis",
+          "content": "Le code source d'un frontend moderne (React, Vue, Svelte…) **n'est pas** ce que le navigateur reçoit. Une étape de **build** le transforme : transpilation (JSX/TypeScript -> JavaScript standard), regroupement (*bundling*) de dizaines de fichiers en quelques-uns, **minification** (suppression des espaces et renommage pour réduire la taille), et *hashing* des noms de fichiers pour la gestion du cache (`app.9f3a1c.js`).\n\nLe résultat est un dossier de fichiers **statiques optimisés** (souvent `dist/` ou `build/`) — c'est *lui* qu'on déploie, pas le code source. Conséquence pratique : « déployer le frontend » signifie **lancer le build puis publier le dossier produit**. Piège fréquent : servir le code source non buildé (qui ne fonctionne pas dans le navigateur), ou oublier de rebuilder après un changement et se demander pourquoi la modification n'apparaît pas en ligne."
+        },
+        {
+          "type": "concept",
+          "heading": "Pièges : cache, SEO et confusion des responsabilités",
+          "content": "La distinction statique/dynamique a des effets de bord subtils :\n- **Cache agressif du statique** : parce qu'il est mis en cache par le navigateur et le CDN, un fichier statique modifié peut continuer d'être servi dans sa vieille version. La parade est le *hashing* des noms : un contenu différent = un nom différent = pas de collision de cache. Sans lui, les utilisateurs voient l'ancienne interface après un déploiement.\n- **SEO et premier rendu** : une application statique rendue *uniquement* côté navigateur (SPA) peut afficher une page vide tant que le JS n'a pas tourné, ce qui gêne certains robots ou ralentit le premier affichage. D'où le SSR/prerendering pour les sites où le référencement compte.\n- **Confusion des rôles** : croire que « statique » = « sans JavaScript », ou que l'API sert les fichiers CSS. Le partage est net : le **statique** sert l'interface, l'**API dynamique** sert les données. Mélanger les deux complique le cache et la sécurité."
+        },
+        {
+          "type": "concept",
+          "heading": "Où se fait le rendu : CSR, SSR, SSG",
+          "content": "Pour un site dynamique moderne, la question n'est pas seulement « statique ou dynamique » mais **où** la page HTML est fabriquée :\n- **CSR** (Client-Side Rendering) : le serveur envoie une page quasi vide + du JavaScript ; le navigateur construit l'interface. C'est le modèle des **SPA** (React, Vue). Avantage : navigation fluide après le premier chargement. Inconvénient : premier affichage retardé (il faut télécharger et exécuter le JS) et SEO plus fragile.\n- **SSR** (Server-Side Rendering) : le serveur génère le HTML complet à chaque requête, puis le JS « hydrate » la page pour la rendre interactive. Meilleur premier affichage et SEO, au prix d'un serveur qui travaille à chaque requête.\n- **SSG** (Static Site Génération) : les pages HTML sont générées **au build**, une fois pour toutes, puis servies comme des fichiers statiques. Idéal pour du contenu qui change peu (blog, docs).\n\nBeaucoup de frameworks combinent ces modes par page. Le choix arbitre premier affichage, SEO, charge serveur et complexité. Piège : partir sur une SPA pure (CSR) pour un site où le référencement est vital, puis découvrir que les robots voient une page vide."
+        },
+        {
+          "type": "concept",
+          "heading": "CDN et cache HTTP : Cache-Control et ETag",
+          "content": "Servir un fichier statique depuis un serveur unique à l'autre bout du monde ajoute de la latence à chaque visiteur. Un **CDN** (Content Delivery Network) réplique les fichiers sur des serveurs répartis mondialement (**edge**) et sert chaque visiteur depuis le plus proche — gain de latence majeur et décharge du serveur d'origine.\n\nLe cache est piloté par des **en-têtes HTTP** :\n- **Cache-Control** : dit combien de temps garder une ressource (`max-age`), si elle est publique/privée, ou de ne jamais la cacher (`no-store`). C'est l'outil principal.\n- **ETag** / **Last-Modified** : une empreinte de la ressource. Le navigateur peut demander « as-tu du neuf depuis cet ETag ? » ; si non, le serveur répond `304 Not Modified` sans renvoyer le contenu — économie de bande passante.\n\nStratégie gagnante : cacher **agressivement et longtemps** les fichiers dont le nom contient une empreinte (hashing), et cacher **peu** le HTML d'entrée (qui pointe vers ces fichiers). Ainsi un déploiement change les noms des assets, invalidant naturellement le cache sans configuration manuelle. Mal régler le cache, c'est soit servir du périmé, soit renoncer aux gains du CDN."
+        },
+        {
+          "type": "concept",
+          "heading": "Où sont les failles selon le type de site",
+          "content": "La distinction statique/dynamique change radicalement la **surface d'attaque**, ce qui doit orienter les priorités de sécurité :\n- Un **site statique** n'exécute pas de code côté serveur : ni injection SQL, ni exécution de commandes, ni faille applicative serveur. Le risque se déplace vers le **navigateur** : le **XSS** (injection de script) reste possible si l'on insère du contenu non maîtrisé dans la page, et la compromission passe surtout par la chaîne de build (dépendances piégées) ou l'hébergement.\n- Un **site dynamique** ajoute toute la surface serveur : **injection SQL** (requêtes construites avec des entrées non filtrées), **authentification** défaillante, **exposition de données**, exécution de code. Les entrées utilisateur deviennent la première source de danger.\n\nRègles transverses : **ne jamais faire confiance aux entrées** (valider et échapper systématiquement), utiliser des **requêtes paramétrées** contre l'injection SQL, appliquer une **politique de sécurité du contenu** (CSP) contre le XSS, et **tenir les dépendances à jour** (une faille dans une bibliothèque tierce est une faille chez vous). Comprendre où se situe la surface d'attaque évite de sur-sécuriser l'un en négligeant l'autre — par exemple durcir le serveur d'un site statique tout en laissant passer un XSS."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : Kapsule est hybride",
+          "content": "Le frontend de Kapsule (**React + Vite**) est **buildé** en fichiers statiques : la commande de build transforme le code source en un dossier de HTML/CSS/JS optimisés, servis tels quels. Mais les **decks, la progression et les comptes** vivent dans une base **SQLite**, exposée par une **API REST** Node/Express sous `/api/...`.\n\nStatique pour l'interface, dynamique pour les données : c'est l'architecture hybride typique. Concrètement, un même serveur (via Caddy puis l'app) sert les fichiers statiques du frontend *et* répond aux appels `/api/...` qui lisent/écrivent dans SQLite. L'intérêt : l'interface se charge vite et pourrait même être mise en cache/distribuée, tandis que seules les opérations sur les données sollicitent le backend. Vérification concrète : ouvrir la page charge des fichiers `.js`/`.css` statiques ; consulter ses fiches déclenche des requêtes `GET /api/...` visibles dans l'onglet réseau du navigateur."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Statique = fichiers pré-fabriqués servis tels quels ; dynamique = réponse générée à chaque requête.",
+            "Un site statique est rapide, sûr côté serveur, cachable/distribuable via CDN et souvent hébergeable gratuitement.",
+            "Statique ne veut pas dire non-interactif : le JavaScript rend la page vivante dans le navigateur (ex. React).",
+            "Le « build » transpile, regroupe, minifie et hashe le code source frontend : on déploie le dossier produit, pas la source.",
+            "L'architecture moderne courante : frontend statique + API dynamique (JSON), mis à l'échelle indépendamment.",
+            "Le hashing des noms de fichiers évite qu'un cache serve l'ancienne version après déploiement.",
+            "Une SPA rendue uniquement côté navigateur peut poser des problèmes de SEO et de premier affichage.",
+            "Kapsule est hybride : frontend React+Vite statique + API REST Node/Express sur SQLite."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Après un déploiement, des utilisateurs voient encore l'ancienne interface alors que les fichiers ont changé. Cause la plus probable ?",
+              "choices": [
+                "L'API REST est en panne",
+                "Le cache (navigateur/CDN) sert les anciens fichiers faute de hashing des noms",
+                "La base SQLite est corrompue",
+                "Le DNS n'est pas propagé"
+              ],
+              "answer": 1,
+              "explanation": "Les fichiers statiques sont mis en cache ; sans hashing des noms, un fichier modifié garde le même nom et l'ancienne version reste servie. Le hashing (app.9f3a1c.js) résout cela. L'API, la base et le DNS ne provoquent pas ce symptôme précis."
+            },
+            {
+              "q": "Qu'est-ce qui caractérise un site statique ?",
+              "choices": [
+                "Il ne contient aucun JavaScript",
+                "Le serveur envoie des fichiers pré-fabriqués, sans calcul à chaque requête",
+                "Il ne peut pas afficher d'images",
+                "Il nécessite obligatoirement une base de données"
+              ],
+              "answer": 1,
+              "explanation": "Statique décrit le comportement du serveur (fichiers servis tels quels), pas l'interactivité : le JavaScript peut rendre la page très vivante côté navigateur. Un site statique n'a justement pas besoin de base de données côté serveur."
+            },
+            {
+              "q": "Que produit l'étape de « build » d'un frontend React ?",
+              "choices": [
+                "Une image Docker",
+                "Un dossier de fichiers statiques optimisés (transpilés, regroupés, minifiés) prêts à servir",
+                "Une base de données",
+                "Un certificat HTTPS"
+              ],
+              "answer": 1,
+              "explanation": "Le build transforme le code source en fichiers statiques optimisés (le dossier dist/build), qui sont ce qu'on déploie. Ce n'est ni une image Docker (autre étape), ni une base, ni un certificat."
+            },
+            {
+              "q": "Dans Kapsule, quel rôle joue l'API REST ?",
+              "choices": [
+                "Elle sert les fichiers CSS et JS",
+                "Elle expose les données (decks, progression, comptes) que le frontend statique consomme",
+                "Elle compile le code React",
+                "Elle gère les certificats TLS"
+              ],
+              "answer": 1,
+              "explanation": "Le frontend buildé est statique ; c'est l'API Node/Express qui lit et écrit les données dans SQLite via /api/.... Elle ne compile pas React (c'est le build) et ne gère pas les certificats (c'est Caddy)."
+            },
+            {
+              "q": "Pourquoi un frontend statique se prête-t-il bien à un CDN, contrairement à un backend dynamique ?",
+              "choices": [
+                "Parce qu'il est écrit en JavaScript",
+                "Parce que les mêmes fichiers sont servis à tout le monde et peuvent être copiés près de chaque visiteur",
+                "Parce qu'il n'utilise pas HTTPS",
+                "Parce qu'il est plus volumineux"
+              ],
+              "answer": 1,
+              "explanation": "Un contenu statique identique pour tous se réplique facilement sur des serveurs répartis (CDN) proches des visiteurs. Un backend dynamique génère des réponses personnalisées et interroge une base, ce qui se met en cache beaucoup moins simplement."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http-https",
+      "title": "HTTP et HTTPS : la langue du web et son cadenas",
+      "durationMin": 10,
+      "level": "debutant",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Client et serveur se parlent dans une langue commune : **HTTP**. Et parce qu'Internet est une route publique où n'importe qui sur le chemin peut écouter ou modifier le trafic, cette conversation se chiffre aujourd'hui systématiquement : c'est le **S** de HTTPS. Comprendre ces deux protocoles, c'est savoir lire un code de statut, diagnostiquer une erreur de certificat, et savoir exactement *ce que HTTPS garantit — et ce qu'il ne garantit pas*."
+        },
+        {
+          "type": "concept",
+          "heading": "HTTP : requêtes, méthodes et réponses",
+          "content": "**HTTP** (HyperText Transfer Protocol) structure chaque échange en requête/réponse :\n- Le client envoie une **requête** : une **méthode** (`GET` pour lire, `POST` pour créer, `PUT`/`PATCH` pour modifier, `DELETE` pour supprimer), une URL, des **en-têtes** (type de contenu accepté, cookies, authentification), et éventuellement un corps.\n- Le serveur renvoie une **réponse** : un **code de statut**, des en-têtes, et le contenu.\n\nUne distinction utile : `GET` est censé être **sans effet de bord** (idempotent, cachable), tandis que `POST` modifie l'état. C'est pourquoi un navigateur peut librement rejouer un GET mais avertit avant de rejouer un POST. Chaque page web déclenche des **dizaines** de ces échanges : le HTML d'abord, puis chaque CSS, JS, image, police référencés."
+        },
+        {
+          "type": "concept",
+          "heading": "Les codes de statut",
+          "content": "Le **code de statut** résume le sort de la requête, par familles :\n- **2xx — succès** : `200` OK, `201` Created, `204` No Content.\n- **3xx — redirection** : `301` (permanente, mémorisée par le navigateur), `302`/`307` (temporaire), `304` Not Modified (le cache est encore bon).\n- **4xx — erreur du client** : `400` requête malformée, `401` non authentifié, `403` interdit (authentifié mais pas autorisé), `404` introuvable, `429` trop de requêtes.\n- **5xx — erreur du serveur** : `500` erreur interne, `502` mauvaise passerelle (le reverse proxy n'a pas obtenu de réponse valide de l'app), `503` service indisponible, `504` délai dépassé côté amont.\n\nPiège classique à connaître : `401` (« qui es-tu ? ») n'est pas `403` (« je sais qui tu es, mais c'est interdit »). Et un `502`/`504` accusé presque toujours l'**application derrière** le proxy, pas le proxy lui-même."
+        },
+        {
+          "type": "concept",
+          "heading": "HTTPS : chiffrement, intégrité et authentification",
+          "content": "**HTTPS** est HTTP transporté dans un tunnel chiffré (**TLS**). Il apporte **trois** garanties, à bien distinguer :\n1. **Confidentialité** : personne sur le chemin ne peut **lire** l'échange.\n2. **Intégrité** : personne ne peut le **modifier** en route sans être détecté.\n3. **Authentification du serveur** : vous parlez bien **au vrai serveur** annoncé, pas à un imposteur.\n\nCette troisième garantie repose sur un **certificat** : un document cryptographique signé par une **autorité de certification** (CA) de confiance, qui atteste « ce serveur est bien kapsule.mondomaine.fr ». Le navigateur vérifie la **chaîne de confiance** (le certificat est signé par une CA qu'il connaît) et la **validité** (dates, correspondance du nom de domaine). Établir TLS ajoute un court échange (*handshake*) au début de la connexion. Ce qu'HTTPS **ne** garantit **pas** : que le contenu du site est honnête, exact ou sans malveillance — un site de phishing peut parfaitement être en HTTPS."
+        },
+        {
+          "type": "concept",
+          "heading": "Certificats, Let's Encrypt et pièges",
+          "content": "**Let's Encrypt** délivre des certificats **gratuitement et automatiquement**, à condition de prouver le **contrôle du domaine** — typiquement via un défi ACME : la CA demande au serveur de publier une valeur précise (sur le port 80 ou dans le DNS), ce qu'il ne peut faire que s'il contrôle réellement le domaine. Les certificats Let's Encrypt sont **courts** (90 jours), ce qui rend le **renouvellement automatique** indispensable.\n\nModes de défaillance à reconnaître :\n- **Certificat expiré** : le renouvellement automatique a échoué (souvent parce que le port 80 s'est fermé ou le DNS a changé) -> tous les visiteurs voient un avertissement.\n- **Mauvais nom** : le certificat couvre `www.` mais pas l'apex, ou l'inverse -> erreur de correspondance.\n- **Chaîne incomplète** : le serveur n'envoie pas les certificats intermédiaires -> échec sur certains clients.\n- **Horloge du client déréglée** : le certificat paraît « pas encore valide » ou « expiré » côté utilisateur.\n\nRègle d'or : ne jamais laisser un renouvellement dépendre d'une action manuelle."
+        },
+        {
+          "type": "concept",
+          "heading": "En-têtes et cookies : l'état par-dessus un protocole sans état",
+          "content": "HTTP est **sans état** : chaque requête est indépendante. Or une application a besoin de « se souvenir » qu'on est connecté. La solution repose sur les **en-têtes** et les **cookies**.\n\nÀ la connexion, le serveur renvoie un en-tête `Set-Cookie` ; le navigateur le renvoie ensuite automatiquement (en-tête `Cookie`) à chaque requête vers ce domaine. Le cookie porte typiquement un **identifiant de session** ou un **jeton**. Attributs de sécurité cruciaux :\n- **HttpOnly** : le cookie est inaccessible au JavaScript, ce qui protège contre le vol par injection de script (XSS).\n- **Secure** : le cookie n'est envoyé qu'en HTTPS.\n- **SameSite** : limite l'envoi du cookie depuis d'autres sites, atténuant les attaques CSRF.\n\nD'autres en-têtes structurent l'échange : `Content-Type` (nature du contenu), `Authorization` (jeton d'authentification, ex. `Bearer ...`), `Accept` (formats acceptés), `User-Agent`. Piège classique : un cookie sans `Secure`/`HttpOnly` expose la session ; un mauvais `SameSite` ouvre la porte au CSRF. La sécurité d'une application web se joue en bonne partie dans ces attributs."
+        },
+        {
+          "type": "concept",
+          "heading": "TLS de plus près : handshake, versions et HSTS",
+          "content": "Le **S** de HTTPS repose sur **TLS**, qui commence par un **handshake** : le client et le serveur négocient une version du protocole et une suite cryptographique, le serveur présente son certificat, et les deux dérivent une clé de session partagée. Les échanges suivants sont chiffrés symétriquement (rapide). Ce handshake coûte un à deux allers-retours ; **TLS 1.3** l'a raccourci (souvent 1 aller-retour, voire 0 en reprise de session), améliorant nettement la latence par rapport à TLS 1.2.\n\nPoints à connaître :\n- **Versions** : TLS 1.2 et 1.3 sont sûrs ; SSL et TLS 1.0/1.1 sont obsolètes et à désactiver.\n- **HSTS** (en-tête `Strict-Transport-Security`) : ordonne au navigateur de n'utiliser QUE HTTPS pour ce domaine pendant une durée donnée, empêchant une rétrogradation vers HTTP. À activer une fois le HTTPS stable — mais avec prudence, car il est difficile à annuler.\n- **Redirection HTTP -> HTTPS** : indispensable pour que les vieux liens en `http://` basculent. Un reverse proxy comme Caddy la met en place automatiquement. Mal configuré, on obtient soit du contenu servi en clair, soit des boucles de redirection."
+        },
+        {
+          "type": "concept",
+          "heading": "HTTP/1.1, HTTP/2, HTTP/3 : l'évolution du transport",
+          "content": "Le protocole HTTP a évolué pour combattre la latence, sans changer sa sémantique (méthodes, codes, en-têtes restent identiques) :\n- **HTTP/1.1** : une requête à la fois par connexion, la suivante attend la réponse de la précédente (*head-of-line blocking*). Les navigateurs contournaient en ouvrant ~6 connexions parallèles par domaine — d'où d'anciennes astuces comme répartir les ressources sur plusieurs sous-domaines.\n- **HTTP/2** : **multiplexage** — plusieurs requêtes/réponses circulent en parallèle sur **une seule** connexion, avec compression des en-têtes. Gros gain sur les pages riches en ressources ; les vieilles astuces deviennent inutiles, voire contre-productives.\n- **HTTP/3** : abandonne TCP au profit de **QUIC** (bâti sur UDP), ce qui supprime le head-of-line blocking résiduel au niveau transport et accélère l'établissement de connexion (chiffrement intégré, reprise rapide). Particulièrement bénéfique sur réseaux mobiles instables.\n\nEn pratique, un reverse proxy moderne active HTTP/2 (et souvent HTTP/3) automatiquement dès lors que le HTTPS est en place — le bénéfice est gratuit côté application. Retenir : ces versions optimisent le **transport**, pas le sens des requêtes ; on n'a rien à réécrire dans son code applicatif pour en profiter."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : vérifier Kapsule",
+          "content": "Vérifier que Kapsule répond correctement en HTTPS : `curl -s https://kapsule.mondomaine.fr/api/health` doit renvoyer `{\"ok\":true}` avec un code **200**. Ajouter `-v` (`curl -v`) montré le détail du handshake TLS, le certificat présenté et le code de statut — l'outil de diagnostic de première intention.\n\nSi le DNS est mal configuré, **Caddy ne peut pas obtenir son certificat Let's Encrypt** (le défi ACME échoue) et le navigateur affiche une erreur de sécurité : là cause est en amont, dans le DNS, pas dans l'application. Les logs `docker compose logs -f caddy` montrent l'obtention (ou l'échec) du certificat, avec le motif exact. Face à une erreur HTTPS, l'ordre de diagnostic est : le DNS pointe-t-il vers le serveur ? le port 80 est-il ouvert pour le défi ? le certificat est-il présent et valide (dates, nom) ? — dans cet ordre."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "HTTP = requête (méthode + URL + en-têtes) / réponse (code de statut + contenu) ; GET lit sans effet de bord, POST modifie l'état.",
+            "Familles de codes : 2xx succès, 3xx redirection, 4xx erreur client, 5xx erreur serveur.",
+            "401 (non authentifié) ≠ 403 (authentifié mais interdit) ; 502/504 accusent l'application derrière le proxy.",
+            "HTTPS = HTTP dans TLS : confidentialité + intégrité + authentification du serveur via un certificat signé par une CA.",
+            "HTTPS ne garantit PAS l'honnêteté du contenu : un site de phishing peut être en HTTPS.",
+            "Let's Encrypt délivre des certificats gratuits de 90 jours prouvant le contrôle du domaine (défi ACME) : renouvellement automatique obligatoire.",
+            "Erreurs de certificat fréquentes : expiration (renouvellement raté), mauvais nom, chaîne incomplète, horloge client déréglée.",
+            "Diagnostic HTTPS dans l'ordre : DNS -> port 80 pour le défi -> certificat présent et valide."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Un utilisateur reçoit 403 sur une page. Que signifie précisément ce code ?",
+              "choices": [
+                "La page n'existe pas",
+                "Il n'est pas authentifié (le serveur ignore qui il est)",
+                "Il est authentifié mais n'a pas le droit d'accéder à cette ressource",
+                "Le serveur a planté"
+              ],
+              "answer": 2,
+              "explanation": "403 = Forbidden : le serveur sait qui vous êtes mais refuse l'accès. À ne pas confondre avec 401 (non authentifié : « qui es-tu ? »), 404 (n'existe pas) ou 500 (erreur serveur)."
+            },
+            {
+              "q": "Le reverse proxy renvoie 502 Bad Gateway aux visiteurs. Où chercher en priorité ?",
+              "choices": [
+                "Dans la configuration DNS",
+                "Dans l'application derrière le proxy : elle est probablement arrêtée ou en erreur",
+                "Dans le certificat TLS",
+                "Dans le fichier hosts du client"
+              ],
+              "answer": 1,
+              "explanation": "502 signifie que le proxy a joint l'amont mais n'a pas obtenu de réponse valide : l'application derrière (ex. le conteneur Node) est arrêtée, plante ou n'écoute pas. Le DNS et le certificat concernent l'accès au proxy, pas la réponse de l'app."
+            },
+            {
+              "q": "Quelle garantie HTTPS n'offre PAS ?",
+              "choices": [
+                "La confidentialité de l'échange",
+                "L'intégrité (non-modification) du trafic",
+                "L'authenticité du serveur",
+                "Que le contenu du site est honnête et sans arnaque"
+              ],
+              "answer": 3,
+              "explanation": "HTTPS sécurise le transport (chiffrement, intégrité, identité du serveur) mais ne dit rien de la qualité ou de l'honnêteté du contenu : un site de phishing peut être parfaitement en HTTPS. Les trois autres garanties sont, elles, bien assurées."
+            },
+            {
+              "q": "Un certificat Let's Encrypt a expiré et tous les visiteurs voient un avertissement. Cause la plus probable ?",
+              "choices": [
+                "Let's Encrypt a fermé le service",
+                "Le renouvellement automatique a échoué, souvent parce que le port 80 s'est fermé ou le DNS a changé",
+                "Le certificat était payant et l'abonnement a expiré",
+                "SQLite est corrompu"
+              ],
+              "answer": 1,
+              "explanation": "Les certificats Let's Encrypt durent 90 jours et se renouvellent automatiquement. Une expiration signale que ce renouvellement a échoué — typiquement le défi ACME ne passe plus (port 80 fermé, DNS modifié). Let's Encrypt est gratuit et il n'y a pas d'abonnement."
+            },
+            {
+              "q": "Quelle méthode HTTP est censée être sans effet de bord et donc cachable ?",
+              "choices": [
+                "POST",
+                "DELETE",
+                "GET",
+                "PUT"
+              ],
+              "answer": 2,
+              "explanation": "GET est destiné à lire une ressource sans la modifier, ce qui le rend idempotent et cachable ; le navigateur peut le rejouer librement. POST, PUT et DELETE modifient l'état et ne doivent pas être rejoués sans précaution."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reverse-proxy",
+      "title": "Le reverse proxy : le portier de votre serveur",
+      "durationMin": 10,
+      "level": "intermediaire",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Sur un serveur qui héberge une ou plusieurs applications, on ne les expose presque jamais directement à Internet. On place devant elles un **reverse proxy** : un portier unique qui reçoit tout le trafic entrant et le distribué vers la bonne application interne. C'est une pièce centrale du déploiement moderne, qui concentre HTTPS, routage, sécurité et observabilité en un seul point."
+        },
+        {
+          "type": "concept",
+          "heading": "Proxy direct vs reverse proxy",
+          "content": "Un **proxy direct** agit pour le compte des **clients** : il sort vers Internet à leur place (filtrage d'entreprise, anonymisation). Un **reverse proxy** agit pour le compte des **serveurs** : il se place **devant** eux, reçoit les requêtes des clients et les relaie vers les applications internes. Du point de vue du client, c'est *lui* le serveur ; les vraies applications sont invisibles.\n\nCette inversion est la clé : le reverse proxy est le **point d'entrée unique**. Tout ce qui doit s'appliquer à *toutes* les requêtes (chiffrement, journalisation, limitation de débit, compression, en-têtes de sécurité) se configuré une seule fois, à cet endroit, au lieu d'être réimplémenté dans chaque application."
+        },
+        {
+          "type": "concept",
+          "heading": "Principe et bénéfices",
+          "content": "Le reverse proxy écoute sur les ports publics (**80** et **443**) et transmet chaque requête à la bonne application interne selon le **nom de domaine** (`kapsule.mondomaine.fr` vs `blog.mondomaine.fr`) ou le **chemin** (`/api/...` vs `/`). Bénéfices concrets :\n- **HTTPS centralisé** (*TLS termination*) : lui seul gère les certificats ; les applications derrière parlent HTTP simple en local, ce qui les simplifie.\n- **Plusieurs applications, un serveur** : un seul VPS et une seule IP hébergent de nombreux services via les sous-domaines.\n- **Isolation** : les applications ne sont pas exposées directement, réduisant la surface d'attaque.\n- **Répartition de charge** : il peut distribuer le trafic entre plusieurs instances d'une même app.\n\nLes reverse proxies courants : **Caddy**, **Nginx**, **Traefik**, HAProxy."
+        },
+        {
+          "type": "concept",
+          "heading": "Caddy : le HTTPS sans effort",
+          "content": "**Caddy** se distingue par son HTTPS **entièrement automatique**. Il détecte les domaines dans sa configuration, demande le certificat à Let's Encrypt (défi ACME), le **renouvelle avant expiration**, et redirige HTTP vers HTTPS — sans aucune intervention manuelle. Là où Nginx demande d'installer et de planifier un outil séparé (certbot) puis de recharger la configuration, Caddy fait tout nativement avec quelques lignes de configuration : le **Caddyfile**.\n\nUn Caddyfile minimal pour une app tient en une poignée de lignes : le nom de domaine, puis une directive `reverse_proxy` vers l'adresse interne de l'application. Caddy en déduit tout le reste. Ce compromis — un peu moins de réglages fins que Nginx, mais une automatisation du HTTPS sans faille — le rend particulièrement adapté aux petits déploiements où l'on ne veut pas gérer manuellement les certificats."
+        },
+        {
+          "type": "concept",
+          "heading": "Pièges du reverse proxy",
+          "content": "Le point d'entrée unique est puissant, mais concentre aussi les erreurs :\n- **Le port 80 doit rester ouvert** même si tout passe en HTTPS : le défi ACME de Let's Encrypt et la redirection HTTP->HTTPS en dépendent. Le fermer casse le renouvellement des certificats.\n- **502/504** : si l'application interne est arrêtée, mal adressée (mauvais nom de conteneur ou port) ou trop lente, le proxy renvoie une erreur de passerelle. Le proxy va bien ; c'est l'amont qui manque.\n- **En-têtes perdus** : sans transmettre `X-Forwarded-For`/`X-Forwarded-Proto`, l'application voit toutes les requêtes venir du proxy (même IP) et croit être en HTTP — cassant journaux, limitation par IP et génération d'URL absolues.\n- **Point de défaillance unique** : si le proxy tombe, *tout* tombe. D'où l'importance de le superviser.\n- **Boucles de redirection** : une mauvaise configuration HTTP/HTTPS entre proxy et app peut créer des redirections infinies."
+        },
+        {
+          "type": "concept",
+          "heading": "Au-delà du routage : les fonctions transverses",
+          "content": "Un reverse proxy ne fait pas que relayer : parce qu'il voit **tout** le trafic, il est l'endroit idéal pour appliquer les traitements communs à toutes les applications :\n- **Compression** (gzip, brotli) : réduit la taille des réponses texte (HTML, CSS, JS, JSON) — souvent 60-80 % de gain — sans que chaque app ait à s'en occuper.\n- **Limitation de débit** (*raté limiting*) : plafonner le nombre de requêtes par IP protège contre les abus et les attaques par force brute.\n- **En-têtes de sécurité** : ajouter en un point unique `Strict-Transport-Security`, `X-Content-Type-Options`, `Content-Security-Policy`, etc.\n- **Terminaison TLS et redirection HTTP -> HTTPS**, déjà vues.\n- **Journalisation centralisée** : un seul flux de logs d'accès pour tout le trafic entrant.\n- **Servir des fichiers statiques** directement, sans déranger l'application.\n\nCentraliser ces fonctions évite de les réimplémenter (imparfaitement) dans chaque application, et garantit une politique cohérente. Contrepartie : le proxy devient une pièce critique et complexe qu'il faut configurer avec soin — une mauvaise règle de sécurité ou de raté limiting affecte *toutes* les apps d'un coup."
+        },
+        {
+          "type": "concept",
+          "heading": "Répartition de charge et vérifications de santé",
+          "content": "Quand une application tourne en **plusieurs instances** (scaling horizontal), le reverse proxy joue aussi le rôle de **répartiteur de charge** (*load balancer*) : il distribué les requêtes entre les instances. Plusieurs stratégies : *round-robin* (à tour de rôle), *least-connections* (vers l'instance la moins chargée), ou par affinité de session (*sticky sessions*, à éviter si l'app est bien sans état).\n\nLe complément indispensable est le **health check** : le proxy interroge périodiquement chaque instance (souvent un endpoint `/health`) et **retire automatiquement** du pool celle qui ne répond pas, pour ne plus lui envoyer de trafic. C'est ce qui permet une tolérance aux pannes : une instance qui plante est contournée sans que l'utilisateur le voie. Deux notions de vérification à distinguer : la **liveness** (le processus est-il vivant ? sinon, le redémarrer) et la **readiness** (est-il prêt à recevoir du trafic ? ex. base connectée, cache chauffé). Confondre les deux fait envoyer du trafic à une instance encore en démarrage, d'où des erreurs intermittentes après un déploiement."
+        },
+        {
+          "type": "concept",
+          "heading": "Configuration déclarative et rechargement à chaud",
+          "content": "Un reverse proxy se configuré par un fichier **déclaratif** : on décrit *l'état voulu* (« ce domaine va vers cette application, avec HTTPS, compression et ces en-têtes »), pas la suite d'étapes pour l'obtenir. Chez Caddy c'est le **Caddyfile** ; chez Nginx, des blocs `server`/`location`. Cette approche est reproductible et versionnable : le fichier de configuration vit dans Git, au même titre que le code.\n\nDeux notions opérationnelles importantes :\n- **Rechargement à chaud** (*reload*) : appliquer une nouvelle configuration **sans couper** les connexions en cours, contrairement à un redémarrage (*restart*) qui interrompt le service. On privilégie toujours le reload pour ajouter un domaine ou modifier une règle en production.\n- **Validation avant application** : un proxy sérieux vérifie la syntaxe de la configuration avant de l'appliquer (`nginx -t`, validation intégrée de Caddy). Appliquer une configuration invalide peut faire tomber *tout* le point d'entrée — donc tous les sites derrière.\n\nPiège classique : éditer la configuration en production, se tromper d'accolade, et redémarrer sans valider — coupant l'ensemble des services d'un coup. La discipline « versionner la config, valider, puis recharger à chaud » évite ces incidents et permet un retour arrière immédiat (recharger l'ancienne version du fichier)."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : l'architecture de Kapsule",
+          "content": "Le chemin d'une requête vers Kapsule : `Internet -> HTTPS -> Caddy -> app (API + PWA) -> /data`. **Caddy est le seul conteneur exposé** sur 80/443. Il obtient et renouvelle le certificat pour `kapsule.mondomaine.fr`, puis relaie les requêtes vers le conteneur applicatif, qui n'est joignable que sur le **réseau interne Docker** — jamais directement depuis Internet.\n\nCette architecture est **extensible** : le README de déploiement note qu'on peut ajouter d'autres applications en sous-domaines simplement en ajoutant un bloc au Caddyfile (`blog.mondomaine.fr { reverse_proxy ... }`), sans toucher au reste. Caddy gérera alors automatiquement un second certificat. C'est exactement le bénéfice « plusieurs apps, un serveur, un point d'entrée » : un seul VPS, une seule IP, un seul endroit où le HTTPS est géré, et une isolation nette de chaque application derrière le portier."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Un reverse proxy agit pour les serveurs : il est le point d'entrée unique qui reçoit et redistribue le trafic.",
+            "Il centralise le HTTPS (TLS termination) : les applications derrière restent en HTTP local, simplifiées.",
+            "Il permet d'héberger plusieurs applications sur un seul serveur/IP via les sous-domaines ou les chemins.",
+            "Caddy automatise entièrement l'obtention et le renouvellement des certificats (Caddyfile de quelques lignes), là où Nginx s'appuie sur certbot.",
+            "Le port 80 doit rester ouvert : le défi ACME et la redirection HTTP->HTTPS en dépendent.",
+            "502/504 = l'application derrière le proxy est arrêtée, mal adressée ou trop lente, pas le proxy lui-même.",
+            "Transmettre X-Forwarded-For/Proto, sinon l'app voit toutes les requêtes venir du proxy et se croit en HTTP.",
+            "Chez Kapsule, Caddy est le seul conteneur exposé ; l'app reste sur le réseau interne Docker, et l'ajout d'un sous-domaine = un bloc de Caddyfile.",
+            "Le proxy centralise aussi compression, raté limiting et en-têtes de sécurité : puissant, mais une mauvaise règle affecte toutes les apps d'un coup.",
+            "Versionner la configuration, la valider, puis la recharger à chaud (sans coupure) : une config invalide appliquée peut faire tomber tous les sites."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Pourquoi le port 80 doit-il rester ouvert alors que le site est servi en HTTPS sur 443 ?",
+              "choices": [
+                "Pour servir le site en clair aux vieux navigateurs",
+                "Parce que le défi ACME de Let's Encrypt et la redirection HTTP->HTTPS en dépendent",
+                "Parce que Docker l'exige",
+                "Parce que le DNS écoute sur 80"
+              ],
+              "answer": 1,
+              "explanation": "Let's Encrypt valide souvent le contrôle du domaine via le port 80, et c'est aussi là qu'arrivé le trafic HTTP à rediriger vers HTTPS. Le fermer casse le renouvellement automatique des certificats. Ce n'est ni une exigence Docker ni lié au DNS."
+            },
+            {
+              "q": "Pourquoi placer un reverse proxy devant ses applications ?",
+              "choices": [
+                "Pour rendre le site plus joli",
+                "Pour centraliser HTTPS et router le trafic vers plusieurs apps depuis un point d'entrée unique",
+                "Parce que Node l'exige",
+                "Pour accélérer la base de données"
+              ],
+              "answer": 1,
+              "explanation": "Le reverse proxy gère certificats, routage, sécurité et journalisation en un seul endroit, et permet d'exposer plusieurs applications isolées derrière une seule IP. Ce n'est ni cosmétique, ni une exigence de Node, ni lié à la base."
+            },
+            {
+              "q": "Une application derrière Caddy voit toutes les requêtes venir de la même IP et se croit en HTTP. Cause ?",
+              "choices": [
+                "Le certificat a expiré",
+                "Les en-têtes X-Forwarded-For/X-Forwarded-Proto ne sont pas transmis à l'application",
+                "Le DNS pointe vers la mauvaise IP",
+                "Docker a redémarré"
+              ],
+              "answer": 1,
+              "explanation": "Sans les en-têtes X-Forwarded-*, l'app ne voit que l'IP du proxy et ignore que le client était en HTTPS : cela casse les journaux, la limitation par IP et la génération d'URL. Ce n'est pas un problème de certificat, de DNS ou de redémarrage."
+            },
+            {
+              "q": "Qu'est-ce qui distingue Caddy de Nginx ?",
+              "choices": [
+                "Caddy gère les certificats HTTPS automatiquement, sans outil séparé",
+                "Caddy est payant",
+                "Caddy ne peut servir qu'une seule application",
+                "Caddy ne supporte pas les sous-domaines"
+              ],
+              "answer": 0,
+              "explanation": "Caddy intègre nativement l'obtention et le renouvellement des certificats Let's Encrypt, là où Nginx s'appuie sur certbot. Caddy est gratuit, gère plusieurs applications et les sous-domaines sans problème."
+            },
+            {
+              "q": "Sur le VPS de Kapsule, comment l'application reste-t-elle protégée d'un accès direct depuis Internet ?",
+              "choices": [
+                "Elle est chiffrée par SQLite",
+                "Seul Caddy est exposé sur 80/443 ; l'app n'est joignable que sur le réseau interne Docker",
+                "Elle change d'IP toutes les heures",
+                "Elle n'accepte que le protocole UDP"
+              ],
+              "answer": 1,
+              "explanation": "Caddy est le seul conteneur exposé publiquement ; l'application vit sur le réseau interne Docker, atteignable uniquement via le proxy. Celà l'isolé d'Internet. Ce n'est lié ni au chiffrement de la base, ni à un changement d'IP, ni à UDP."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conteneurs-docker",
+      "title": "Docker et les conteneurs : emballer une app avec son environnement",
+      "durationMin": 10,
+      "level": "intermediaire",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "« Ça marche sur ma machine ! » — le cauchemar classique du déploiement : l'application fonctionne en local mais casse sur le serveur, car les versions de Node, les dépendances ou la configuration diffèrent. Les **conteneurs** règlent ce problème en emballant l'application **avec** tout son environnement, pour qu'elle tourne à l'identique partout. Comprendre Docker, c'est savoir ce qui est reproductible, ce qui est jetable, et où vivent les données qu'il ne faut surtout pas perdre."
+        },
+        {
+          "type": "concept",
+          "heading": "Conteneur vs machine virtuelle",
+          "content": "Un conteneur n'est **pas** une machine virtuelle. Une **VM** émule un ordinateur complet, avec son propre système d'exploitation (des Go de RAM et de disque, démarrage en dizaines de secondes). Un **conteneur** partage le **noyau** de la machine hôte et n'embarque que ce qui est au-dessus : bibliothèques, runtime, code. Résultat : un conteneur démarre en **quelques centaines de millisecondes**, pèse quelques dizaines de Mo, et on en fait tourner des dizaines là où une machine ne supporterait que quelques VM.\n\nLe revers : parce qu'ils partagent le noyau de l'hôte, les conteneurs sont **moins isolés** qu'une VM (une faille noyau les concerne tous) et un conteneur Linux ne tourne pas nativement un noyau différent. Ce compromis — légèreté et densité contre isolation maximale — explique pourquoi Docker a envahi le déploiement d'applications, mais reste doublé de VM pour le cloisonnement fort."
+        },
+        {
+          "type": "concept",
+          "heading": "Images, conteneurs et Dockerfile",
+          "content": "Une **image** Docker est un paquet **figé** contenant l'application et tout ce dont elle a besoin : système de base minimal, runtime (Node…), dépendances, code. Un **conteneur** est une **instance en cours d'exécution** de cette image, isolée du reste de la machine. La même image lance un, dix ou cent conteneurs identiques.\n\nLa recette de fabrication s'écrit dans un **Dockerfile** : partir d'une image de base (`FROM node:20-slim`), copier le code, installer les dépendances, définir la commande de démarrage. Deux bonnes pratiques essentielles :\n- **Ordre des couches** : copier d'abord `package.json` et installer les dépendances, *puis* copier le code. Ainsi, changer le code ne réinvalide pas le cache d'installation des dépendances -> builds bien plus rapides.\n- **Build multi-étapes** : compiler dans une image lourde, puis ne copier que le résultat dans une image finale légère — ce qui réduit la taille et la surface d'attaque de l'image livrée."
+        },
+        {
+          "type": "concept",
+          "heading": "Docker Compose : orchestrer plusieurs conteneurs",
+          "content": "Une application réelle a souvent **plusieurs** conteneurs : l'app + le reverse proxy, parfois + une base, + un cache. **Docker Compose** les décrit dans un fichier `compose.yml` et les orchestre d'une seule commande : `docker compose up -d` démarre tout en arrière-plan, `docker compose down` arrête tout.\n\nCompose gère aussi le **réseau interne** : par défaut, les conteneurs d'un même projet se voient par leur **nom de service** (le proxy joint l'app via `http://app:3000`, sans exposer ce port à l'extérieur). C'est ce qui permet de n'exposer que le proxy tout en laissant les conteneurs communiquer entre eux. On y déclare également les **ports** publiés vers l'hôte, les **variables d'environnement**, les **volumes**, et l'ordre/les conditions de démarrage. Diagnostic quotidien : `docker compose ps` (état des services) et `docker compose logs -f <service>` (journaux en direct)."
+        },
+        {
+          "type": "concept",
+          "heading": "Le piège n°1 : conteneurs jetables et volumes",
+          "content": "La règle qui sauve — ou qui coûte les données : **un conteneur est jetable**. Tout ce qu'il écrit dans son propre système de fichiers **disparaît** quand on le supprime ou le recrée (mise à jour, changement de configuration). C'est voulu : la reproductibilité suppose de pouvoir jeter et recréer à l'identique.\n\nLes données **durables** (base, fichiers uploadés) doivent donc vivre en dehors du conteneur, dans un **volume** : un espace de stockage géré par Docker (ou un dossier de l'hôte monté dans le conteneur) qui **survit** aux redémarrages et reconstructions. Pièges à connaître :\n- Écrire des données dans le conteneur au lieu d'un volume -> perte au prochain déploiement.\n- `docker compose down -v` **détruit les volumes** : à ne jamais lancer en production.\n- Images et conteneurs inutilisés remplissent le disque -> `docker system prune` (avec prudence) libère de l'espace.\n- Permissions : l'utilisateur du conteneur doit pouvoir écrire dans le volume, sinon erreurs silencieuses au démarrage."
+        },
+        {
+          "type": "concept",
+          "heading": "Le registre d'images et le piège du tag latest",
+          "content": "Une image Docker se **publie** et se **partage** via un **registre** : le Docker Hub public, ou un registre privé (GitHub Container Registry, GitLab, celui d'un hébergeur cloud). Le flux typique : `docker build` fabrique l'image, `docker push` l'envoie au registre, `docker pull` la récupère sur le serveur. C'est ce qui permet de builder une fois et de déployer la *même* image partout, garantissant la reproductibilité.\n\nUne image est identifiée par un **nom + tag** (`monapp:1.4.2`). Le piège classique est le tag **`:latest`** : il n'est pas une version figée mais un simple libellé mouvant qui pointe vers la dernière image poussée. Déployer `:latest` rend le déploiement **non reproductible** — deux `pull` à des moments différents peuvent donner des images différentes, et un rollback devient impossible faute de savoir quelle version tournait. Bonne pratique : taguer avec une **version explicite** (numéro de release ou hash de commit) et déployer ce tag précis. On garde `:latest` pour le confort local, jamais comme référence de production."
+        },
+        {
+          "type": "concept",
+          "heading": "Sécurité et ressources des conteneurs",
+          "content": "Un conteneur isolé, mais ne rend pas magiquement sûr. Plusieurs réflexes durcissent un déploiement :\n- **Ne pas tourner en root** : par défaut, le processus d'un conteneur est root *à l'intérieur*, ce qui aggrave l'impact d'une faille. Déclarer un utilisateur non privilégié (`USER app`) dans le Dockerfile limite les dégâts.\n- **Image de base minimale** : partir d'une image *slim* ou *alpine* réduit la taille **et** la surface d'attaque (moins de binaires, moins de failles potentielles). Scanner ses images pour les vulnérabilités connues est une bonne pratique.\n- **Limites de ressources** : plafonner la RAM et le CPU d'un conteneur (`mem_limit`, `cpus`) empêche qu'un conteneur emballé n'asphyxie tout l'hôte. Sans limite, une fuite mémoire dans une app peut faire tomber le serveur entier.\n- **Healthcheck** : déclarer une commande de vérification permet à Docker de savoir si le conteneur est réellement *sain* (pas seulement démarré) et de le redémarrer sinon.\n- **Ne pas embarquer de secrets dans l'image** : une image est souvent partagée ; les secrets passent par des variables d'environnement ou des montages, jamais en dur dans le Dockerfile."
+        },
+        {
+          "type": "concept",
+          "heading": "Cycle de vie et politiques de redémarrage",
+          "content": "Un conteneur a un **cycle de vie** : créé, démarré, en cours d'exécution, arrêté, supprimé. Point souvent mal compris : un conteneur s'arrête dès que son **processus principal** (PID 1) se termine. Il n'est pas une machine qui « reste allumée » : si le programme plante ou finit, le conteneur s'arrête. C'est pourquoi la commande de démarrage doit lancer un processus qui **tourne au premier plan** et ne rend pas la main.\n\nPour la résilience, Docker Compose propose des **politiques de redémarrage** (`restart`) :\n- `no` (défaut) : ne pas redémarrer.\n- `on-failure` : redémarrer seulement en cas de sortie en erreur.\n- `unless-stopped` / `always` : redémarrer automatiquement, y compris **après un reboot du serveur** — indispensable en production pour que les services reviennent seuls après une coupure de courant ou une mise à jour du noyau.\n\nDeux pièges à connaître : la **boucle de crash** (un conteneur qui plante au démarrage redémarre en boucle — les logs sont alors la seule piste, car le service « existe » mais ne sert rien) ; et la **gestion des signaux** — un PID 1 qui n'intercepte pas `SIGTERM` est tué brutalement à l'arrêt, coupant des requêtes en cours au lieu de terminer proprement (*graceful shutdown*)."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : Kapsule en deux conteneurs",
+          "content": "Kapsule = un conteneur **`app`** (API Node + PWA buildée) + un conteneur **`caddy`**, décrits dans le `compose.yml` du dossier `deploy/`. Le Dockerfile de l'app est **multi-étapes** (build du frontend, puis image finale légère avec l'API et les fichiers statiques). Caddy joint l'app par son nom de service sur le réseau interne ; seul Caddy publie 80/443.\n\nLa **base SQLite et les uploads** vivent dans le volume **`kapsule-data`**. Conséquence directe : `docker compose down && docker compose up -d` **ne perd aucune donnée** — on peut mettre à jour l'app sans risque. Seul `docker compose down -v` détruirait le volume, donc les données : commande interdite en production. Pour déployer une nouvelle version : `docker compose up -d --build` reconstruit l'image et relance, le volume restant intact. Diagnostic : `docker compose ps` pour l'état, `docker compose logs -f app` pour les journaux de l'application."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Un conteneur partage le noyau de l'hôte (léger, démarre en ms) ; une VM émule un OS complet (lourde, plus isolée).",
+            "Une image = l'app + son environnement figé ; un conteneur = une instance en exécution de cette image.",
+            "La même image tourne à l'identique partout : fini le « ça marche sur ma machine ».",
+            "Dockerfile : ordonner les couches (dépendances avant code) et utiliser le multi-étapes pour des images légères.",
+            "Docker Compose orchestre plusieurs conteneurs et leur réseau interne : ils se joignent par nom de service.",
+            "Un conteneur est jetable : ce qu'il écrit chez lui disparaît à la recréation. Les données durables vont dans un volume.",
+            "docker compose down -v détruit les volumes (donc les données) : jamais en production.",
+            "Chez Kapsule : conteneurs app + caddy ; SQLite et uploads dans le volume kapsule-data qui survit aux redéploiements."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Après une mise à jour, toutes les données de l'application ont disparu. Quelle erreur a le plus probablement été commise ?",
+              "choices": [
+                "L'image Docker était trop grosse",
+                "Les données étaient écrites dans le conteneur lui-même, pas dans un volume",
+                "Le Dockerfile n'était pas multi-étapes",
+                "Le port 443 était fermé"
+              ],
+              "answer": 1,
+              "explanation": "Un conteneur est jetable : recréer le conteneur efface ce qu'il a écrit dans son propre système de fichiers. Les données durables doivent vivre dans un volume, qui survit aux reconstructions. La taille de l'image, le multi-étapes et le port n'entraînent pas de perte de données."
+            },
+            {
+              "q": "Quelle est la différence entre une image et un conteneur ?",
+              "choices": [
+                "Aucune, ce sont des synonymes",
+                "L'image est le paquet figé ; le conteneur est une instance en exécution de ce paquet",
+                "Le conteneur est plus petit que l'image",
+                "L'image tourne, le conteneur se stocke"
+              ],
+              "answer": 1,
+              "explanation": "On construit une image (via le Dockerfile), puis on en lance une ou plusieurs instances : les conteneurs. Ce ne sont pas des synonymes, et c'est bien l'image qui est le modèle figé, le conteneur qui s'exécute."
+            },
+            {
+              "q": "Pourquoi copier package.json et installer les dépendances AVANT de copier le code dans un Dockerfile ?",
+              "choices": [
+                "Pour chiffrer les dépendances",
+                "Pour que le cache d'installation ne soit pas invalidé à chaque changement de code, accélérant les builds",
+                "Parce que Docker l'impose",
+                "Pour réduire le nombre de conteneurs"
+              ],
+              "answer": 1,
+              "explanation": "Docker met en cache chaque couche : si le code change mais pas package.json, la couche d'installation des dépendances reste valide et n'est pas rejouée — builds bien plus rapides. Ce n'est ni du chiffrement, ni une obligation, ni lié au nombre de conteneurs."
+            },
+            {
+              "q": "Comment deux conteneurs d'un même projet Compose communiquent-ils sans exposer de ports à l'extérieur ?",
+              "choices": [
+                "Vià l'IP publique du serveur",
+                "Par le réseau interne de Compose, en se joignant par leur nom de service",
+                "Par le DNS public",
+                "Ils ne peuvent pas communiquer"
+              ],
+              "answer": 1,
+              "explanation": "Compose crée un réseau interne où chaque conteneur est joignable par son nom de service (ex. http://app:3000), sans publier ce port vers l'hôte. C'est ce qui permet de n'exposer que le proxy. Nul besoin de l'IP publique ou du DNS public."
+            },
+            {
+              "q": "Quelle commande ne faut-il JAMAIS lancer en production sur le déploiement de Kapsule ?",
+              "choices": [
+                "docker compose up -d --build",
+                "docker compose ps",
+                "docker compose down -v",
+                "docker compose logs -f app"
+              ],
+              "answer": 2,
+              "explanation": "docker compose down -v supprime aussi les volumes, donc le volume kapsule-data qui contient SQLite et les uploads : perte définitive des données. Les autres commandes (build/relance, état, journaux) sont sans danger pour les données."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pwa",
+      "title": "La PWA : un site web qui s'installe comme une app",
+      "durationMin": 10,
+      "level": "intermediaire",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Développer une app iOS, une app Android **et** un site web coûte cher : trois bases de code, trois compétences, trois cycles de publication. La **PWA** (Progressive Web App) propose une autre voie : un site web qui, grâce à quelques technologies standards, s'installe sur l'écran d'accueil, se lance en plein écran et fonctionne même hors ligne — avec **une seule** base de code."
+        },
+        {
+          "type": "concept",
+          "heading": "Les trois ingrédients d'une PWA",
+          "content": "Une PWA repose sur trois piliers :\n1. **Le manifest** : un fichier JSON qui déclare le nom de l'app, ses icônes, ses couleurs et son mode d'affichage (`standalone` = plein écran sans barre d'adresse). C'est lui qui permet l'**installation** sur l'écran d'accueil.\n2. **Le service worker** : un script qui s'installe dans le navigateur et s'intercale entre l'app et le réseau. Il peut **mettre en cache** les fichiers et les servir hors ligne, gérer les mises à jour et (selon plateformes) les notifications.\n3. **HTTPS obligatoire** : les navigateurs n'activent les service workers que sur des origines **sécurisées** (HTTPS, ou `localhost` en développement). Un service worker intercepte tout le trafic de l'app : l'autoriser sur du HTTP non chiffré serait une porte ouverte aux attaques par interception.\n\nSans ces trois éléments réunis, pas de PWA installable et hors-ligne."
+        },
+        {
+          "type": "concept",
+          "heading": "Le service worker : cache et cycle de vie",
+          "content": "Le **service worker** est le cœur technique de la PWA, mais aussi sa principale source de bugs. Il a un **cycle de vie** propre : *install* (téléchargement et mise en cache initiale), *activate* (nettoyage des anciens caches), puis interception des requêtes réseau (*fetch*).\n\nPlusieurs **stratégies de cache** existent : *cache-first* (servir le cache, rapide mais risque de contenu périmé), *network-first* (réseau d'abord, cache en secours hors ligne), *stale-while-revalidate* (servir le cache tout en rafraîchissant en arrière-plan). Le choix arbitre fraîcheur contre disponibilité hors ligne. Point crucial du cycle de vie : par défaut, un nouveau service worker s'installe mais **attend** que tous les onglets de l'app soient fermés pour s'activer — d'où le classique « j'ai déployé mais les utilisateurs voient l'ancienne version tant qu'ils n'ont pas tout fermé et rouvert »."
+        },
+        {
+          "type": "concept",
+          "heading": "Ce qu'une PWA peut et ne peut pas",
+          "content": "Une PWA **peut** : s'installer sans passer par un store, fonctionner hors ligne, se mettre à jour toute seule au chargement, envoyer des notifications (selon plateformes), accéder à certaines API matérielles (géolocalisation, caméra, stockage local). Elle reste un site web : **une** base de code pour toutes les plateformes, publiée instantanément (pas de validation de store).\n\nElle **ne peut pas** (ou mal) : accéder à tout le matériel comme une app native, et surtout elle souffre d'une **intégration inégale selon les systèmes**. Android/Chrome est le plus accueillant. **iOS/Safari** est nettement plus restrictif : installation possible mais moins visible, notifications push longtemps absentes (arrivées tardivement et limitées), quotas de stockage plus stricts, et **purge du cache** après quelques semaines d'inactivité — ce qui peut effacer les données hors ligne. Ces limites d'iOS sont le principal piège d'un projet qui mise tout sur la PWA."
+        },
+        {
+          "type": "concept",
+          "heading": "Pièges de mise à jour et de cache",
+          "content": "Le service worker, en mettant tout en cache, peut **piéger** les utilisateurs sur une vieille version :\n- **Mise à jour invisible** : sans stratégie explicite (invite « nouvelle version disponible, recharger »), l'utilisateur garde l'ancien code jusqu'à fermeture complète de l'app.\n- **Cache empoisonné** : si le service worker lui-même est mis en cache trop agressivement, corriger un bug devient difficile — d'où la règle de ne **jamais** mettre en cache longuement le fichier du service worker.\n- **Données hors ligne trompeuses** : l'utilisateur voit du contenu servi par le cache et croit être à jour alors qu'il est déconnecté.\n- **Désinstallation/nettoyage** : pour repartir propre en développement, il faut souvent *unregister* le service worker et vider les caches, sinon on débogue un fantôme.\n\nRègle d'or : concevoir dès le départ la **stratégie de mise à jour** (versionner les caches, prévoir l'invite de rechargement), pas l'ajouter après coup."
+        },
+        {
+          "type": "concept",
+          "heading": "Le manifest en détail et l'installation",
+          "content": "Le **manifest** (`manifest.webmanifest`, un fichier JSON référencé dans le HTML) déclare l'identité et l'apparence de la PWA. Champs importants :\n- **name** / **short_name** : nom complet et nom court (sous l'icône, où la place manque).\n- **icons** : plusieurs tailles (souvent 192x192 et 512x512 au minimum), incluant une icône *maskable* qui s'adapte aux formes d'icônes d'Android.\n- **display** : `standalone` (plein écran, sans barre d'adresse — l'aspect « app »), `fullscreen`, ou `browser`.\n- **start_url** : la page ouverte au lancement depuis l'écran d'accueil.\n- **theme_color** / **background_color** : couleurs de la barre système et de l'écran de démarrage.\n\nPour qu'un navigateur propose l'**installation**, plusieurs critères doivent être réunis : servi en HTTPS, manifest valide avec les icônes requises, et un service worker enregistré. Sur Android/Chrome, une invite d'installation peut apparaître automatiquement ; sur iOS/Safari, l'utilisateur doit passer par « Partager -> Sur l'écran d'accueil », sans invite automatique. Un manifest incomplet (icône manquante, pas de `display: standalone`) est là cause n°1 d'une PWA qui « ne s'installe pas »."
+        },
+        {
+          "type": "concept",
+          "heading": "Stocker côté client : Cache API, IndexedDB, localStorage",
+          "content": "Le hors-ligne d'une PWA repose sur du **stockage dans le navigateur**, dont il existe plusieurs mécanismes aux usages distincts :\n- **Cache API** : pilotée par le service worker, elle stocke des **réponses HTTP** entières (fichiers, pages, ressources). C'est elle qui permet de re-servir l'interface et les données déjà chargées sans réseau.\n- **IndexedDB** : une base de données NoSQL dans le navigateur, pour des **données structurées** volumineuses (fiches, brouillons, files d'attente de synchronisation). C'est le bon choix pour de l'état applicatif hors ligne conséquent.\n- **localStorage** : simple stockage clé-valeur, **synchrone** et limité (~5-10 Mo), réservé à de petites préférences. À éviter pour de gros volumes (il bloque le thread principal).\n\nDeux pièges majeurs : ce stockage n'est **pas garanti permanent** — le navigateur peut le purger sous pression disque (et iOS le purge après inactivité prolongée) ; il faut donc considérer les données locales comme un **cache**, pas comme la source de vérité. Et il est **par origine** (par domaine + HTTPS), donc lié au site. La bonne architecture synchronisé le local avec le serveur dès que le réseau revient, plutôt que de tout confier au navigateur."
+        },
+        {
+          "type": "concept",
+          "heading": "Notifications push et écarts entre plateformes",
+          "content": "Les **notifications push** sont souvent l'argument qui pousse vers le natif. Une PWA peut en envoyer, mais via une chaîne technique précise : l'utilisateur doit **accorder la permission**, le navigateur génère un **abonnement push** (une URL unique fournie par le service de push du navigateur), que le serveur stocke ; pour notifier, le serveur envoie un message chiffré à cette URL, relayé par le service de push, et le **service worker** l'affiche — même app fermée. Le protocole s'appuie sur des clés **VAPID** qui identifient l'émetteur.\n\nLa grande difficulté est l'**écart entre plateformes** :\n- **Android/Chrome/Firefox** : support mûr et fiable des notifications push.\n- **iOS/Safari** : les notifications push pour PWA sont arrivées **très tardivement** (iOS 16.4, 2023) et **uniquement** pour une PWA **installée** sur l'écran d'accueil, avec des limitations. Pendant des années, c'était tout simplement impossible.\n\nConséquence de conception : ne jamais **dépendre** des notifications push comme canal critique sur une PWA multi-plateforme ; les traiter comme un bonus dont la disponibilité varie. Et toujours demander la permission **au bon moment** (après une action de l'utilisateur), jamais dès l'ouverture — une demande intempestive est presque toujours refusée, et un refus est difficile à rattraper."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : installer Kapsule",
+          "content": "Le frontend de Kapsule est une **PWA React + Vite**. Une fois le site en ligne en **HTTPS** (grâce à Caddy — condition sine qua non du service worker), on ouvre `https://kapsule.mondomaine.fr` dans Chrome sur Android, puis menu -> **« Installer l'application »** : Kapsule apparaît sur l'écran d'accueil et se lance en plein écran, comme une app native. Le manifest fournit nom, icône et mode `standalone` ; le service worker met en cache l'interface et les fiches déjà chargées.\n\nConséquence concrète : les **fiches déjà consultées restent lisibles hors ligne**, ce qui est précieux pour une app de révision utilisée dans le métro ou l'avion. Sur **iOS**, l'installation passe par Safari (« Sur l'écran d'accueil »), avec les limites évoquées : notifications restreintes et cache susceptible d'être purgé après une longue inactivité. C'est pourquoi les données importantes ne reposent pas *uniquement* sur le cache local mais sont synchronisées avec l'API dès que le réseau revient."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Une PWA est un site web installable, avec une seule base de code pour toutes les plateformes et une publication instantanée.",
+            "Trois ingrédients : le manifest (installation, apparence), le service worker (cache, hors-ligne), et HTTPS obligatoire.",
+            "Le service worker intercepte le trafic : les navigateurs ne l'autorisent que sur origine sécurisée (HTTPS ou localhost).",
+            "Stratégies de cache : cache-first (rapide, risque de périmé), network-first, stale-while-revalidate — arbitrage fraîcheur/hors-ligne.",
+            "Piège majeur : un nouveau service worker attend souvent la fermeture de tous les onglets pour s'activer -> ancienne version persistante.",
+            "iOS/Safari est plus restrictif qu'Android : notifications limitées, quotas plus stricts, purge du cache après inactivité.",
+            "Ne jamais mettre en cache longuement le fichier du service worker ; prévoir dès le départ une stratégie de mise à jour.",
+            "Chez Kapsule (PWA React+Vite), les fiches déjà consultées restent lisibles hors ligne, mais les données sont resynchronisées avec l'API."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Pourquoi une PWA exige-t-elle HTTPS ?",
+              "choices": [
+                "Pour être mieux référencée par Google",
+                "Parce que le service worker intercepte tout le trafic : l'autoriser sans chiffrement serait dangereux",
+                "Pour accélérer le chargement",
+                "Parce que le manifest doit être signé"
+              ],
+              "answer": 1,
+              "explanation": "Le service worker se place entre l'app et le réseau et peut réécrire les réponses ; les navigateurs ne l'activent donc que sur une origine sécurisée (HTTPS ou localhost). Ce n'est pas une question de SEO, de vitesse, ni de signature du manifest."
+            },
+            {
+              "q": "Vous déployez une nouvelle version, mais les utilisateurs voient encore l'ancienne interface. Cause typique côté PWA ?",
+              "choices": [
+                "Le certificat a expiré",
+                "Le nouveau service worker attend la fermeture de tous les onglets pour s'activer, et sert l'ancien cache entre-temps",
+                "Le DNS n'est pas propagé",
+                "La base SQLite est verrouillée"
+              ],
+              "answer": 1,
+              "explanation": "Par défaut, un nouveau service worker s'installe mais s'active seulement une fois tous les onglets de l'app fermés ; en attendant, il sert le cache existant. D'où l'intérêt d'une invite « nouvelle version, recharger ». Ce n'est lié ni au certificat, ni au DNS, ni à la base."
+            },
+            {
+              "q": "Quel composant permet à une PWA de fonctionner hors ligne ?",
+              "choices": [
+                "Le manifest",
+                "Le service worker",
+                "Le certificat TLS",
+                "Le fichier package.json"
+              ],
+              "answer": 1,
+              "explanation": "Le service worker met en cache les ressources et peut les servir sans réseau. Le manifest gère l'installation et l'apparence, le certificat sécurise le transport, et package.json ne concerne que le build."
+            },
+            {
+              "q": "Pourquoi un projet ne doit-il pas faire reposer ses données critiques uniquement sur le cache d'une PWA, surtout sur iOS ?",
+              "choices": [
+                "Parce que le cache est chiffré et illisible",
+                "Parce qu'iOS applique des quotas stricts et peut purger le cache après une longue inactivité",
+                "Parce que le cache ralentit l'app",
+                "Parce que le manifest interdit le stockage"
+              ],
+              "answer": 1,
+              "explanation": "iOS/Safari est restrictif : quotas de stockage plus stricts et purge possible du cache après plusieurs semaines sans usage, ce qui effacerait les données hors ligne. D'où la resynchronisation avec l'API. Le cache n'est pas chiffré-illisible et le manifest n'interdit pas le stockage."
+            },
+            {
+              "q": "Quelle stratégie de cache privilégie la fraîcheur du contenu tout en gardant un repli hors ligne ?",
+              "choices": [
+                "cache-first (toujours le cache)",
+                "network-first (réseau d'abord, cache en secours)",
+                "ne rien mettre en cache",
+                "mettre en cache le service worker indéfiniment"
+              ],
+              "answer": 1,
+              "explanation": "network-first va chercher la version fraîche sur le réseau et ne bascule sur le cache qu'en cas d'échec (hors ligne). cache-first privilégie la vitesse au risque du périmé, ne rien cacher supprime le hors-ligne, et cacher le service worker indéfiniment est un anti-pattern."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pipeline-deploiement",
+      "title": "Du code au serveur : anatomie d'un déploiement",
+      "durationMin": 10,
+      "level": "intermediaire",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Toutes les briques sont posées : DNS, VPS, conteneurs, reverse proxy, HTTPS. Reste la question centrale : comment le code passe-t-il, **concrètement et de façon répétable**, de votre éditeur au serveur en production ? Un déploiement fiable n'est pas une suite de gestes mémorisés, mais un processus reproductible qu'on peut relancer les yeux fermés — et surtout annuler quand ça tourne mal."
+        },
+        {
+          "type": "concept",
+          "heading": "Les étapes d'un déploiement",
+          "content": "Un déploiement type enchaîne cinq phases :\n1. **Versionner** : le code vit dans **Git**, poussé sur un dépôt distant (GitHub…) — la source de vérité unique.\n2. **Récupérer** : le serveur tire la dernière version (`git pull`).\n3. **Builder** : compiler le frontend, construire l'image Docker.\n4. **Basculer** : arrêter l'ancienne version, démarrer la nouvelle (`docker compose up -d --build`).\n5. **Vérifier** : contrôler que l'app répond (endpoint de santé, journaux).\n\nLa règle d'or : ce processus doit tenir en **une seule commande**, reproductible, jamais une suite de manipulations manuelles qu'on risque d'oùblier ou d'exécuter dans le désordre. Un déploiement manuel est un déploiement qui, un jour de stress, sautera une étape. L'automatisation n'est pas un luxe : c'est ce qui rend le déploiement sûr *et* fréquent."
+        },
+        {
+          "type": "concept",
+          "heading": "Configuration et environnements",
+          "content": "Le **même** code tourne en local et en production, mais avec des réglages différents (domaine, secrets, options, adresses de base). Ces réglages vivent dans des **variables d'environnement**, souvent regroupées dans un fichier **`.env`** — qui n'est **jamais** versionné dans Git, car il contient des secrets (mots de passe, clés d'API).\n\nOn versionne à la place un **`.env.example`** qui **documente** les variables attendues sans leurs valeurs sensibles. Principe fondateur (les « 12 facteurs ») : séparer strictement le code (identique partout) de la configuration (propre à chaque environnement). Pièges classiques :\n- Commiter un `.env` par erreur -> secrets exposés dans l'historique Git (qui reste même après suppression : il faut alors **révoquer** les secrets).\n- Oublier une variable en production -> l'app démarre puis casse à la première utilisation.\n- Confondre les environnements et pointer la prod vers la base de test."
+        },
+        {
+          "type": "concept",
+          "heading": "CI/CD et automatisation",
+          "content": "Chez les équipes matures, le pipeline est automatisé par la **CI/CD** :\n- **CI** (Intégration Continue) : à chaque *push*, une plateforme (GitHub Actions, GitLab CI…) lance automatiquement les **tests**, le *lint* et le build. Un changement qui casse les tests est bloqué avant d'aller plus loin.\n- **CD** (Déploiement/Livraison Continue) : si la CI passe, le déploiement se déclenche automatiquement (ou sur validation manuelle pour la production).\n\nBénéfices : chaque changement est **validé de la même manière**, les régressions sont attrapées tôt, et déployer devient un non-événement qu'on fait plusieurs fois par jour. Pour un petit projet, un simple **script de déploiement** joue déjà le rôle du CD ; la vraie CI/CD s'ajoute quand l'équipe grandit. L'important n'est pas l'outil, mais le principe : **aucune étape manuelle mémorisée**, tout est écrit et rejouable."
+        },
+        {
+          "type": "concept",
+          "heading": "Pièges : rollback, migrations et downtime",
+          "content": "Déployer, c'est aussi savoir **revenir en arrière** et gérer les cas qui tournent mal :\n- **Rollback** : que faire si la nouvelle version est cassée ? Avec Git + images versionnées, on peut redéployer la version précédente. Sans stratégie de retour, un mauvais déploiement = panne prolongée.\n- **Migrations de base de données** : changer le schéma est **irréversible** en pratique. Une migration doit être compatible avec l'ancienne *et* la nouvelle version le temps de la bascule, sinon un rollback casse la base. C'est l'aspect le plus délicat du déploiement.\n- **Downtime** : arrêter puis redémarrer laisse un trou de quelques secondes. Pour l'éviter, on démarre la nouvelle version *avant* d'arrêter l'ancienne (déploiement *blue-green* ou *rolling*).\n- **Secrets divulgués** : un secret commité doit être considéré comme compromis et **révoqué**, pas seulement supprimé.\n\nUn déploiement mûr prévoit ces cas *avant* d'en avoir besoin."
+        },
+        {
+          "type": "concept",
+          "heading": "Git : branches, tags et versionnement sémantique",
+          "content": "**Git** est le socle du déploiement : il conserve l'historique complet du code et permet de revenir à n'importe quel état passé. Quelques notions structurantes :\n- Une **branche** est une ligne de développement parallèle. La convention courante : une branche principale (`main`) toujours déployable, et des branches de fonctionnalité fusionnées après revue (*pull request*). Cela garde `main` stable et déployable à tout moment.\n- Un **commit** est un instantané identifié par un **hash** unique. Déployer un hash précis rend le déploiement parfaitement traçable : on sait exactement quel code tourne.\n- Un **tag** marque un commit d'un nom lisible (`v1.4.2`) — typiquement une **release**.\n\nLe **versionnement sémantique** (SemVer, `MAJEUR.MINEUR.CORRECTIF`) donne du sens aux numéros : on incrémente le correctif pour un bugfix, le mineur pour une fonctionnalité compatible, le majeur pour un changement cassant. Cela permet à qui consomme le logiciel d'anticiper l'impact d'une mise à jour. Lier version d'image Docker et tag Git (ex. taguer l'image du hash de commit) relié déploiement et code de façon univoque — la base d'un rollback fiable."
+        },
+        {
+          "type": "concept",
+          "heading": "Stratégies de déploiement et retour arrière",
+          "content": "Basculer d'une version à l'autre peut se faire de plusieurs façons, selon la tolérance à l'interruption :\n- **Recreate** (arrêt puis redémarrage) : simple, mais laisse un **downtime** de quelques secondes. Acceptable pour beaucoup de petits services.\n- **Rolling** : remplacer les instances une à une, sans coupure — nécessite plusieurs instances et une compatibilité entre versions le temps de la transition.\n- **Blue-green** : faire tourner l'ancienne (bleu) et la nouvelle (vert) en parallèle, puis basculer le trafic d'un coup ; rollback instantané en rebasculant.\n- **Canary** : router d'abord une petite fraction du trafic vers la nouvelle version, surveiller, puis généraliser si tout va bien.\n\nDeux compléments essentiels : les **feature flags** (activer/désactiver une fonctionnalité sans redéployer, découplant livraison du code et activation) et une stratégie de **rollback** répétée. Le piège récurrent reste les **migrations de base** : une bascule sans coupure exige que le schéma soit compatible avec l'ancienne ET la nouvelle version simultanément — sinon rolling, blue-green et canary cassent au premier écart de schéma."
+        },
+        {
+          "type": "concept",
+          "heading": "Qualité avant déploiement : tests, lint, verrou des dépendances",
+          "content": "Un pipeline sûr ne se contente pas de livrer : il **vérifie** avant de livrer. Plusieurs garde-fous s'enchaînent, du moins au plus coûteux :\n- **Lint et formatage** : détectent erreurs de style et pièges de langage instantanément ; ils gardent le code homogène et attrapent des bugs triviaux avant même l'exécution.\n- **Tests automatisés** : unitaires (une fonction isolée), d'intégration (plusieurs composants ensemble), de bout en bout (le parcours utilisateur complet). Ils forment un **filet de régression** : un changement qui casse un comportement existant est signalé avant la production.\n- **Verrou des dépendances** (*lockfile* : `package-lock.json`, etc.) : fige les versions exactes de toutes les dépendances, directes et transitives. Sans lui, deux installations à des dates différentes peuvent tirer des versions différentes — et « ça marche sur ma machine » revient par la porte des dépendances. Le lockfile doit être **versionné**.\n\nEn CI, ces étapes s'exécutent automatiquement à chaque push, et un échec **bloque** le déploiement. Principe clé : plus un défaut est attrapé tôt (lint < test < production), moins il coûte cher. Livrer sans tests, c'est déléguer la détection des régressions aux utilisateurs — le pire des testeurs, car ils ne remontent pas les bugs, ils partent."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : deploy.sh de Kapsule",
+          "content": "Pour Kapsule, tout tient en **une commande** depuis le poste de dev : `KAPSULE_SSH=deploy@monvps ./deploy.sh`. Le script **`deploy.sh`** enchaîne : pousser la branche courante sur le dépôt, se connecter au VPS en **SSH**, y faire `git pull`, puis `docker compose up -d --build` pour reconstruire l'image et relancer les conteneurs — le volume de données restant intact.\n\nLa configuration (domaine, ouverture des inscriptions…) vit dans **`deploy/.env`**, copié depuis **`.env.example`** à la première installation et **non versionné**. Vérification finale intégrée au processus : `curl -s https://kapsule.mondomaine.fr/api/health` doit répondre `{\"ok\":true}`. Ce script incarne la règle d'or : le déploiement en une commande reproductible, avec vérification. Il illustre aussi les étapes canoniques (versionner -> récupérer -> builder -> basculer -> vérifier) condensées en un seul geste, là où une CI/CD complète prendrait le relais si l'équipe grandissait."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Un déploiement = versionner -> récupérer -> builder -> basculer -> vérifier.",
+            "Le processus doit tenir en une commande reproductible : un déploiement manuel finit par sauter une étape.",
+            "Les secrets et réglages vont dans des variables d'environnement (.env non versionné) ; on versionne un .env.example documentant les variables.",
+            "Séparer le code (identique partout) de la configuration (propre à chaque environnement) : principe des 12 facteurs.",
+            "Un secret commité par erreur reste dans l'historique Git : il faut le révoquer, pas seulement le supprimer.",
+            "La CI/CD automatise tests + build à chaque push, puis le déploiement ; pour un petit projet, un script joue le rôle du CD.",
+            "Prévoir le rollback et gérer les migrations de base (compatibles ancienne + nouvelle version) AVANT d'en avoir besoin.",
+            "Chez Kapsule, deploy.sh fait tout en une commande (push -> SSH -> git pull -> docker compose up -d --build) et vérifie /api/health."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Pourquoi le fichier .env n'est-il pas versionné dans Git ?",
+              "choices": [
+                "Il est trop volumineux",
+                "Il contient des secrets et des réglages propres à chaque environnement",
+                "Git ne supporte pas ce format",
+                "Il change le comportement de Docker"
+              ],
+              "answer": 1,
+              "explanation": "Le .env porte secrets (mots de passe, clés) et configuration locale ; on versionne un .env.example qui documente les variables sans leurs valeurs. Ce n'est ni une question de taille, ni de format non supporté par Git."
+            },
+            {
+              "q": "Un secret a été commité par erreur puis supprimé au commit suivant. Que faut-il faire ?",
+              "choices": [
+                "Rien, la suppression suffit",
+                "Considérer le secret comme compromis et le révoquer, car il reste dans l'historique Git",
+                "Renommer le fichier .env",
+                "Redémarrer le VPS"
+              ],
+              "answer": 1,
+              "explanation": "L'historique Git conserve le secret même après suppression : quiconque a le dépôt peut le retrouver. Il faut donc le révoquer (changer la clé/le mot de passe). Renommer le fichier ou redémarrer le serveur ne retire pas le secret de l'historique."
+            },
+            {
+              "q": "Quelle est la principale raison d'exiger qu'un déploiement tienne en une seule commande reproductible ?",
+              "choices": [
+                "Pour taper moins de caractères",
+                "Pour éviter qu'une suite de gestes manuels ne saute une étape, surtout sous stress",
+                "Parce que Git l'impose",
+                "Pour réduire la taille de l'image Docker"
+              ],
+              "answer": 1,
+              "explanation": "Un processus manuel finit un jour par oublier une étape ou l'exécuter dans le désordre. L'automatiser en une commande le rend fiable et répétable. Ce n'est ni pour l'économie de frappe, ni une contrainte Git, ni lié à la taille de l'image."
+            },
+            {
+              "q": "Pourquoi les migrations de base de données sont-elles l'aspect le plus délicat d'un déploiement ?",
+              "choices": [
+                "Parce qu'elles ralentissent le build",
+                "Parce qu'un changement de schéma est difficilement réversible et peut casser un rollback",
+                "Parce qu'elles exigent un nouveau certificat",
+                "Parce qu'elles changent l'adresse IP du serveur"
+              ],
+              "answer": 1,
+              "explanation": "Modifier un schéma est en pratique irréversible : si l'on revient à l'ancienne version de code après une migration incompatible, la base ne correspond plus. D'où des migrations conçues pour être compatibles avec l'ancienne et la nouvelle version. Cela n'a rien à voir avec le build, le certificat ou l'IP."
+            },
+            {
+              "q": "Que fait le script deploy.sh de Kapsule ?",
+              "choices": [
+                "Il crée un nouveau VPS automatiquement",
+                "Il pousse le code, puis sur le VPS en SSH : git pull et docker compose up -d --build, avec vérification de /api/health",
+                "Il sauvegarde la base de données",
+                "Il renouvelle le certificat TLS"
+              ],
+              "answer": 1,
+              "explanation": "deploy.sh enchaîne push de la branche, connexion SSH, git pull et reconstruction/relance des conteneurs, puis vérifie /api/health — le déploiement en une commande. Il ne provisionne pas de VPS, ne fait pas la sauvegarde (rôle de backup.sh) et ne gère pas les certificats (rôle de Caddy)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sauvegardes-exploitation",
+      "title": "Après la mise en ligne : sauvegardes, pannes et exploitation",
+      "durationMin": 10,
+      "level": "avance",
+      "sections": [
+        {
+          "type": "intro",
+          "content": "Mettre en ligne n'est pas la fin de l'histoire : c'est le début de l'**exploitation**. Un disque meurt, une commande maladroite efface une base, un certificat expire, un pic de trafic sature la RAM. La différence entre un incident bénin et une catastrophe tient presque toujours à ce qu'on a préparé **avant** — sauvegardes, supervision, procédures. Cette fiche est celle des réflexes qui sauvent une production."
+        },
+        {
+          "type": "concept",
+          "heading": "Les sauvegardes : la règle 3-2-1 et ses conditions",
+          "content": "Une sauvegarde n'existe vraiment que si **trois** conditions sont réunies :\n1. Elle est **automatique** : déclenchée par une tâche planifiée (**cron**), jamais par la mémoire humaine.\n2. Elle est **cohérente** : copier un fichier de base en cours d'écriture peut produire une copie **corrompue** ; il faut utiliser le mécanisme de sauvegarde de la base elle-même.\n3. Elle a été **testée en restauration** : une sauvegarde jamais restaurée est une hypothèse, pas une garantie.\n\nLa **règle 3-2-1** résume la bonne pratique : **3** copies des données, sur **2** supports différents, dont **1 hors-site**. Le hors-site est décisif : si le VPS brûle, est piraté ou supprimé, les sauvegardes locales disparaissent avec lui. Notion associée : le **RPO** (perte de données maximale acceptable — une sauvegarde quotidienne implique jusqu'à 24 h de perte possible) et le **RTO** (temps de remise en service visé). Ces deux chiffres guident la fréquence et la stratégie."
+        },
+        {
+          "type": "concept",
+          "heading": "Cohérence : le cas des bases SQLite/WAL",
+          "content": "Le piège le plus courant est de croire qu'un simple `cp` de la base suffit. Une base de données écrit en continu : la copier octet par octet pendant une transaction capture un état **intermédiaire**, potentiellement illisible. Avec **SQLite** en mode **WAL** (Write-Ahead Logging), les écritures récentes vivent dans un fichier séparé (`-wal`) avant d'être fusionnées dans la base : copier seulement le fichier principal perd les dernières transactions, copier les deux au mauvais moment donne une base incohérente.\n\nLa solution est l'**API de sauvegarde** de la base — pour SQLite, `.backup()` (ou la commande équivalente) produit une **copie cohérente** même pendant que l'application écrit, en gérant correctement le WAL. Règle générale, valable pour toutes les bases : **sauvegarder vià l'outil de la base** (dump, snapshot cohérent), jamais par copie brute de fichiers actifs."
+        },
+        {
+          "type": "concept",
+          "heading": "Superviser et diagnostiquer",
+          "content": "Les réflexes d'exploitation reposent sur trois piliers :\n- **Endpoint de santé** (`/api/health`) qu'on interroge — à la main, ou via un service de **supervision** (uptime monitoring) qui alerte en cas de silence. Une panne détectée par les utilisateurs est une panne détectée trop tard.\n- **Journaux (logs)** comme première piste de diagnostic : que dit l'application ? que dit le reverse proxy ? Les logs répondent à « quoi » ; les métriques (CPU, RAM, disque) répondent à « pourquoi ».\n- **Mises à jour de sécurité automatiques** du système (`unattended-upgrades` sur Debian/Ubuntu) : un serveur non maintenu finit toujours par être compromis.\n\nPièges d'exploitation fréquents : le **disque plein** (logs non tournés, images Docker orphelines) fait planter l'app sans erreur applicative claire ; l'**OOM killer** du noyau tue un processus quand la RAM sature ; un **certificat non renouvelé** bloque tous les visiteurs. Beaucoup de « pannes mystérieuses » sont en réalité un disque à 100 % — à vérifier en premier."
+        },
+        {
+          "type": "concept",
+          "heading": "La restauration : l'étape qu'on oublie de tester",
+          "content": "Avoir des sauvegardes ne sert à rien si l'on ne sait pas restaurer **vite et correctement** le jour J. Une procédure de restauration doit être **écrite, testée périodiquement, et chronométrée** (c'est le RTO réel). Une restauration improvisée sous pression, avec une base en production active, est le meilleur moyen d'aggraver l'incident.\n\nLes étapes typiques pour une base : **arrêter l'application** (pour figer les écritures), **remplacer** le fichier de base par la sauvegarde choisie, **nettoyer les fichiers annexes** (comme le WAL, sous peine d'incohérence entre l'ancien WAL et la base restaurée), puis **redémarrer** et **vérifier**. Ne jamais restaurer par-dessus une base vivante sans l'arrêter. Et toujours **conserver l'état corrompu** avant d'écraser : parfois, il contient des données récupérables que la sauvegarde n'a pas. Tester ce scénario au calme, une fois par trimestre, transforme une sauvegarde théorique en garantie réelle."
+        },
+        {
+          "type": "concept",
+          "heading": "Observabilité : logs, métriques et rotation",
+          "content": "Exploiter, c'est d'abord **voir** ce qui se passe. Trois piliers, souvent résumés par « les trois signaux » :\n- **Logs (journaux)** : le récit des événements. Ils répondent à « que s'est-il passé et quand ». Précieux pour le diagnostic, mais volumineux — d'où la nécessité de la **rotation** (`logrotate`) : sans elle, les journaux remplissent le disque et finissent par faire tomber le serveur, un des incidents les plus fréquents et les plus bêtes.\n- **Métriques** : des mesures chiffrées dans le temps (CPU, RAM, disque, latence, taux d'erreur, requêtes/s). Elles répondent à « combien » et permettent de détecter une dérive avant la panne (ex. RAM qui monte lentement = fuite mémoire).\n- **Traces** : le suivi d'une requête à travers les composants, utile en architecture distribuée.\n\nAu-dessus, les **alertes** transforment l'observation passive en action : être prévenu quand un endpoint de santé se tait, quand le disque dépasse 80 %, quand le taux d'erreur explose. Règle d'or : une panne détectée par les utilisateurs est détectée trop tard. Mais attention à la **fatigue d'alerte** — trop d'alertes non actionnables finissent ignorées ; n'alerter que sur ce qui exige une intervention."
+        },
+        {
+          "type": "concept",
+          "heading": "Sécurité en exploitation : durcissement et secrets",
+          "content": "Un serveur exposé est attaqué en permanence ; le sécuriser est un processus continu, pas une case à cocher :\n- **Surface d'attaque minimale** : n'ouvrir que les ports nécessaires (pare-feu), désinstaller ce qui ne sert pas, désactiver la connexion root et l'authentification SSH par mot de passe.\n- **fail2ban** : bannit automatiquement les IP qui multiplient les tentatives de connexion échouées, endiguant le brute-force SSH.\n- **Mises à jour de sécurité automatiques** : l'immense majorité des compromissions exploitent des failles **connues et corrigées** mais non appliquées. `unattended-upgrades` les installe sans intervention.\n- **Moindre privilège** : chaque service tourne avec le minimum de droits (utilisateur dédié non-root, conteneurs non privilégiés).\n- **Gestion des secrets** : mots de passe et clés dans des variables d'environnement ou un gestionnaire de secrets, jamais dans le code ou une image ; un secret exposé doit être **révoqué**, pas seulement masqué.\n\nEt parce qu'aucune défense n'est parfaite, les **sauvegardes hors-site testées** sont l'ultime filet : elles transforment une compromission ou un ransomware en incident récupérable plutôt qu'en perte définitive."
+        },
+        {
+          "type": "concept",
+          "heading": "Plan de reprise : penser l'incident avant qu'il arrivé",
+          "content": "L'exploitation mûre ne se contente pas de réagir : elle **anticipe** les incidents. Un **plan de reprise d'activité** (PRA) répond, à froid, aux questions qu'on n'a pas le temps de se poser à chaud :\n- Que fait-on si le disque est plein ? si la base est corrompue ? si le VPS est inaccessible ? si un secret fuite ?\n- Qui est prévenu, dans quel ordre, avec quels accès ?\n- Où sont les sauvegardes, et quelle est la procédure exacte de restauration (écrite, testée) ?\n\nDeux chiffres cadrent ce plan : le **RPO** (perte de données maximale tolérée — pilote la fréquence des sauvegardes) et le **RTO** (temps de remise en service visé — pilote le niveau d'automatisation et de redondance). Un RTO de quelques minutes exige une infrastructure prête à basculer ; un RTO de quelques heures se contente d'une restauration manuelle documentée.\n\nUne pratique puissante est le **post-mortem sans blâme** : après chaque incident, analyser *ce qui a permis* la défaillance (pas *qui* a fauté) et en tirer une amélioration concrète. Les incidents sont inévitables ; ce qui distingue une exploitation solide, c'est qu'elle **apprend** de chacun et ne le laisse pas se reproduire. Un système qu'on n'a jamais vu tomber n'est pas forcément robuste : il n'a simplement pas encore été testé."
+        },
+        {
+          "type": "example",
+          "heading": "En pratique : la stratégie de Kapsule",
+          "content": "Un **cron quotidien à 3 h** lance **`backup.sh`**, qui utilise l'API **`.backup()` de SQLite** (cohérente même en mode WAL) et conserve **7 jours** de copies dans `/data/backups`. La procédure de **restauration est documentée et testée** : arrêter l'app, copier la sauvegarde choisie à la place de la base, **supprimer les fichiers WAL**, redémarrer.\n\nLe README d'exploitation recommande explicitement l'étape suivante : **copier les sauvegardes hors du VPS** (par exemple `rclone` vers un stockage objet), car « un VPS unique concentre les pannes » — application directe de la règle 3-2-1, dont il manque justement le « 1 hors-site ». S'ajoutent les réflexes standards du provisionnement : mises à jour de sécurité automatiques, endpoint `/api/health` pour la supervision, et journaux via `docker compose logs`. La stratégie illustre les trois conditions d'une vraie sauvegarde : automatique (cron), cohérente (`.backup()`), et testée (procédure de restauration écrite)."
+        },
+        {
+          "type": "takeaways",
+          "heading": "À retenir",
+          "items": [
+            "Une sauvegarde n'est réelle que si elle est automatique, cohérente et testée en restauration.",
+            "Règle 3-2-1 : 3 copies, 2 supports, 1 hors-site ; le hors-site protège d'une perte totale du serveur.",
+            "RPO = perte de données maximale acceptable (une sauvegarde quotidienne = jusqu'à 24 h) ; RTO = temps de remise en service visé.",
+            "Ne jamais copier une base active avec cp : utiliser l'outil de la base (pour SQLite/WAL, l'API .backup()) pour une copie cohérente.",
+            "Endpoint de santé + supervision + journaux = détecter et diagnostiquer avant les utilisateurs ; métriques pour le « pourquoi ».",
+            "Pièges fréquents : disque plein (à vérifier en premier), OOM killer, certificat non renouvelé, mises à jour de sécurité oubliées.",
+            "La restauration doit être écrite, testée et chronométrée ; arrêter l'app, remplacer la base, nettoyer le WAL, redémarrer, vérifier.",
+            "Chez Kapsule : cron 3 h -> backup.sh (.backup() SQLite), 7 jours conservés, restauration documentée, copie hors-site recommandée."
+          ]
+        },
+        {
+          "type": "quiz",
+          "questions": [
+            {
+              "q": "Pourquoi ne pas simplement copier le fichier SQLite avec cp pendant que l'app tourne ?",
+              "choices": [
+                "C'est trop lent",
+                "La copie peut être incohérente si la base est en cours d'écriture (transactions, fichier WAL)",
+                "cp ne fonctionne pas dans Docker",
+                "cp compresse mal le fichier"
+              ],
+              "answer": 1,
+              "explanation": "Une base en écriture peut être copiée dans un état intermédiaire corrompu, et le mode WAL sépare les écritures récentes dans un fichier annexe. L'API .backup() de SQLite produit une copie cohérente même pendant l'activité. Ce n'est ni une question de vitesse, ni une limite de Docker."
+            },
+            {
+              "q": "Qu'est-ce qui transforme une sauvegarde en vraie garantie ?",
+              "choices": [
+                "Sa taille",
+                "Le fait de l'avoir testée en restauration",
+                "Le fait qu'elle soit compressée",
+                "Le fait qu'elle soit quotidienne"
+              ],
+              "answer": 1,
+              "explanation": "Tant qu'une restauration n'a pas été réalisée avec succès, on ignore si la sauvegarde est exploitable : c'est pourquoi Kapsule documente et teste sa procédure. La taille, la compression ou la fréquence ne garantissent rien sur la restaurabilité."
+            },
+            {
+              "q": "Selon la règle 3-2-1, pourquoi copier les sauvegardes hors du VPS ?",
+              "choices": [
+                "Pour libérer de l'espace disque",
+                "Parce qu'une panne ou compromission du VPS détruirait aussi les sauvegardes locales",
+                "Parce que Docker l'exige",
+                "Pour accélérer les sauvegardes"
+              ],
+              "answer": 1,
+              "explanation": "Si le serveur est le seul lieu de stockage, toute panne majeure (disque, piratage, suppression) emporte les données ET leurs copies. Le « 1 hors-site » de la règle 3-2-1 protège précisément de ce scénario. Ce n'est ni pour l'espace, ni une exigence Docker, ni pour la vitesse."
+            },
+            {
+              "q": "Une application « plante mystérieusement » sans erreur applicative claire sur un VPS. Que vérifier en priorité ?",
+              "choices": [
+                "La version de React",
+                "Le remplissage du disque (logs, images Docker orphelines) et la RAM (OOM killer)",
+                "La couleur du thème",
+                "Le nom de domaine"
+              ],
+              "answer": 1,
+              "explanation": "Un disque à 100 % ou une RAM saturée (OOM killer qui tue un processus) provoquent des pannes sans message applicatif clair et comptent parmi les causes les plus fréquentes. La version de React ou le nom de domaine ne produisent pas ce symptôme."
+            },
+            {
+              "q": "Lors d'une restauration de base SQLite, pourquoi supprimer les fichiers WAL avant de redémarrer ?",
+              "choices": [
+                "Pour gagner de l'espace",
+                "Parce qu'un ancien WAL incompatible avec la base restaurée provoquerait une incohérence",
+                "Parce que le WAL contient des secrets",
+                "Parce que Caddy le demande"
+              ],
+              "answer": 1,
+              "explanation": "Le WAL contient des écritures relatives à l'ancienne base ; le laisser en place après avoir remplacé le fichier principal mêlerait deux états et corromprait la restauration. On le supprime pour repartir d'un état cohérent. Ce n'est ni une question d'espace, ni de secrets, ni lié à Caddy."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
