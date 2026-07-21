@@ -1,6 +1,6 @@
 # Kapsule en production : app (API + PWA) derriere Caddy (HTTPS auto).
 # Lancer depuis ce dossier :  docker compose up -d --build
-# Requiert la variable KAPSULE_DOMAIN (voir .env.example).
+# Requiert SITE_DOMAIN et KAPSULE_DOMAIN (voir .env.example).
 
 services:
   app:
@@ -50,9 +50,11 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      KAPSULE_DOMAIN: ${KAPSULE_DOMAIN}
+      SITE_DOMAIN: ${SITE_DOMAIN:-paulmondou.fr}
+      KAPSULE_DOMAIN: ${KAPSULE_DOMAIN:-kapsule.paulmondou.fr}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./sites:/srv/sites:ro
       - caddy-data:/data
       - caddy-config:/config
 

@@ -2,19 +2,22 @@
 
 Kapsule se déploie sur un VPS avec **Docker Compose** : un conteneur applicatif
 (API Node + PWA buildée, un seul process) derrière **Caddy** qui gère le HTTPS
-automatiquement. La base SQLite et les uploads vivent dans un **volume persistant**.
+automatiquement. Caddy sert aussi le portail principal et les vitrines statiques
+du domaine. La base SQLite et les uploads vivent dans un **volume persistant**.
 
 ```
-Internet ──HTTPS──> Caddy ──> app (API + PWA) ──> /data (SQLite + uploads)
-                     │
-                     └── extensible à d'autres apps en sous-domaines
+Internet ──HTTPS──> Caddy ──> paulmondou.fr (portail statique)
+                     ├── kapsule.paulmondou.fr ──> app (API + PWA) ──> /data
+                     ├── f1.paulmondou.fr ──> vitrine statique
+                     └── gnosis.paulmondou.fr ──> vitrine statique
 ```
 
 ## 1. Prérequis
 
 - Un VPS (recommandé : Hetzner CX23 ou OVH VPS, Debian 12 / Ubuntu 24.04).
-- Un nom de domaine avec un enregistrement DNS **A** (et **AAAA** si IPv6)
-  pointant `kapsule.mondomaine.fr` vers l'IP du VPS.
+- Un nom de domaine avec des enregistrements DNS **A** (et **AAAA** si IPv6)
+  pointant le domaine racine et les sous-domaines vers l'IP du VPS. Un wildcard
+  `*.paulmondou.fr` est le plus simple pour les vitrines.
 - Une clé SSH pour se connecter au VPS.
 
 ## 2. Provisionnement du VPS (une fois)
@@ -44,15 +47,17 @@ adduser --disabled-password deploy && usermod -aG docker deploy
 git clone https://github.com/Jilanos/Kapsule.git ~/kapsule
 cd ~/kapsule/deploy
 cp .env.example .env
-# éditer .env : renseigner KAPSULE_DOMAIN (et KAPSULE_REGISTRATION=open pour créer les comptes)
+# éditer .env : renseigner SITE_DOMAIN, KAPSULE_DOMAIN
+# et KAPSULE_REGISTRATION=open pour créer les comptes
 
 docker compose up -d --build
 docker compose ps        # les deux services doivent être "running"
 ```
 
-Caddy obtient le certificat Let's Encrypt automatiquement dès que le DNS est
-correct. L'app est alors accessible sur `https://kapsule.mondomaine.fr` et la
-PWA s'installe depuis Chrome Android (menu → « Installer l'application »).
+Caddy obtient les certificats Let's Encrypt automatiquement dès que le DNS est
+correct. Le portail est accessible sur `https://paulmondou.fr`, Kapsule sur
+`https://kapsule.paulmondou.fr`, et les vitrines statiques dans
+`deploy/sites/<nom>/`.
 
 Une fois vos comptes créés, fermez les inscriptions :
 
@@ -117,7 +122,10 @@ docker compose up -d app
 ```bash
 docker compose logs -f app      # logs applicatifs
 docker compose logs -f caddy    # obtention du certificat, erreurs HTTPS
-curl -s https://kapsule.mondomaine.fr/api/health   # -> {"ok":true}
+curl -s https://kapsule.paulmondou.fr/api/health   # -> {"ok":true}
+curl -I https://paulmondou.fr
+curl -I https://f1.paulmondou.fr
+curl -I https://gnosis.paulmondou.fr
 ```
 
 ## 8. Persistance des données

@@ -1,10 +1,7 @@
-# Reverse proxy Caddy : HTTPS automatique (Let's Encrypt) pour Kapsule.
-# Le domaine vient de la variable KAPSULE_DOMAIN (ex: kapsule.mondomaine.fr).
+# Reverse proxy Caddy : HTTPS automatique (Let's Encrypt).
+# SITE_DOMAIN porte le portail principal ; KAPSULE_DOMAIN porte l'application.
 
-{$KAPSULE_DOMAIN} {
-	encode zstd gzip
-
-	# En-tetes de securite (audit 2026-07-18, AC7).
+(security_headers) {
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
@@ -17,16 +14,37 @@
 		# N'expose pas la stack serveur.
 		-Server
 	}
+}
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	import security_headers
+	root * /srv/sites/portal
+	file_server
+}
+
+www.{$SITE_DOMAIN} {
+	import security_headers
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
+{$KAPSULE_DOMAIN} {
+	encode zstd gzip
+	import security_headers
 
 	reverse_proxy app:3001
 }
 
-# --- Ajouter une autre application sur un autre sous-domaine --------------
-# Il suffit d'ajouter un bloc ici, sans toucher au conteneur Kapsule.
-# Exemple :
-#
-# cashflow.mondomaine.fr {
-# 	reverse_proxy cashflow-app:8080
-# }
-#
-# (le conteneur correspondant doit rejoindre le meme reseau Docker que Caddy)
+f1.{$SITE_DOMAIN} {
+	encode zstd gzip
+	import security_headers
+	root * /srv/sites/f1
+	file_server
+}
+
+gnosis.{$SITE_DOMAIN} {
+	encode zstd gzip
+	import security_headers
+	root * /srv/sites/gnosis
+	file_server
+}
