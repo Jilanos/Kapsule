@@ -23,9 +23,8 @@
         --teal: #2fb6c4;
         --teal-deep: #156f7a;
         --copper: #d97a45;
-        --copper-deep: #9f4c24;
         --sage: #8aa15a;
-        --radius: 14px;
+        --radius: 12px;
         --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
       }
 
@@ -33,13 +32,11 @@
         box-sizing: border-box;
       }
 
-      html {
-        scroll-behavior: smooth;
-      }
-
       body {
         margin: 0;
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         color: var(--ink);
         background: var(--bg);
@@ -52,18 +49,22 @@
         text-decoration: none;
       }
 
+      .wrap {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
       /* ---------- Banner / hero ---------- */
       .banner {
         position: relative;
         overflow: hidden;
         border-bottom: 1px solid var(--line);
         background:
-          radial-gradient(1100px 520px at 82% -8%, rgba(47, 182, 196, 0.22), transparent 60%),
-          radial-gradient(900px 480px at 8% 12%, rgba(217, 122, 69, 0.16), transparent 58%),
+          radial-gradient(900px 420px at 84% -20%, rgba(47, 182, 196, 0.22), transparent 60%),
+          radial-gradient(760px 400px at 6% 8%, rgba(217, 122, 69, 0.15), transparent 58%),
           linear-gradient(180deg, var(--bg-2), var(--bg));
       }
 
-      /* subtle grid texture, drawn in CSS (no external asset, CSP-safe) */
       .banner::before {
         content: "";
         position: absolute;
@@ -71,34 +72,29 @@
         background-image:
           linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
           linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-        background-size: 46px 46px;
+        background-size: 44px 44px;
         mask-image: radial-gradient(120% 90% at 70% 0%, #000 30%, transparent 78%);
         pointer-events: none;
       }
 
-      .wrap {
-        width: min(1080px, calc(100% - 40px));
-        margin: 0 auto;
-      }
-
       .hero {
         position: relative;
-        padding: 108px 0 84px;
+        padding: 40px 0 34px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 20px 40px;
       }
 
       .eyebrow {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
+        gap: 8px;
         font-family: var(--mono);
-        font-size: 12.5px;
+        font-size: 11.5px;
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: var(--teal);
-        padding: 7px 13px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        background: rgba(47, 182, 196, 0.06);
       }
 
       .dot {
@@ -110,9 +106,9 @@
       }
 
       h1 {
-        margin: 26px 0 0;
-        font-size: clamp(52px, 9vw, 108px);
-        line-height: 0.92;
+        margin: 10px 0 0;
+        font-size: clamp(40px, 6vw, 66px);
+        line-height: 0.95;
         letter-spacing: -0.03em;
         font-weight: 800;
         background: linear-gradient(180deg, #ffffff 20%, #b9c6db);
@@ -122,10 +118,10 @@
       }
 
       .tagline {
-        margin: 28px 0 0;
-        max-width: 640px;
-        font-size: clamp(18px, 2.4vw, 22px);
-        line-height: 1.55;
+        margin: 12px 0 0;
+        max-width: 620px;
+        font-size: 16px;
+        line-height: 1.5;
         color: var(--muted);
       }
 
@@ -134,20 +130,27 @@
         font-weight: 600;
       }
 
+      .aside {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 16px;
+      }
+
       .cta {
-        margin-top: 34px;
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 10px;
+        justify-content: flex-end;
       }
 
       .btn {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        padding: 12px 20px;
+        gap: 8px;
+        padding: 10px 18px;
         border-radius: 999px;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
         border: 1px solid var(--line);
         transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
@@ -169,64 +172,56 @@
       }
 
       .stack {
-        margin-top: 40px;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 7px;
+        justify-content: flex-end;
+        max-width: 360px;
       }
 
       .chip {
         font-family: var(--mono);
-        font-size: 12.5px;
+        font-size: 11.5px;
         color: var(--muted);
-        padding: 5px 11px;
+        padding: 4px 9px;
         border: 1px solid var(--line-soft);
-        border-radius: 8px;
+        border-radius: 7px;
         background: rgba(255, 255, 255, 0.02);
       }
 
       /* ---------- Sections ---------- */
+      main {
+        flex: 1;
+      }
+
       section {
-        padding: 76px 0;
+        padding: 30px 0;
       }
 
       .section-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 30px;
+        margin-bottom: 16px;
       }
 
       h2 {
         margin: 0;
-        font-size: clamp(24px, 3.4vw, 32px);
+        font-size: 22px;
         letter-spacing: -0.02em;
         font-weight: 700;
-      }
-
-      .section-head p {
-        margin: 0;
-        color: var(--faint);
-        font-family: var(--mono);
-        font-size: 13px;
-        letter-spacing: 0.04em;
       }
 
       /* ---------- Hosted sites ---------- */
       .sites {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
+        gap: 14px;
       }
 
       .site {
         position: relative;
         display: grid;
-        align-content: space-between;
-        gap: 16px;
-        min-height: 210px;
-        padding: 24px;
+        align-content: start;
+        gap: 8px;
+        padding: 18px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
         background: linear-gradient(180deg, var(--panel-2), var(--panel));
@@ -234,9 +229,9 @@
       }
 
       .site:hover {
-        transform: translateY(-4px);
+        transform: translateY(-3px);
         border-color: rgba(47, 182, 196, 0.45);
-        box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 16px 34px -24px rgba(0, 0, 0, 0.9);
       }
 
       .site .top {
@@ -247,11 +242,11 @@
 
       .tag {
         width: fit-content;
-        padding: 5px 11px;
+        padding: 4px 10px;
         border-radius: 999px;
         color: #04121a;
         background: var(--teal);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.02em;
       }
@@ -266,7 +261,7 @@
 
       .arrow {
         color: var(--faint);
-        font-size: 18px;
+        font-size: 16px;
         transition: transform 0.16s ease, color 0.16s ease;
       }
 
@@ -276,27 +271,27 @@
       }
 
       .site strong {
-        font-size: 25px;
+        font-size: 20px;
         letter-spacing: -0.01em;
       }
 
       .site .desc {
         color: var(--muted);
-        line-height: 1.55;
-        font-size: 14.5px;
+        line-height: 1.45;
+        font-size: 13px;
       }
 
       /* ---------- Projects ---------- */
       .projects {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
       }
 
       .project {
         display: grid;
-        gap: 12px;
-        padding: 24px;
+        gap: 7px;
+        padding: 16px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
         background: var(--panel);
@@ -318,13 +313,13 @@
 
       .project h3 {
         margin: 0;
-        font-size: 19px;
+        font-size: 16px;
         letter-spacing: -0.01em;
       }
 
       .project .lang {
         font-family: var(--mono);
-        font-size: 11.5px;
+        font-size: 11px;
         color: var(--faint);
         display: inline-flex;
         align-items: center;
@@ -333,93 +328,27 @@
       }
 
       .swatch {
-        width: 9px;
-        height: 9px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background: var(--faint);
       }
 
-      .py {
-        background: #4b8bbe;
-      }
-      .ts {
-        background: #3178c6;
-      }
-      .js {
-        background: #e8c14a;
-      }
-      .sh {
-        background: #8aa15a;
-      }
+      .py { background: #4b8bbe; }
+      .ts { background: #3178c6; }
+      .sh { background: #8aa15a; }
 
       .project p {
         margin: 0;
         color: var(--muted);
-        line-height: 1.6;
-        font-size: 14.5px;
-      }
-
-      .project .topics {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 2px;
-      }
-
-      .topic {
-        font-family: var(--mono);
-        font-size: 11px;
-        color: var(--faint);
-        padding: 3px 8px;
-        border: 1px solid var(--line-soft);
-        border-radius: 6px;
-      }
-
-      /* ---------- How I build ---------- */
-      .principles {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-      }
-
-      .principle {
-        padding: 24px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--panel);
-      }
-
-      .principle .kicker {
-        font-family: var(--mono);
-        font-size: 11.5px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: var(--teal);
-      }
-
-      .principle:nth-child(2) .kicker {
-        color: var(--copper);
-      }
-      .principle:nth-child(3) .kicker {
-        color: var(--sage);
-      }
-
-      .principle strong {
-        display: block;
-        font-size: 16px;
-        margin: 10px 0 8px;
-      }
-
-      .principle span {
-        color: var(--muted);
-        line-height: 1.55;
-        font-size: 14px;
+        line-height: 1.45;
+        font-size: 13px;
       }
 
       /* ---------- Footer ---------- */
       footer {
         border-top: 1px solid var(--line);
-        padding: 30px 0 44px;
+        padding: 16px 0;
         background: var(--bg-2);
       }
 
@@ -428,9 +357,9 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
         color: var(--faint);
-        font-size: 13.5px;
+        font-size: 13px;
       }
 
       .foot a:hover {
@@ -439,20 +368,24 @@
 
       .foot .mono {
         font-family: var(--mono);
-        font-size: 12px;
+        font-size: 11.5px;
       }
 
       @media (max-width: 860px) {
-        .sites,
-        .projects,
-        .principles {
-          grid-template-columns: 1fr;
-        }
         .hero {
-          padding: 76px 0 60px;
+          grid-template-columns: 1fr;
+          padding: 34px 0 28px;
         }
-        section {
-          padding: 56px 0;
+        .aside {
+          align-items: flex-start;
+        }
+        .cta,
+        .stack {
+          justify-content: flex-start;
+        }
+        .sites,
+        .projects {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -460,37 +393,34 @@
   <body>
     <header class="banner">
       <div class="wrap hero">
-        <span class="eyebrow"><span class="dot"></span> Local-first engineering</span>
-        <h1>Paul Mondou</h1>
-        <p class="tagline">
-          Je construis des <b>outils d'ingenierie local-first</b> qui transforment des donnees
-          operationnelles complexes en <b>workflows fiables et inspectables</b> — du diagnostic CAN
-          aux plans electriques, en passant par l'analytics personnelle et l'automatisation
-          supervisee.
-        </p>
-        <div class="cta">
-          <a class="btn primary" href="https://kapsule.paulmondou.fr">Ouvrir Kapsule &rarr;</a>
-          <a class="btn ghost" href="https://github.com/Jilanos" rel="noopener">GitHub</a>
+        <div>
+          <span class="eyebrow"><span class="dot"></span> Local-first engineering</span>
+          <h1>Paul Mondou</h1>
+          <p class="tagline">
+            Je construis des <b>outils d'ingenierie local-first</b> qui transforment des donnees
+            operationnelles complexes en <b>workflows fiables et inspectables</b>.
+          </p>
         </div>
-        <div class="stack" aria-label="Technologies">
-          <span class="chip">Python</span>
-          <span class="chip">FastAPI</span>
-          <span class="chip">TypeScript</span>
-          <span class="chip">React</span>
-          <span class="chip">SQLite</span>
-          <span class="chip">DBC / CAN</span>
-          <span class="chip">Vitest</span>
-          <span class="chip">CI/CD</span>
+        <div class="aside">
+          <div class="cta">
+            <a class="btn primary" href="https://kapsule.paulmondou.fr">Ouvrir Kapsule &rarr;</a>
+            <a class="btn ghost" href="https://github.com/Jilanos" target="_blank" rel="noopener">GitHub</a>
+          </div>
+          <div class="stack" aria-label="Technologies">
+            <span class="chip">Python</span>
+            <span class="chip">FastAPI</span>
+            <span class="chip">TypeScript</span>
+            <span class="chip">React</span>
+            <span class="chip">SQLite</span>
+            <span class="chip">DBC / CAN</span>
+          </div>
         </div>
       </div>
     </header>
 
     <main>
       <section class="wrap" aria-labelledby="hosted">
-        <div class="section-head">
-          <h2 id="hosted">Heberge ici</h2>
-          <p>*.paulmondou.fr</p>
-        </div>
+        <div class="section-head"><h2 id="hosted">Heberge ici</h2></div>
         <div class="sites">
           <a class="site" href="https://kapsule.paulmondou.fr">
             <div class="top">
@@ -498,10 +428,7 @@
               <span class="arrow">&#8599;</span>
             </div>
             <strong>Kapsule</strong>
-            <span class="desc"
-              >Visionneuse de fiches de connaissance courtes (5&ndash;10 min), a partir de decks
-              JSON generes par LLM.</span
-            >
+            <span class="desc">Visionneuse de fiches de connaissance courtes, a partir de decks JSON generes par LLM.</span>
           </a>
           <a class="site" href="https://f1.paulmondou.fr">
             <div class="top">
@@ -509,9 +436,7 @@
               <span class="arrow">&#8599;</span>
             </div>
             <strong>F1</strong>
-            <span class="desc"
-              >Espace thematique pret a recevoir contenu, visuels et liens.</span
-            >
+            <span class="desc">Espace thematique pret a recevoir contenu, visuels et liens.</span>
           </a>
           <a class="site" href="https://gnosis.paulmondou.fr">
             <div class="top">
@@ -519,145 +444,68 @@
               <span class="arrow">&#8599;</span>
             </div>
             <strong>Gnosis</strong>
-            <span class="desc"
-              >Point d'entree pour ressources, notes et experimentations.</span
-            >
+            <span class="desc">Point d'entree pour ressources, notes et experimentations.</span>
           </a>
         </div>
       </section>
 
       <section class="wrap" aria-labelledby="projects">
-        <div class="section-head">
-          <h2 id="projects">Projets selectionnes</h2>
-          <p>github.com/Jilanos</p>
-        </div>
+        <div class="section-head"><h2 id="projects">Projets</h2></div>
         <div class="projects">
-          <a class="project" href="https://github.com/Jilanos/CanTraceDiag" rel="noopener">
+          <a class="project" href="https://github.com/Jilanos/CanTraceDiag" target="_blank" rel="noopener">
             <div class="ptitle">
               <h3>CanTraceDiag</h3>
               <span class="lang"><span class="swatch py"></span>Python</span>
             </div>
-            <p>
-              Transforme des traces CANalyzer <code>.asc</code> et des fichiers DBC en atelier de
-              diagnostic local : graphes, curseurs, inspection de trames, backend Python/FastAPI
-              teste.
-            </p>
-            <div class="topics">
-              <span class="topic">can-bus</span><span class="topic">dbc</span
-              ><span class="topic">fastapi</span><span class="topic">diagnostics</span>
-            </div>
+            <p>Traces CANalyzer <code>.asc</code> + DBC en atelier de diagnostic local (graphes, trames), backend Python/FastAPI teste.</p>
           </a>
 
-          <a class="project" href="https://github.com/AlexAgo83/electrical-plan-editor" rel="noopener">
+          <a class="project" href="https://github.com/AlexAgo83/electrical-plan-editor" target="_blank" rel="noopener">
             <div class="ptitle">
               <h3>Electrical Plan Editor</h3>
               <span class="lang"><span class="swatch ts"></span>TypeScript</span>
             </div>
-            <p>
-              Contribution majeure a un editeur de plans electriques dans le navigateur :
-              deploiement live, CI et tests automatises etendus.
-            </p>
-            <div class="topics">
-              <span class="topic">collaboratif</span><span class="topic">react</span
-              ><span class="topic">ci</span>
-            </div>
+            <p>Editeur de plans electriques dans le navigateur : contribution majeure, deploiement live, CI, tests.</p>
           </a>
 
-          <a class="project" href="https://github.com/Jilanos/cashflow-lab" rel="noopener">
+          <a class="project" href="https://github.com/Jilanos/cashflow-lab" target="_blank" rel="noopener">
             <div class="ptitle">
               <h3>Cashflow Lab</h3>
               <span class="lang"><span class="swatch ts"></span>TypeScript</span>
             </div>
-            <p>
-              Explore des scenarios de tresorerie personnelle dans une app React/TypeScript
-              local-first, adossee a un SQLite cote navigateur et une suite Vitest ciblee.
-            </p>
-            <div class="topics">
-              <span class="topic">local-first</span><span class="topic">sqlite</span
-              ><span class="topic">forecasting</span>
-            </div>
+            <p>Scenarios de tresorerie personnelle, app React/TS local-first sur SQLite cote navigateur.</p>
           </a>
 
-          <a class="project" href="https://github.com/Jilanos/world_cup_predictor" rel="noopener">
+          <a class="project" href="https://github.com/Jilanos/world_cup_predictor" target="_blank" rel="noopener">
             <div class="ptitle">
               <h3>World Cup Predictor</h3>
               <span class="lang"><span class="swatch py"></span>Python</span>
             </div>
-            <p>
-              Modelise les issues de tournois de football avec des simulations reproductibles, des
-              backtests et des tests Python.
-            </p>
-            <div class="topics">
-              <span class="topic">data-science</span><span class="topic">calibration</span
-              ><span class="topic">backtesting</span>
-            </div>
+            <p>Prediction d'issues de tournois de football : simulations reproductibles et backtests.</p>
           </a>
 
-          <a class="project" href="https://github.com/Jilanos/scrappy" rel="noopener">
+          <a class="project" href="https://github.com/Jilanos/scrappy" target="_blank" rel="noopener">
             <div class="ptitle">
               <h3>Scrappy</h3>
               <span class="lang"><span class="swatch py"></span>Python</span>
             </div>
-            <p>
-              Evalue des offres d'emploi en local, explique adequation et ecarts, et garde le
-              workflow d'evaluation inspectable via des tests Python.
-            </p>
-            <div class="topics">
-              <span class="topic">automation</span><span class="topic">scoring</span
-              ><span class="topic">local-first</span>
-            </div>
+            <p>Evaluation locale d'offres d'emploi, scoring explicable et workflow inspectable.</p>
           </a>
 
-          <a class="project" href="https://github.com/Jilanos/orchestia" rel="noopener">
+          <a class="project" href="https://github.com/Jilanos/orchestia" target="_blank" rel="noopener">
             <div class="ptitle">
               <h3>Orchestia</h3>
               <span class="lang"><span class="swatch sh"></span>Shell</span>
             </div>
-            <p>
-              Documente et valide un modele operationnel supervise par l'humain pour le
-              developpement logiciel assiste par IA, avec des controles de workflow executables.
-            </p>
-            <div class="topics">
-              <span class="topic">workflow</span><span class="topic">automation</span
-              ><span class="topic">ai-assisted</span>
-            </div>
+            <p>Modele operationnel supervise par l'humain pour le dev logiciel assiste par IA.</p>
           </a>
-        </div>
-      </section>
-
-      <section class="wrap" aria-labelledby="how">
-        <div class="section-head">
-          <h2 id="how">Comment je construis</h2>
-        </div>
-        <div class="principles">
-          <div class="principle">
-            <span class="kicker">Privacy</span>
-            <strong>Local-first par defaut</strong>
-            <span>Des frontieres claires autour des donnees privees ou clients.</span>
-          </div>
-          <div class="principle">
-            <span class="kicker">Tests</span>
-            <strong>Reproductible</strong>
-            <span
-              >Setup reproductible, tests automatises et petites boucles de validation avant les
-              changements plus larges.</span
-            >
-          </div>
-          <div class="principle">
-            <span class="kicker">Controle</span>
-            <strong>Supervise par l'humain</strong>
-            <span
-              >L'automatisation reste sous controle, surtout la ou les outils touchent au travail
-              reel.</span
-            >
-          </div>
         </div>
       </section>
     </main>
 
     <footer>
       <div class="wrap foot">
-        <span>&copy; Paul Mondou &middot; <a href="https://github.com/Jilanos" rel="noopener">github.com/Jilanos</a></span>
+        <span>&copy; Paul Mondou &middot; <a href="https://github.com/Jilanos" target="_blank" rel="noopener">github.com/Jilanos</a></span>
         <span class="mono">paulmondou.fr &middot; VPS &middot; HTTPS par Caddy</span>
       </div>
     </footer>
