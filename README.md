@@ -89,7 +89,6 @@ packages/schema   Contrat de contenu : JSON Schema + validateur partagé
 apps/backend      API REST (Node + Express + SQLite) : auth, decks, fiches, progression, SM-2, import
 apps/frontend     PWA React + Vite : lecteur, decks, progression, révision
 decks/            Decks d'exemple / seed
-deploy/           Docker Compose + Caddy + scripts de déploiement et sauvegarde
 SPEC.md           Consignes de format pour humains et agents IA
 ```
 
@@ -126,7 +125,9 @@ npm run validate-deck -- decks/reseaux-essentiels.json
 | `KAPSULE_REGISTRATION` | `open` / `closed` — **fermée par défaut** si `NODE_ENV=production`   | selon environnement  |
 | `KAPSULE_ASSET_SECRET` | Secret HMAC de signature des URLs d'assets (**obligatoire** en prod) | —                    |
 
-Voir [`deploy/.env.example`](deploy/.env.example).
+Les variables et secrets de production sont documentes dans le repo
+[`paulmondou-infra`](https://github.com/Jilanos/paulmondou-infra), qui porte le
+Compose VPS et les fichiers Caddy.
 
 ## Architecture (résumé)
 
@@ -153,9 +154,9 @@ Signalement de vulnérabilités : voir [`SECURITY.md`](SECURITY.md).
 
 ## Déploiement
 
-VPS avec Docker Compose + Caddy (HTTPS automatique). Voir
-[`deploy/README.md`](deploy/README.md) : provisionnement, première mise en ligne,
-`deploy.sh`, sauvegardes locales et hors site, restauration.
+Ce repo fournit l'image applicative Kapsule via le `Dockerfile` racine. Le VPS,
+Caddy, les sites statiques, les sauvegardes et les scripts d'exploitation
+vivent dans [`paulmondou-infra`](https://github.com/Jilanos/paulmondou-infra).
 
 ## Générer des fiches avec une IA
 

@@ -22,8 +22,6 @@ apps/backend/uploads/
 # Env & logs
 .env
 .env.*
-# Exception : le gabarit d'environnement de deploiement est versionne (sans secret).
-!deploy/.env.example
 *.log
 npm-debug.log*
 

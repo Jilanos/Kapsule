@@ -6,12 +6,14 @@
 |---|---|---|---|---|---|
 | [adr_001_kapsule_architecture_direction](architecture/adr_001_kapsule_architecture_direction.md) | Kapsule architecture direction | Accepted |  |  | architecture/adr_001_kapsule_architecture_direction.md |
 | [adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement](architecture/adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement.md) | Deploiement (req_003) | Accepted |  |  | architecture/adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement.md |
+| [adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions](architecture/adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions.md) | 3. Sessions et token — durcissement du cycle de vie | Accepted |  |  | architecture/adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions.md |
 
 ## Product briefs
 
 | Doc | Title | Status | Owner | Progress | Path |
 |---|---|---|---|---|---|
-| [prod_001_kapsule_product_brief](product/prod_001_kapsule_product_brief.md) | Kapsule product brief | Proposed |  |  | product/prod_001_kapsule_product_brief.md |
+| [prod_001_kapsule_product_brief](product/prod_001_kapsule_product_brief.md) | Kapsule product brief | Settled |  |  | product/prod_001_kapsule_product_brief.md |
+| [prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra](product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md) | Brief - Infrastructure VPS multi-projets paulmondou-infra | Proposed |  |  | product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md |
 
 ## Roadmaps
 
@@ -25,6 +27,13 @@ _None_
 | [req_001_authentification_multi_appareils](request/req_001_authentification_multi_appareils.md) | Authentification multi-appareils | Done |  |  | request/req_001_authentification_multi_appareils.md |
 | [req_002_repetition_espacee_sm2](request/req_002_repetition_espacee_sm2.md) | Repetition espacee SM-2 | Done |  |  | request/req_002_repetition_espacee_sm2.md |
 | [req_003_deploiement_vps_ovh](request/req_003_deploiement_vps_ovh.md) | Deploiement VPS OVH | Done |  |  | request/req_003_deploiement_vps_ovh.md |
+| [req_004_roles_utilisateurs_et_visibilite_des_decks](request/req_004_roles_utilisateurs_et_visibilite_des_decks.md) | Roles utilisateurs et visibilite des decks | Done |  |  | request/req_004_roles_utilisateurs_et_visibilite_des_decks.md |
+| [req_005_durcir_kapsule_apres_audit_transversal](request/req_005_durcir_kapsule_apres_audit_transversal.md) | Out | Draft |  |  | request/req_005_durcir_kapsule_apres_audit_transversal.md |
+| [req_006_redesign_scientifique_de_l_interface_cahier_de_laboratoire](request/req_006_redesign_scientifique_de_l_interface_cahier_de_laboratoire.md) | Redesign scientifique de l'interface - cahier de laboratoire | Done |  |  | request/req_006_redesign_scientifique_de_l_interface_cahier_de_laboratoire.md |
+| [req_007_courbe_de_retention_memorielle_sur_les_decks](request/req_007_courbe_de_retention_memorielle_sur_les_decks.md) | Courbe de retention memorielle sur les decks | Done |  |  | request/req_007_courbe_de_retention_memorielle_sur_les_decks.md |
+| [req_008_ameliorer_l_exploration_et_l_affichage_des_decks](request/req_008_ameliorer_l_exploration_et_l_affichage_des_decks.md) | Ameliorer l'exploration et l'affichage des decks | Done |  |  | request/req_008_ameliorer_l_exploration_et_l_affichage_des_decks.md |
+| [req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader](request/req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md) | Corriger la fuite d'etat des quiz dans DeckReader | Done |  |  | request/req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md |
+| [req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra](request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md) | Extraire l'infrastructure VPS multi-projets vers paulmondou-infra | Draft |  |  | request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md |
 
 ## Backlog
 
@@ -38,6 +47,13 @@ _None_
 | [item_006_authentification_multi_appareils](backlog/item_006_authentification_multi_appareils.md) | Authentification multi-appareils | Done |  | 100% | backlog/item_006_authentification_multi_appareils.md |
 | [item_007_repetition_espacee_sm_2](backlog/item_007_repetition_espacee_sm_2.md) | Repetition espacee SM-2 | Done |  | 100% | backlog/item_007_repetition_espacee_sm_2.md |
 | [item_008_deploiement_vps_ovh](backlog/item_008_deploiement_vps_ovh.md) | Deploiement VPS OVH | Done |  | 100% | backlog/item_008_deploiement_vps_ovh.md |
+| [item_009_roles_utilisateurs_et_visibilite_des_decks](backlog/item_009_roles_utilisateurs_et_visibilite_des_decks.md) | Roles utilisateurs et visibilite des decks | Done |  | 100% | backlog/item_009_roles_utilisateurs_et_visibilite_des_decks.md |
+| [item_010_durcir_kapsule_apres_audit_transversal](backlog/item_010_durcir_kapsule_apres_audit_transversal.md) | Durcir Kapsule apres audit transversal | In progress |  | 95% | backlog/item_010_durcir_kapsule_apres_audit_transversal.md |
+| [item_011_redesign_scientifique_de_l_interface_cahier_de_laboratoire](backlog/item_011_redesign_scientifique_de_l_interface_cahier_de_laboratoire.md) | Redesign scientifique de l'interface - cahier de laboratoire | Done |  | 100% | backlog/item_011_redesign_scientifique_de_l_interface_cahier_de_laboratoire.md |
+| [item_012_courbe_de_retention_memorielle_sur_les_decks](backlog/item_012_courbe_de_retention_memorielle_sur_les_decks.md) | Courbe de retention memorielle sur les decks | Done |  | 100% | backlog/item_012_courbe_de_retention_memorielle_sur_les_decks.md |
+| [item_013_ameliorer_l_exploration_et_l_affichage_des_decks](backlog/item_013_ameliorer_l_exploration_et_l_affichage_des_decks.md) | Ameliorer l'exploration et l'affichage des decks | Done |  | 100% | backlog/item_013_ameliorer_l_exploration_et_l_affichage_des_decks.md |
+| [item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader](backlog/item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md) | Corriger la fuite d'etat des quiz dans DeckReader | Done |  | 100% | backlog/item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md |
+| [item_015_extraire_le_repo_infra_paulmondou_infra](backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md) | Extraire le repo infra paulmondou-infra | Ready |  | 0% | backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md |
 
 ## Tasks
 
@@ -47,3 +63,10 @@ _None_
 | [task_002_authentification_multi_appareils](tasks/task_002_authentification_multi_appareils.md) | Authentification multi-appareils | Done | claude | 100% | tasks/task_002_authentification_multi_appareils.md |
 | [task_003_repetition_espacee_sm_2](tasks/task_003_repetition_espacee_sm_2.md) | Repetition espacee SM-2 | Done | claude | 100% | tasks/task_003_repetition_espacee_sm_2.md |
 | [task_004_deploiement_vps_ovh](tasks/task_004_deploiement_vps_ovh.md) | Deploiement VPS OVH | Done | claude | 100% | tasks/task_004_deploiement_vps_ovh.md |
+| [task_005_roles_utilisateurs_et_visibilite_des_decks](tasks/task_005_roles_utilisateurs_et_visibilite_des_decks.md) | Roles utilisateurs et visibilite des decks | Done |  | 100% | tasks/task_005_roles_utilisateurs_et_visibilite_des_decks.md |
+| [Vague 5](tasks/task_006_durcir_kapsule_apres_audit_transversal.md) | Closeout - 2026-07-19 | Ready |  | 95% | tasks/task_006_durcir_kapsule_apres_audit_transversal.md |
+| [task_007_redesign_scientifique_de_l_interface_cahier_de_laboratoire](tasks/task_007_redesign_scientifique_de_l_interface_cahier_de_laboratoire.md) | Redesign scientifique de l'interface - cahier de laboratoire | Done | claude | 100% | tasks/task_007_redesign_scientifique_de_l_interface_cahier_de_laboratoire.md |
+| [task_008_courbe_de_retention_memorielle_sur_les_decks](tasks/task_008_courbe_de_retention_memorielle_sur_les_decks.md) | Courbe de retention memorielle sur les decks | Done | claude | 100% | tasks/task_008_courbe_de_retention_memorielle_sur_les_decks.md |
+| [Livraison](tasks/task_009_ameliorer_l_exploration_et_l_affichage_des_decks.md) | 2026-07-20 | Done | codex | 100% | tasks/task_009_ameliorer_l_exploration_et_l_affichage_des_decks.md |
+| [task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader](tasks/task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md) | Corriger la fuite d'etat des quiz dans DeckReader | Done | codex | 100% | tasks/task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md |
+| [task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra](tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md) | Orchestrer l'extraction de l'infra VPS vers paulmondou-infra | Ready |  | 0% | tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md |

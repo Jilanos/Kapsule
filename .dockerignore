@@ -9,7 +9,6 @@ apps/frontend/public/favicon.png
 .git
 logics
 docs
-deploy
 *.sqlite
 *.sqlite-*
 *.log

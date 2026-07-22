@@ -1,0 +1,290 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra item_015_extraire_le_repo_infra_paulmondou_infra task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_015_extraire_le_repo_infra_paulmondou_infra"
+        ],
+        "prod": [
+          "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra"
+        ],
+        "req": [
+          "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra"
+        ],
+        "task": [
+          "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+        ]
+      },
+      "path": "logics/product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md",
+      "ref": "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra",
+      "status": "Proposed",
+      "title": "Brief - Infrastructure VPS multi-projets paulmondou-infra"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_001_kapsule_architecture_direction",
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_001_authentification_multi_appareils",
+          "req_002_repetition_espacee_sm2",
+          "req_003_deploiement_vps_ovh"
+        ]
+      },
+      "path": "logics/architecture/adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement.md",
+      "ref": "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement",
+      "status": "Accepted",
+      "title": "Kapsule v0.2 : auth multi-appareils, repetition espacee, deploiement"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "adr": [
+          "adr_001_kapsule_architecture_direction",
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement",
+          "adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions"
+        ],
+        "item": [
+          "item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader"
+        ],
+        "task": [
+          "task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader"
+        ]
+      },
+      "path": "logics/product/prod_001_kapsule_product_brief.md",
+      "ref": "prod_001_kapsule_product_brief",
+      "status": "Settled",
+      "title": "Kapsule product brief"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, extraire l'infrastructure vps multi-projets vers paulmondou-infra, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Extraire l'infrastructure VPS multi-projets vers paulmondou-infra",
+        "use when": "You need to implement or review the scaffolded workflow for Extraire l'infrastructure VPS multi-projets vers paulmondou-infra."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement"
+        ],
+        "item": [
+          "item_015_extraire_le_repo_infra_paulmondou_infra"
+        ],
+        "prod": [
+          "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra"
+        ],
+        "req": [
+          "req_003_deploiement_vps_ovh",
+          "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra"
+        ]
+      },
+      "path": "logics/request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md",
+      "ref": "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Extraire l'infrastructure VPS multi-projets vers paulmondou-infra"
+    },
+    {
+      "ai_context": {
+        "keywords": "deploiement, vps, ovh, docker, caddy, https, backup sqlite",
+        "skip when": "The change concerns application features (auth, SM-2, lecteur).",
+        "summary": "Mise en production de Kapsule sur VPS OVH avec Docker Compose, Caddy HTTPS, sauvegardes SQLite et script de deploiement.",
+        "use when": "Implementing or reviewing the v0.2 deployment work."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement"
+        ],
+        "item": [
+          "item_008_deploiement_vps_ovh"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_001_authentification_multi_appareils",
+          "req_003_deploiement_vps_ovh"
+        ]
+      },
+      "path": "logics/request/req_003_deploiement_vps_ovh.md",
+      "ref": "req_003_deploiement_vps_ovh",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Deploiement VPS OVH"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, extraire le repo infra paulmondou-infra, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Extraire le repo infra paulmondou-infra",
+        "use when": "Implementing the scaffolded slice for Extraire le repo infra paulmondou-infra."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_015_extraire_le_repo_infra_paulmondou_infra"
+        ],
+        "prod": [
+          "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra"
+        ],
+        "req": [
+          "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra"
+        ],
+        "task": [
+          "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+        ]
+      },
+      "path": "logics/backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md",
+      "ref": "item_015_extraire_le_repo_infra_paulmondou_infra",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Extraire le repo infra paulmondou-infra"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_015_extraire_le_repo_infra_paulmondou_infra"
+        ],
+        "prod": [
+          "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra"
+        ],
+        "req": [
+          "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra"
+        ],
+        "task": [
+          "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+        ]
+      },
+      "path": "logics/product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md",
+      "ref": "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Brief - Infrastructure VPS multi-projets paulmondou-infra"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer l'extraction de l'infra VPS vers paulmondou-infra",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_015_extraire_le_repo_infra_paulmondou_infra"
+        ],
+        "prod": [
+          "prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra"
+        ],
+        "req": [
+          "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra"
+        ],
+        "task": [
+          "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+        ]
+      },
+      "path": "logics/tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md",
+      "ref": "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrer l'extraction de l'infra VPS vers paulmondou-infra"
+    }
+  ],
+  "estimates": {
+    "char_count": 6179,
+    "companion_doc_count": 3,
+    "doc_count": 5
+  },
+  "generated_at": "2026-07-22T08:13:31Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra",
+      "item_015_extraire_le_repo_infra_paulmondou_infra",
+      "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra,item_015_extraire_le_repo_infra_paulmondou_infra,task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra",
+  "refs": [
+    "req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra",
+    "item_015_extraire_le_repo_infra_paulmondou_infra",
+    "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "Missing logics/release/contract.json."
+    ],
+    "configured": false,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Run logics-manager release discover --write, then review and promote logics/release/contract.draft.json to logics/release/contract.json.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "not_configured",
+    "target_version": null
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md",
+      "ref": "task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra"
+    }
+  ]
+}

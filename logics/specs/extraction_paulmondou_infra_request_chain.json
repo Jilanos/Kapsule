@@ -1,0 +1,96 @@
+{
+  "title": "Extraire l'infrastructure VPS multi-projets vers paulmondou-infra",
+  "references": [
+    "deploy/",
+    "Dockerfile",
+    "README.md#Exploiter / deployer",
+    "logics/request/req_003_deploiement_vps_ovh.md",
+    "logics/architecture/adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement.md"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "infra",
+    "needs": [
+      "Separer l'infrastructure VPS globale du code applicatif Kapsule.",
+      "Creer un dossier local /home/paul/dev/paulmondou-infra qui deviendra le repo d'exploitation multi-projets.",
+      "Transférer les fichiers de deploiement globaux et sites statiques hors du repo Kapsule.",
+      "Conserver dans Kapsule uniquement ce qui est necessaire a la construction de l'image applicative.",
+      "Creer le repo GitHub associe a paulmondou-infra, puis committer et pousser les deux repos."
+    ],
+    "context": [
+      "Le VPS heberge Kapsule mais aussi le portail principal et plusieurs sites statiques.",
+      "Le dossier deploy/ actuel contient le compose global, Caddy, les scripts d'exploitation, les sites statiques et les exemples d'environnement.",
+      "Le Dockerfile racine de Kapsule reste applicatif et doit continuer a construire l'image de production Kapsule.",
+      "La CI Kapsule doit continuer a valider format, tests, build, budget, audit, gitleaks et build/scan Docker.",
+      "Le transfert doit eviter les secrets et laisser des READMEs coherents dans les deux repos."
+    ],
+    "acceptance_criteria": [
+      "AC1: /home/paul/dev/paulmondou-infra existe, est initialise en repo Git et contient les fichiers d'infrastructure globaux necessaires au VPS multi-projets.",
+      "AC2: Le repo Kapsule ne contient plus les assets d'exploitation globaux dans deploy/ ; il garde le Dockerfile applicatif et une documentation courte pointant vers paulmondou-infra.",
+      "AC3: Les references documentaires de Kapsule vers l'ancien deploy/ sont mises a jour pour expliciter la separation app / infrastructure.",
+      "AC4: Les validations Kapsule pertinentes passent localement apres extraction : format, tests, build, budget, audit production et Logics lint.",
+      "AC5: Le nouveau repo infra contient une documentation d'exploitation minimale et une hygiene Git correcte (.gitignore, absence de secrets evidents, fichiers executables conserves).",
+      "AC6: Les deux repos ont un commit dedie et sont pousses vers leurs remotes GitHub respectives."
+    ]
+  },
+  "product": {
+    "title": "Brief - Infrastructure VPS multi-projets paulmondou-infra",
+    "overview": "Isoler l'orchestration VPS commune dans un repo infra reutilisable par plusieurs projets.",
+    "goals": [
+      "Clarifier la frontiere entre l'application Kapsule et l'infrastructure de production.",
+      "Permettre au VPS d'heberger plusieurs projets sans faire de Kapsule le repo d'autorite de l'infra.",
+      "Rendre les deploiements et sauvegardes comprehensibles depuis un repo dedie."
+    ],
+    "non_goals": [
+      "Mettre en place un deploiement automatique depuis GitHub Actions.",
+      "Changer l'architecture runtime Docker/Caddy existante.",
+      "Migrer la base de donnees ou le stockage de Kapsule."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Extraire le repo infra paulmondou-infra",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "infra",
+      "request_acs": ["AC1", "AC2", "AC3", "AC4", "AC5", "AC6"],
+      "problem": [
+        "Le repo Kapsule porte aujourd'hui des fichiers qui concernent le VPS global et plusieurs sites, ce qui brouille la responsabilite du repo applicatif."
+      ],
+      "scope_in": [
+        "Creer /home/paul/dev/paulmondou-infra.",
+        "Deplacer deploy/Caddyfile, docker-compose.yml, scripts, .env.example et sites statiques vers le nouveau repo.",
+        "Adapter la documentation Kapsule pour renvoyer vers le repo infra.",
+        "Ajouter une documentation et une hygiene Git minimale au repo infra.",
+        "Valider localement, committer et pousser les deux repos."
+      ],
+      "scope_out": [
+        "Automatiser le deploiement CI/CD.",
+        "Modifier les DNS, les secrets VPS ou l'etat distant du serveur.",
+        "Changer les domaines publics ou le routage Caddy fonctionnel hors besoin de chemin."
+      ],
+      "acceptance_criteria": [
+        "AC1: Les fichiers infra globaux sont presents dans paulmondou-infra avec leur arborescence cible et les scripts restent executables.",
+        "AC2: Kapsule garde un README ou une note d'exploitation courte qui indique que l'orchestration VPS vit dans paulmondou-infra.",
+        "AC3: Les commandes de validation Kapsule passent et le nouveau repo ne contient pas de secret evident.",
+        "AC4: Un commit existe dans Kapsule pour l'extraction documentaire/fichiers, un commit existe dans paulmondou-infra pour l'import initial, et les deux remotes sont poussees."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrer l'extraction de l'infra VPS vers paulmondou-infra",
+    "plan": [
+      "Creer la chaine Logics et demarrer la task d'extraction.",
+      "Inventorier deploy/ et separer ce qui appartient a l'infra globale de ce qui reste applicatif.",
+      "Creer /home/paul/dev/paulmondou-infra, initialiser Git et transferer les fichiers globaux.",
+      "Mettre a jour les READMEs et references Kapsule pour pointer vers le repo infra.",
+      "Executer les validations locales Kapsule et les controles basiques infra.",
+      "Creer le repo GitHub paulmondou-infra, puis committer et pousser Kapsule et paulmondou-infra."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/extraction_paulmondou_infra.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}
