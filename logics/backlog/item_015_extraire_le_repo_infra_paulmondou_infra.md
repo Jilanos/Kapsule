@@ -1,10 +1,10 @@
 ## item_015_extraire_le_repo_infra_paulmondou_infra - Extraire le repo infra paulmondou-infra
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 55%
+> Progress: 100%
 > Complexity: Medium
 > Theme: infra
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,3 +57,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra`
+
+# Notes
+- Task `task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra` was finished via `logics-manager flow finish task` on 2026-07-22.

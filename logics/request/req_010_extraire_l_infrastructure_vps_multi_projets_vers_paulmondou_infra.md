@@ -1,7 +1,7 @@
 ## req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra - Extraire l'infrastructure VPS multi-projets vers paulmondou-infra
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

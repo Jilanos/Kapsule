@@ -13,7 +13,7 @@
 | Doc | Title | Status | Owner | Progress | Path |
 |---|---|---|---|---|---|
 | [prod_001_kapsule_product_brief](product/prod_001_kapsule_product_brief.md) | Kapsule product brief | Settled |  |  | product/prod_001_kapsule_product_brief.md |
-| [prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra](product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md) | Brief - Infrastructure VPS multi-projets paulmondou-infra | Proposed |  |  | product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md |
+| [prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra](product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md) | Brief - Infrastructure VPS multi-projets paulmondou-infra | Settled |  |  | product/prod_002_brief_infrastructure_vps_multi_projets_paulmondou_infra.md |
 
 ## Roadmaps
 
@@ -33,7 +33,7 @@ _None_
 | [req_007_courbe_de_retention_memorielle_sur_les_decks](request/req_007_courbe_de_retention_memorielle_sur_les_decks.md) | Courbe de retention memorielle sur les decks | Done |  |  | request/req_007_courbe_de_retention_memorielle_sur_les_decks.md |
 | [req_008_ameliorer_l_exploration_et_l_affichage_des_decks](request/req_008_ameliorer_l_exploration_et_l_affichage_des_decks.md) | Ameliorer l'exploration et l'affichage des decks | Done |  |  | request/req_008_ameliorer_l_exploration_et_l_affichage_des_decks.md |
 | [req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader](request/req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md) | Corriger la fuite d'etat des quiz dans DeckReader | Done |  |  | request/req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md |
-| [req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra](request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md) | Extraire l'infrastructure VPS multi-projets vers paulmondou-infra | Draft |  |  | request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md |
+| [req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra](request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md) | Extraire l'infrastructure VPS multi-projets vers paulmondou-infra | Done |  |  | request/req_010_extraire_l_infrastructure_vps_multi_projets_vers_paulmondou_infra.md |
 
 ## Backlog
 
@@ -53,7 +53,7 @@ _None_
 | [item_012_courbe_de_retention_memorielle_sur_les_decks](backlog/item_012_courbe_de_retention_memorielle_sur_les_decks.md) | Courbe de retention memorielle sur les decks | Done |  | 100% | backlog/item_012_courbe_de_retention_memorielle_sur_les_decks.md |
 | [item_013_ameliorer_l_exploration_et_l_affichage_des_decks](backlog/item_013_ameliorer_l_exploration_et_l_affichage_des_decks.md) | Ameliorer l'exploration et l'affichage des decks | Done |  | 100% | backlog/item_013_ameliorer_l_exploration_et_l_affichage_des_decks.md |
 | [item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader](backlog/item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md) | Corriger la fuite d'etat des quiz dans DeckReader | Done |  | 100% | backlog/item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md |
-| [item_015_extraire_le_repo_infra_paulmondou_infra](backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md) | Extraire le repo infra paulmondou-infra | Ready |  | 0% | backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md |
+| [item_015_extraire_le_repo_infra_paulmondou_infra](backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md) | Extraire le repo infra paulmondou-infra | Done |  | 100% | backlog/item_015_extraire_le_repo_infra_paulmondou_infra.md |
 
 ## Tasks
 
@@ -69,4 +69,4 @@ _None_
 | [task_008_courbe_de_retention_memorielle_sur_les_decks](tasks/task_008_courbe_de_retention_memorielle_sur_les_decks.md) | Courbe de retention memorielle sur les decks | Done | claude | 100% | tasks/task_008_courbe_de_retention_memorielle_sur_les_decks.md |
 | [Livraison](tasks/task_009_ameliorer_l_exploration_et_l_affichage_des_decks.md) | 2026-07-20 | Done | codex | 100% | tasks/task_009_ameliorer_l_exploration_et_l_affichage_des_decks.md |
 | [task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader](tasks/task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md) | Corriger la fuite d'etat des quiz dans DeckReader | Done | codex | 100% | tasks/task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader.md |
-| [task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra](tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md) | Orchestrer l'extraction de l'infra VPS vers paulmondou-infra | Ready |  | 0% | tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md |
+| [task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra](tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md) | Orchestrer l'extraction de l'infra VPS vers paulmondou-infra | Done | codex | 100% | tasks/task_011_orchestrer_l_extraction_de_l_infra_vps_vers_paulmondou_infra.md |
