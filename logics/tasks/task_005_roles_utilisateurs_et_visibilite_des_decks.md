@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Non-semantic edit: ajout de la traceabilite AC manquante pour l'audit.
 
 # Definition of Done (DoD)
 - [x] The backlog scope is implemented.
@@ -64,3 +65,12 @@
 - Request: `req_004_roles_utilisateurs_et_visibilite_des_decks`
 - Product brief(s): `prod_001_kapsule_product_brief`
 - Architecture decision(s): `adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement`
+
+# AC Traceability
+- AC1 -> This task. Proof: migration 4 ajoute `users.role`, `decks.owner_id` et `decks.visibility`; nouvel inscrit `guest` par defaut; tests backend verts.
+- AC2 -> This task. Proof: listing/lecture filtres par `canViewDeck` et par requetes SQL viewer-aware; tests backend guest/master/admin verts.
+- AC3 -> This task. Proof: creation gardee par `canCreateWithVisibility`; tests 403/201 selon role et visibilite verts.
+- AC4 -> This task. Proof: suppression et changement de visibilite reserves a l'admin; tests negatifs 403 verts.
+- AC5 -> This task. Proof: migration production du 2026-07-18, six decks existants rattaches en `general` avec proprietaire admin; smoke live sans perte constatee.
+- AC6 -> This task. Proof: frontend avec role auth, selecteur de visibilite selon droits, badges et barre admin conditionnelle; build frontend vert.
+- AC7 -> This task. Proof: verification production du 2026-07-18, paul.mondou12@gmail.com admin et a.agostini.fr@gmail.com master.

@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: auth
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Non-semantic edit: ajout de la traceabilite AC vers task_005.
 
 # Needs
 - Distinguer trois statuts de compte : invite (defaut a l'inscription), maitre et administrateur.
@@ -34,6 +35,15 @@
 - AC5: Les decks existants en production restent visibles par tous apres migration (visibilite 'general', proprietaire administrateur) ; aucune progression ni revision n'est perdue.
 - AC6: Le frontend reflete les droits : choix de visibilite a la creation selon le role, badge de visibilite sur les decks, actions supprimer/changer la visibilite visibles uniquement pour l'administrateur.
 - AC7: En production, paul.mondou12@gmail.com est administrateur et a.agostini.fr@gmail.com est maitre.
+
+# AC Traceability
+- AC1 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: migration 4 ajoute `users.role`, `decks.owner_id` et `decks.visibility`; inscription par defaut en `guest`, couverte par tests backend.
+- AC2 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: `store.listDecks(viewer)` et les routes de lecture filtrent par role/proprietaire; tests backend de visibilite guest/master/admin.
+- AC3 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: enforcement API de creation selon role et visibilite demandee; tests 403/201 sur la matrice de creation.
+- AC4 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: suppression et `PATCH /api/decks/:id/visibility` reserves a l'administrateur; tests negatifs 403.
+- AC5 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: production migree le 2026-07-18, decks existants rattaches en `general` avec proprietaire admin, sans perte de progression/revision.
+- AC6 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: frontend expose le role, filtre le choix de visibilite a l'import, affiche les badges et reserve les actions admin.
+- AC7 -> `task_005_roles_utilisateurs_et_visibilite_des_decks`. Proof: verification production du 2026-07-18, paul.mondou12@gmail.com admin et a.agostini.fr@gmail.com master.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

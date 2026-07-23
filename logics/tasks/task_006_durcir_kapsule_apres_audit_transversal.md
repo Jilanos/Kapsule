@@ -1,7 +1,7 @@
 ## task_006_durcir_kapsule_apres_audit_transversal - Durcir Kapsule apres audit transversal
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95
 > Confidence: 90
 > Progress: 95%
@@ -9,6 +9,7 @@
 > Theme: Security, reliability and repository hardening
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Non-semantic edit: lien vers adr_003 (decision assets/cache/sessions).
+> Owner: Codex
 
 # Context
 - Source fonctionnelle et preuves initiales : `docs/audit-2026-07-18.md`.
@@ -154,6 +155,26 @@
   `docker compose config`/build/scan d'image/smoke HTTPS ; rotation/purge de
   cle ; protection de branche ; sauvegarde hors site + restauration ; run axe
   automatise + checklist clavier.
+
+## Preuves de validation executees - 2026-07-22
+- `npm test` : PASSED — 10 tests schema, 57 tests backend, 5 tests frontend/SSR.
+- `npm run build` : PASSED — build Vite/PWA de production OK.
+- `npm run format:check` : PASSED — style Prettier respecte.
+- `npm run budget` : PASSED — JS gzip 78,9 KB / 85 KB ; CSS gzip 4,0 KB / 15 KB.
+- `npm audit --omit=dev` et `npm audit` : PASSED — 0 vulnerabilite.
+- `logics-manager lint --require-status` : PASSED.
+- `logics-manager audit --group-by-doc` : PASSED apres ajout de la traceabilite
+  AC manquante pour `req_004`/`task_005` (changement documentaire uniquement).
+- `logics-manager flow validate task_006_durcir_kapsule_apres_audit_transversal
+  req_004_roles_utilisateurs_et_visibilite_des_decks
+  task_005_roles_utilisateurs_et_visibilite_des_decks --fixable --explain` :
+  PASSED — 0 finding.
+- Depuis `paulmondou-infra`, `KAPSULE_ASSET_SECRET=local-validation-not-a-secret
+  docker compose config` : PASSED ; `docker compose build app` : PASSED
+  (`paulmondou-infra-app:latest` construit).
+- Non executables localement ce jour : `trivy`, `gitleaks` et axe ne sont pas
+  installes ; smoke HTTPS, rotation/purge de cle, protection `main`, sauvegarde
+  hors site + restauration et metadata GitHub restent des preuves operateur.
 
 # Report
 - Etat initial : implementation non demarree ; task prete a etre prise en charge.
