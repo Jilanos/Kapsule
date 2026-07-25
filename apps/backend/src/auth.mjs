@@ -2,7 +2,7 @@
 // Hachage scrypt (natif Node, zero dependance), tokens de session opaques
 // stockes en base (pas de JWT : revocation simple, aucun secret a gerer).
 
-import { randomBytes, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 
 const scryptAsync = promisify(scrypt);
@@ -16,6 +16,7 @@ export const MAX_PASSWORD_LENGTH = 256;
 // ecriture SQLite (ADR 003, AC10).
 const SESSION_REFRESH_MS = 24 * 3600_000;
 const DEFAULT_USER = "default";
+export const hashSessionToken = (token) => createHash("sha256").update(token).digest("hex");
 
 /**
  * Hache un mot de passe : renvoie "scrypt:<sel hex>:<hash hex>".
@@ -156,7 +157,14 @@ export class AuthStore {
         `INSERT INTO sessions (token, user_id, created_at, last_used_at, expires_at, user_agent)
          VALUES (?, ?, ?, ?, ?, ?)`,
       )
-      .run(token, userId, now.toISOString(), now.toISOString(), expires.toISOString(), userAgent);
+      .run(
+        hashSessionToken(token),
+        userId,
+        now.toISOString(),
+        now.toISOString(),
+        expires.toISOString(),
+        userAgent,
+      );
     return token;
   }
 
@@ -170,7 +178,7 @@ export class AuthStore {
     if (!token) return null;
     const s = this.db
       .prepare(`SELECT token, user_id, expires_at, last_used_at FROM sessions WHERE token = ?`)
-      .get(token);
+      .get(hashSessionToken(token));
     if (!s) return null;
     const now = new Date();
     if (new Date(s.expires_at) <= now) {
@@ -181,13 +189,16 @@ export class AuthStore {
       const expires = new Date(now.getTime() + SESSION_DAYS * 86400_000);
       this.db
         .prepare(`UPDATE sessions SET last_used_at = ?, expires_at = ? WHERE token = ?`)
-        .run(now.toISOString(), expires.toISOString(), token);
+        .run(now.toISOString(), expires.toISOString(), s.token);
     }
     return this.getUserById(s.user_id);
   }
 
   deleteSession(token) {
-    return this.db.prepare(`DELETE FROM sessions WHERE token = ?`).run(token).changes > 0;
+    return (
+      this.db.prepare(`DELETE FROM sessions WHERE token = ?`).run(hashSessionToken(token)).changes >
+      0
+    );
   }
 
   /** Supprime les sessions expirees. Renvoie le nombre de lignes purgees. */

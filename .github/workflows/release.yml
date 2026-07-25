@@ -46,6 +46,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
       - uses: docker/metadata-action@v5
         id: meta
         with:
@@ -59,6 +60,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: true
+          sbom: true
 
   deploy:
     needs: publish
@@ -67,6 +70,9 @@ jobs:
     steps:
       - name: Deploy exact image and verify health
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}

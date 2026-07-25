@@ -66,6 +66,13 @@ function semanticErrors(deck) {
     }
 
     (card?.sections ?? []).forEach((section, si) => {
+      const image = section?.image;
+      if (typeof image?.src === "string" && /^(?:https?:\/\/)/i.test(image.src)) {
+        errors.push({
+          path: `${cardPath}/sections/${si}/image/src`,
+          message: "les images externes sont interdites; utiliser un asset relatif ou une data URI",
+        });
+      }
       if (section?.type !== "quiz") return;
       (section.questions ?? []).forEach((question, qi) => {
         const qPath = `${cardPath}/sections/${si}/questions/${qi}`;

@@ -4,6 +4,7 @@
 // toucher aux routes.
 
 import Database from "better-sqlite3";
+import { createHash } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -127,6 +128,15 @@ const MIGRATIONS = [
       CHECK (visibility IN ('private','general','master'));
     CREATE INDEX IF NOT EXISTS idx_decks_owner ON decks(owner_id);
   `),
+
+  // 5 : les sessions ne conservent plus le bearer brut, uniquement son digest.
+  (db) => {
+    const rows = db.prepare(`SELECT token FROM sessions`).all();
+    const update = db.prepare(`UPDATE sessions SET token = ? WHERE token = ?`);
+    for (const row of rows) {
+      update.run(createHash("sha256").update(row.token).digest("hex"), row.token);
+    }
+  },
 ];
 
 /** Applique les migrations manquantes selon PRAGMA user_version. */

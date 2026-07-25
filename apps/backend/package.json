@@ -1,6 +1,6 @@
 {
   "name": "@kapsule/backend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "API REST Kapsule : decks, fiches, progression, import.",
   "type": "module",
   "main": "src/server.mjs",

@@ -1,6 +1,6 @@
 {
   "name": "@kapsule/schema",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Contrat de contenu Kapsule : JSON Schema deck/fiche et validateur partage.",
   "type": "module",
   "main": "src/index.mjs",

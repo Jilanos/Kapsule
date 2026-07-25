@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "../router.jsx";
 import { api } from "../api.js";
 import { CardView } from "../components/CardView.jsx";
 import { SyncBanner } from "../components/SyncBanner.jsx";

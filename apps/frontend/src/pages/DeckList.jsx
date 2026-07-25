@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "../router.jsx";
 import { api } from "../api.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { ImportDeck } from "../components/ImportDeck.jsx";

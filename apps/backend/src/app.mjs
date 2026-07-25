@@ -41,15 +41,16 @@ export function createApp(db, options = {}) {
   const store = new Store(db);
   const auth = new AuthStore(db);
   const app = express();
-  // Derriere Caddy : fait confiance a X-Forwarded-For pour identifier le client
-  // (rate limit par IP reelle).
-  app.set("trust proxy", true);
-  app.use(cors());
+  // Caddy est l'unique proxy attendu; ne faire confiance qu'a son saut direct.
+  app.set("trust proxy", Number(process.env.KAPSULE_TRUST_PROXY_HOPS ?? 1));
+  const allowedOrigin = process.env.KAPSULE_CORS_ORIGIN;
+  app.use(cors(allowedOrigin ? { origin: allowedOrigin } : { origin: false }));
   app.use(express.json({ limit: "5mb" }));
 
   // Limiteur de debit des routes d'authentification (AC4) : protege login et
   // register du brute force et du DoS CPU (hachage scrypt).
   const authLimiter = createRateLimiter(options.rateLimit ?? { windowMs: 15 * 60_000, max: 10 });
+  const importLimiter = createRateLimiter({ windowMs: 60 * 60_000, max: 20 });
   const rateLimit = (limiter) => (req, res, next) => {
     const key = req.ip || req.socket?.remoteAddress || "unknown";
     if (!limiter.check(key)) {
@@ -58,7 +59,23 @@ export function createApp(db, options = {}) {
     next();
   };
 
-  app.get("/api/health", (_req, res) => res.json({ ok: true }));
+  const quota = {
+    maxDecks: Number(process.env.KAPSULE_MAX_DECKS_PER_USER ?? 50),
+    maxBytes: Number(process.env.KAPSULE_MAX_STORAGE_BYTES_PER_USER ?? 50 * 1024 * 1024),
+  };
+
+  app.get("/api/health", (_req, res) => {
+    try {
+      db.prepare("SELECT 1").get();
+      res.json({
+        ok: true,
+        ready: true,
+        schemaVersion: db.pragma("user_version", { simple: true }),
+      });
+    } catch {
+      res.status(503).json({ ok: false, ready: false });
+    }
+  });
 
   // Middleware : exige une session valide (Authorization: Bearer <token>).
   // Attache l'utilisateur a req.user. 401 si absent/expire -> le front renvoie
@@ -182,6 +199,9 @@ export function createApp(db, options = {}) {
   //   le role ; le proprietaire devient l'utilisateur courant.
   // Mise a jour : reservee a qui peut editer le deck ; owner/visibilite preserves.
   app.post("/api/decks", requireAuth, (req, res) => {
+    if (!importLimiter.check(req.user.id)) {
+      return res.status(429).json({ error: "trop d'importations, reessayez plus tard" });
+    }
     const deckId = req.body?.id;
     const existing = deckId ? store.getDeckAccess(deckId) : null;
 
@@ -210,7 +230,7 @@ export function createApp(db, options = {}) {
         .status(403)
         .json({ error: `creation d'un deck "${visibility}" non autorisee pour votre role` });
     }
-    const result = store.importDeck(req.body, { ownerId: req.user.id, visibility });
+    const result = store.importDeck(req.body, { ownerId: req.user.id, visibility, quota });
     if (!result.valid) {
       return res.status(422).json({
         error: "deck invalide",

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "./router.jsx";
 import { DeckList } from "./pages/DeckList.jsx";
 import { DeckReader } from "./pages/DeckReader.jsx";
 import { ReviewSession } from "./pages/ReviewSession.jsx";
@@ -53,11 +53,9 @@ export function App() {
         tabIndex={-1}
         ref={mainRef}
       >
-        <Routes>
-          <Route path="/" element={<DeckList />} />
-          <Route path="/reviews" element={<ReviewSession />} />
-          <Route path="/decks/:deckId" element={<DeckReader />} />
-        </Routes>
+        {pathname === "/" && <DeckList />}
+        {pathname === "/reviews" && <ReviewSession />}
+        {pathname.startsWith("/decks/") && <DeckReader />}
       </main>
     </div>
   );

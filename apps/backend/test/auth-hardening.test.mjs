@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { openDb } from "../src/db.mjs";
 import { createApp } from "../src/app.mjs";
-import { AuthStore, MAX_PASSWORD_LENGTH } from "../src/auth.mjs";
+import { AuthStore, MAX_PASSWORD_LENGTH, hashSessionToken } from "../src/auth.mjs";
 
 async function startApp(options) {
   const db = openDb(":memory:");
@@ -86,7 +86,8 @@ test("AC10 : les ecritures de session sont throttlees (pas d'ecriture a chaque a
   const auth = new AuthStore(db);
   const token = auth.createSession("u1", "test");
   const readUsed = () =>
-    db.prepare(`SELECT last_used_at FROM sessions WHERE token = ?`).get(token).last_used_at;
+    db.prepare(`SELECT last_used_at FROM sessions WHERE token = ?`).get(hashSessionToken(token))
+      .last_used_at;
 
   const initial = readUsed();
   // Acces immediat : sous le seuil de rafraichissement -> aucune ecriture.
@@ -95,7 +96,10 @@ test("AC10 : les ecritures de session sont throttlees (pas d'ecriture a chaque a
 
   // Simule une derniere activite ancienne (2 jours) -> l'acces rafraichit.
   const old = new Date(Date.now() - 2 * 24 * 3600_000).toISOString();
-  db.prepare(`UPDATE sessions SET last_used_at = ? WHERE token = ?`).run(old, token);
+  db.prepare(`UPDATE sessions SET last_used_at = ? WHERE token = ?`).run(
+    old,
+    hashSessionToken(token),
+  );
   assert.ok(auth.getSessionUser(token));
   assert.notEqual(readUsed(), old, "last_used_at doit etre rafraichi au-dela du seuil");
 });
@@ -115,7 +119,7 @@ test("AC4 : les sessions expirees sont purgees", () => {
   // Rend une session expiree.
   db.prepare(`UPDATE sessions SET expires_at = ? WHERE token = ?`).run(
     "2000-01-01T00:00:00.000Z",
-    expired,
+    hashSessionToken(expired),
   );
 
   assert.equal(auth.purgeExpiredSessions(), 1);

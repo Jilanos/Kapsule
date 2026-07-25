@@ -87,12 +87,49 @@ export class Store {
    * A la creation, `owner_id` et `visibility` proviennent des options ; a la
    * mise a jour, ils sont preserves (l'upsert ne touche pas ces colonnes).
    * @param {unknown} deck
-   * @param {{ ownerId?: string|null, visibility?: string }} [opts]
+   * @param {{ ownerId?: string|null, visibility?: string, quota?: { maxDecks:number, maxBytes:number } }} [opts]
    * @returns {{ valid: boolean, errors?: {path:string,message:string}[], deck?: any }}
    */
   importDeck(deck, opts = {}) {
     const { valid, errors } = validateDeck(deck);
     if (!valid) return { valid: false, errors };
+
+    const serialized = JSON.stringify(deck);
+    if (opts.ownerId && opts.quota) {
+      const existing = this.db
+        .prepare(`SELECT owner_id AS ownerId, length(data) AS bytes FROM decks WHERE id = ?`)
+        .get(deck.id);
+      const ownedDecks = this.db
+        .prepare(`SELECT COUNT(*) AS n FROM decks WHERE owner_id = ?`)
+        .get(opts.ownerId).n;
+      const ownedBytes = this.db
+        .prepare(`SELECT COALESCE(SUM(length(data)), 0) AS n FROM decks WHERE owner_id = ?`)
+        .get(opts.ownerId).n;
+      const nextDecks = ownedDecks + (!existing || existing.ownerId !== opts.ownerId ? 1 : 0);
+      const nextBytes =
+        ownedBytes -
+        (existing?.ownerId === opts.ownerId ? existing.bytes : 0) +
+        Buffer.byteLength(serialized);
+      if (nextDecks > opts.quota.maxDecks) {
+        return {
+          valid: false,
+          errors: [
+            { path: "(quota)", message: `quota de decks depasse (${opts.quota.maxDecks} maximum)` },
+          ],
+        };
+      }
+      if (nextBytes > opts.quota.maxBytes) {
+        return {
+          valid: false,
+          errors: [
+            {
+              path: "(quota)",
+              message: `quota de stockage depasse (${opts.quota.maxBytes} octets maximum)`,
+            },
+          ],
+        };
+      }
+    }
 
     const now = new Date().toISOString();
     const existing = this.db.prepare(`SELECT created_at FROM decks WHERE id = ?`).get(deck.id);
@@ -113,7 +150,7 @@ export class Store {
           description: deck.description ?? null,
           tags: JSON.stringify(deck.tags ?? []),
           schemaVersion: deck.schemaVersion,
-          data: JSON.stringify(deck),
+          data: serialized,
           ownerId: opts.ownerId ?? null,
           visibility: opts.visibility ?? "general",
           createdAt,

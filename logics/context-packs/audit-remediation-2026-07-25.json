@@ -1,0 +1,278 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25 item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification item_017_borner_imports_stockage_et_contrat_assets_csp item_018_renforcer_sessions_couverture_navigateur_et_operations task_012_orchestrer_la_remediation_de_l_audit_kapsule --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+          "item_017_borner_imports_stockage_et_contrat_assets_csp",
+          "item_018_renforcer_sessions_couverture_navigateur_et_operations"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ],
+        "task": [
+          "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+        ]
+      },
+      "path": "logics/product/prod_003_securisation_et_fiabilisation_de_kapsule.md",
+      "ref": "prod_003_securisation_et_fiabilisation_de_kapsule",
+      "status": "Proposed",
+      "title": "Securisation et fiabilisation de Kapsule"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, remedier aux constats de l'audit technique 2026-07-25, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Remedier aux constats de l'audit technique 2026-07-25",
+        "use when": "You need to implement or review the scaffolded workflow for Remedier aux constats de l'audit technique 2026-07-25."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+          "item_017_borner_imports_stockage_et_contrat_assets_csp",
+          "item_018_renforcer_sessions_couverture_navigateur_et_operations"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ]
+      },
+      "path": "logics/request/req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25.md",
+      "ref": "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Remedier aux constats de l'audit technique 2026-07-25"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, resoudre le gate dependances et les controles proxy d'authentification, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Resoudre le gate dependances et les controles proxy d'authentification",
+        "use when": "Implementing the scaffolded slice for Resoudre le gate dependances et les controles proxy d'authentification."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ],
+        "task": [
+          "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification.md",
+      "ref": "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Resoudre le gate dependances et les controles proxy d'authentification"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, borner imports, stockage et contrat assets-csp, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Borner imports, stockage et contrat assets-CSP",
+        "use when": "Implementing the scaffolded slice for Borner imports, stockage et contrat assets-CSP."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_017_borner_imports_stockage_et_contrat_assets_csp"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ],
+        "task": [
+          "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_017_borner_imports_stockage_et_contrat_assets_csp.md",
+      "ref": "item_017_borner_imports_stockage_et_contrat_assets_csp",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Borner imports, stockage et contrat assets-CSP"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, renforcer sessions, couverture navigateur et operations, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Renforcer sessions, couverture navigateur et operations",
+        "use when": "Implementing the scaffolded slice for Renforcer sessions, couverture navigateur et operations."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_018_renforcer_sessions_couverture_navigateur_et_operations"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ],
+        "task": [
+          "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_018_renforcer_sessions_couverture_navigateur_et_operations.md",
+      "ref": "item_018_renforcer_sessions_couverture_navigateur_et_operations",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Renforcer sessions, couverture navigateur et operations"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer la remediation de l'audit Kapsule",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+          "item_017_borner_imports_stockage_et_contrat_assets_csp",
+          "item_018_renforcer_sessions_couverture_navigateur_et_operations"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ],
+        "task": [
+          "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+        ]
+      },
+      "path": "logics/tasks/task_012_orchestrer_la_remediation_de_l_audit_kapsule.md",
+      "ref": "task_012_orchestrer_la_remediation_de_l_audit_kapsule",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrer la remediation de l'audit Kapsule"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+          "item_017_borner_imports_stockage_et_contrat_assets_csp",
+          "item_018_renforcer_sessions_couverture_navigateur_et_operations"
+        ],
+        "prod": [
+          "prod_003_securisation_et_fiabilisation_de_kapsule"
+        ],
+        "req": [
+          "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25"
+        ],
+        "task": [
+          "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+        ]
+      },
+      "path": "logics/product/prod_003_securisation_et_fiabilisation_de_kapsule.md",
+      "ref": "prod_003_securisation_et_fiabilisation_de_kapsule",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Securisation et fiabilisation de Kapsule"
+    }
+  ],
+  "estimates": {
+    "char_count": 6369,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-07-25T14:10:54Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25",
+      "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+      "item_017_borner_imports_stockage_et_contrat_assets_csp",
+      "item_018_renforcer_sessions_couverture_navigateur_et_operations",
+      "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25,item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification,item_017_borner_imports_stockage_et_contrat_assets_csp,item_018_renforcer_sessions_couverture_navigateur_et_operations,task_012_orchestrer_la_remediation_de_l_audit_kapsule",
+  "refs": [
+    "req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25",
+    "item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification",
+    "item_017_borner_imports_stockage_et_contrat_assets_csp",
+    "item_018_renforcer_sessions_couverture_navigateur_et_operations",
+    "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "Missing logics/release/contract.json."
+    ],
+    "configured": false,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Run logics-manager release discover --write, then review and promote logics/release/contract.draft.json to logics/release/contract.json.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "not_configured",
+    "target_version": null
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_012_orchestrer_la_remediation_de_l_audit_kapsule.md",
+      "ref": "task_012_orchestrer_la_remediation_de_l_audit_kapsule"
+    }
+  ]
+}
