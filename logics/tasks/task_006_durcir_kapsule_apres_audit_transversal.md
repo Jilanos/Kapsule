@@ -1,7 +1,7 @@
 ## task_006_durcir_kapsule_apres_audit_transversal - Durcir Kapsule apres audit transversal
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Obsolete
 > Understanding: 95
 > Confidence: 90
 > Progress: 95%
@@ -352,3 +352,4 @@ non encore livrees. Checklist de closeout a completer par l'operateur, puis
 - Request: `req_005_durcir_kapsule_apres_audit_transversal`
 - Product brief(s): (none yet)
 - Architecture decision(s): `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
+- Superseded by: `task_012_orchestrer_la_remediation_de_l_audit_kapsule`
