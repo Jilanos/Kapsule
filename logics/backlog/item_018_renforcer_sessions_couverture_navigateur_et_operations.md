@@ -1,10 +1,10 @@
 ## item_018_renforcer_sessions_couverture_navigateur_et_operations - Renforcer sessions, couverture navigateur et operations
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 80%
+> Status: Done
+> Understanding: 90
+> Confidence: 90
+> Progress: 100%
 > Complexity: Medium
 > Theme: operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -47,3 +47,6 @@
 # Priority
 - Priority: medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_012_orchestrer_la_remediation_de_l_audit_kapsule` was finished via `logics-manager flow finish task` on 2026-07-25.

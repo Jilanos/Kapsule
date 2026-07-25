@@ -2,8 +2,8 @@
 > From version: 0.1.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95
+> Confidence: 95
 > Progress: 100%
 > Complexity: High
 > Theme: security
@@ -47,3 +47,6 @@
 # Priority
 - Priority: high
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_012_orchestrer_la_remediation_de_l_audit_kapsule` was finished via `logics-manager flow finish task` on 2026-07-25.
