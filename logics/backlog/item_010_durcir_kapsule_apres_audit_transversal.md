@@ -1,7 +1,7 @@
 ## item_010_durcir_kapsule_apres_audit_transversal - Durcir Kapsule apres audit transversal
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Obsolete
 > Understanding: 95
 > Confidence: 90
 > Progress: 95%
@@ -115,6 +115,7 @@ de secrets et d'isolation P0 sont traitees avant les travaux de qualite P1/P2.
 - Architecture decision(s): `adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions`
 - Request: `logics/request/req_005_durcir_kapsule_apres_audit_transversal.md`
 - Primary task(s): (none yet)
+- Superseded by: `item_016_resoudre_le_gate_dependances_et_les_controles_proxy_d_authentification`
 
 # AI Context
 - Summary: Livrer le durcissement securite, fiabilite, accessibilite, performance et

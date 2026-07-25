@@ -1,9 +1,9 @@
 ## req_005_durcir_kapsule_apres_audit_transversal - Durcir Kapsule apres audit transversal
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Obsolete
 > Understanding: 95
-> Confidence: 91
+> Confidence: 95
 > Complexity: High
 > Theme: hardening
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -146,3 +146,6 @@
 # Backlog
 - none
 - `item_010_durcir_kapsule_apres_audit_transversal`
+
+# Links
+- Superseded by: `req_011_remedier_aux_constats_de_l_audit_technique_2026_07_25`
