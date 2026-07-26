@@ -69,7 +69,7 @@ jobs:
     environment: production
     steps:
       - name: Deploy exact image and verify health
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.5
         env:
           GHCR_USERNAME: ${{ github.actor }}
           GHCR_TOKEN: ${{ github.token }}
