@@ -25,6 +25,9 @@ apps/backend/uploads/
 *.log
 npm-debug.log*
 
+# Preuves de release locales (horodatees et propres a l'execution)
+logics/release/evidence.jsonl
+
 # OS
 .DS_Store
 
