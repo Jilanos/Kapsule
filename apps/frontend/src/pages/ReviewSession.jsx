@@ -107,8 +107,9 @@ export function ReviewSession() {
         backLabel="← Accueil"
         nextLabel="Valider la révision & suivante →"
         lastLabel="Valider la dernière révision"
-        onSeen={() => {}}
         onBack={() => navigate("/")}
+        onPrevious={() => setIndex((currentIndex) => currentIndex - 1)}
+        onNext={() => setIndex((currentIndex) => currentIndex + 1)}
         onLearnAndNext={(quizScore) => {
           // Enregistre la revision (reprogrammation SM-2) puis passe a la suivante.
           persistReview(current.deckId, current.cardId, quizScore);

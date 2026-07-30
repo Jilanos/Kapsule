@@ -123,8 +123,9 @@ export function DeckReader() {
           index={activeIndex}
           total={cards.length}
           isLast={isLast}
-          onSeen={() => setCardState(card.id, "seen")}
           onBack={() => setActiveIndex(null)}
+          onPrevious={() => setActiveIndex((index) => index - 1)}
+          onNext={() => setActiveIndex((index) => index + 1)}
           onLearnAndNext={(quizScore) => {
             setCardState(card.id, "learned", quizScore);
             if (isLast) setActiveIndex(null);

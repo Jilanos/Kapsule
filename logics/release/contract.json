@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "id": "kapsule",
+    "display_name": "Kapsule",
+    "release_profile": "github-tag-deployment"
+  },
+  "version_sources": [
+    { "path": "package.json", "format": "json", "selector": "version", "required": true }
+  ],
+  "changelog": { "required": false, "version_heading_required": false, "paths": [] },
+  "operator_intents": [
+    {
+      "utterance": "prepare release",
+      "boundary": "Prepare metadata and validation evidence only. Do not tag, push, publish, upload assets, or create a GitHub release unless explicitly requested.",
+      "publication_action": false
+    },
+    {
+      "utterance": "commit and push, fix if CI is not green",
+      "boundary": "Push first, then inspect the real remote CI run for the exact pushed commit before making fixes.",
+      "publication_action": false
+    },
+    {
+      "utterance": "publish release",
+      "boundary": "Publish only after required local and remote gates are green, then verify downstream publication or deployment evidence.",
+      "publication_action": true
+    }
+  ],
+  "state_machine": ["planning", "preparing", "local_validation", "commit_ready", "pushed", "ci_verification", "github_release", "external_publication", "ready", "blocked"],
+  "gates": [
+    { "id": "version_metadata", "state": "preparing", "required": true, "evidence_kinds": ["file"] },
+    { "id": "local_validation", "state": "local_validation", "required": true, "evidence_kinds": ["command"] },
+    { "id": "git_push", "state": "pushed", "required": true, "evidence_kinds": ["git"] },
+    { "id": "ci", "state": "ci_verification", "required": true, "evidence_kinds": ["ci"] },
+    { "id": "github_release", "state": "github_release", "required": true, "evidence_kinds": ["github_release"] }
+  ],
+  "evidence": {
+    "store": { "path": "logics/release/evidence.jsonl", "format": "jsonl", "required": true },
+    "freshness": { "match_target_version": true, "match_commit_for_source_gates": true, "match_tag_for_publication_gates": true },
+    "required_fields": ["kind", "status", "observed_at", "target_version", "commit", "summary"]
+  },
+  "validation_commands": [
+    { "id": "format", "command": ["npm", "run", "format:check"], "required": true, "evidence_kind": "command" },
+    { "id": "test", "command": ["npm", "run", "test"], "required": true, "evidence_kind": "command" },
+    { "id": "build", "command": ["npm", "run", "build"], "required": true, "evidence_kind": "command" },
+    { "id": "budget", "command": ["npm", "run", "budget"], "required": true, "evidence_kind": "command" },
+    { "id": "audit", "command": ["npm", "audit", "--omit=dev"], "required": true, "evidence_kind": "command" }
+  ],
+  "git": {
+    "release_branch_policy": "main_only",
+    "allowed_branches": ["main"],
+    "tag_policy": { "required": true, "pattern": "v{version}" },
+    "require_clean_worktree": true,
+    "require_pushed_commit": true
+  },
+  "github_release": { "required": true, "mode": "workflow", "draft_allowed": false, "asset_paths": [] },
+  "assistant_readiness": { "must_inspect_status_before_claiming_ready": true, "readiness_source": "project_owned_evidence", "publication_requires_explicit_operator_approval": true }
+}

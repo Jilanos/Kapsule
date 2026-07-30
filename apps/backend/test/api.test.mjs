@@ -128,6 +128,23 @@ test("PUT progress puis relecture -> etat persiste", async () => {
   }
 });
 
+test("PUT progress learned puis seen conserve le statut et la revision", async () => {
+  const { f, close } = await startApp();
+  try {
+    const path = "/api/decks/reseaux-essentiels/cards/adresses-ip/progress";
+    await f(path, { method: "PUT", body: JSON.stringify({ state: "learned", quizScore: 2 }) });
+
+    const downgraded = await f(path, { method: "PUT", body: JSON.stringify({ state: "seen" }) });
+    assert.equal(downgraded.status, 200);
+    assert.deepEqual(await downgraded.json(), { ok: true, state: "learned", unchanged: true });
+
+    const body = await (await f("/api/decks/reseaux-essentiels")).json();
+    assert.equal(body.progress["adresses-ip"].state, "learned");
+  } finally {
+    await close();
+  }
+});
+
 test("PUT progress avec etat invalide -> 422", async () => {
   const { f, close } = await startApp();
   try {

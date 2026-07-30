@@ -510,15 +510,45 @@ button.back-link {
 
 /* --- Lecture d'une fiche ------------------------------------------------- */
 .card-view {
-  scroll-margin-top: 4rem;
+  scroll-margin-top: 8rem;
 }
 .card-progress-row {
+  position: sticky;
+  top: calc(3.25rem + env(safe-area-inset-top));
+  z-index: 9;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.5rem 0;
+  background: var(--surface);
+  border-bottom: var(--rule);
+}
+.card-navigation {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.5rem;
-  border-bottom: var(--rule);
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+.card-nav-button {
+  appearance: none;
+  border: var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  padding: 0.3rem 0.5rem;
+}
+.card-nav-button:hover:not(:disabled) {
+  background: var(--primary-veil);
+}
+.card-nav-button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 .card-counter {
   font-size: 0.72rem;
@@ -526,6 +556,15 @@ button.back-link {
   text-transform: uppercase;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .card-progress-row {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+  .card-navigation {
+    justify-content: space-between;
+  }
 }
 .card-title {
   font-family: var(--serif);

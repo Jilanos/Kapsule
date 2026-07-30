@@ -7,6 +7,10 @@ const source = readFileSync(
   join(import.meta.dirname, "..", "src", "pages", "DeckReader.jsx"),
   "utf8",
 );
+const cardViewSource = readFileSync(
+  join(import.meta.dirname, "..", "src", "components", "CardView.jsx"),
+  "utf8",
+);
 
 test("DeckReader remounts CardView when the active card changes", () => {
   const cardViewOpen = source.indexOf("<CardView");
@@ -21,4 +25,13 @@ test("DeckReader remounts CardView when the active card changes", () => {
     /\bkey=\{card\.id\}/,
     "CardView needs key={card.id} so quiz answers do not leak between cards",
   );
+});
+
+test("DeckReader navigates without marking a card as seen", () => {
+  assert.doesNotMatch(cardViewSource, /onSeen\s*\(/);
+  assert.match(cardViewSource, /onPrevious/);
+  assert.match(cardViewSource, /onNext/);
+  assert.match(cardViewSource, /disabled=\{index === 0\}/);
+  assert.match(cardViewSource, /disabled=\{index === total - 1\}/);
+  assert.match(cardViewSource, /className="card-progress-row"/);
 });

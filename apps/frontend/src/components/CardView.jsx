@@ -5,7 +5,7 @@ import { Section } from "./Section.jsx";
  * Affiche une fiche complete (toutes ses sections) avec un pied de navigation.
  * @param {{
  *   card: any, deckId: string, index: number, total: number,
- *   onSeen: () => void,
+ *   onPrevious: () => void, onNext: () => void,
  *   onLearnAndNext: (quizScore: number|null) => void,
  *   isLast: boolean, onBack: () => void
  * }} props
@@ -15,7 +15,8 @@ export function CardView({
   deckId,
   index,
   total,
-  onSeen,
+  onPrevious,
+  onNext,
   onLearnAndNext,
   isLast,
   onBack,
@@ -27,32 +28,47 @@ export function CardView({
   const topRef = useRef(null);
   const titleRef = useRef(null);
 
-  // A l'ouverture (ou changement de fiche) : marquer "vue", remonter en haut,
-  // deplacer le focus sur le titre de la fiche et mettre a jour le titre de
-  // document (AC8 : gestion du focus apres changement de fiche).
+  // A l'ouverture (ou changement de fiche) : remonter en haut, deplacer le
+  // focus sur le titre et mettre a jour le titre de document. La consultation
+  // reste volontairement neutre : seul le bouton de validation modifie l'etat.
   useEffect(() => {
     setQuizScore(null);
-    onSeen();
     topRef.current?.scrollIntoView({ block: "start" });
     titleRef.current?.focus();
     document.title = `${card.title} — Kapsule`;
     return () => {
       document.title = "Kapsule";
     };
-    // onSeen est stable pour une meme fiche ; on ne depend que de la fiche.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.id]);
 
   return (
     <article className="card-view" ref={topRef}>
-      <div className="card-progress-row">
+      <nav className="card-progress-row" aria-label="Navigation dans le deck">
         <button type="button" className="back-link" onClick={onBack}>
           {backLabel}
         </button>
-        <span className="card-counter">
-          Fiche {index + 1} / {total}
-        </span>
-      </div>
+        <div className="card-navigation">
+          <button
+            type="button"
+            className="card-nav-button"
+            onClick={onPrevious}
+            disabled={index === 0}
+          >
+            ← Précédente
+          </button>
+          <span className="card-counter" aria-live="polite">
+            Fiche {index + 1} / {total}
+          </span>
+          <button
+            type="button"
+            className="card-nav-button"
+            onClick={onNext}
+            disabled={index === total - 1}
+          >
+            Suivante →
+          </button>
+        </div>
+      </nav>
 
       <h1 className="card-title" tabIndex={-1} ref={titleRef}>
         {card.title}

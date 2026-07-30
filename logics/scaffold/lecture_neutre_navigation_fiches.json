@@ -1,0 +1,91 @@
+{
+  "title": "Rendre la lecture des fiches navigable et neutre pour la progression",
+  "references": [
+    "apps/frontend/src/pages/DeckReader.jsx",
+    "apps/frontend/src/components/CardView.jsx",
+    "apps/backend/src/store.mjs",
+    "apps/backend/src/app.mjs"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "Experience de lecture et progression",
+    "needs": [
+      "Naviguer entre les fiches precedentes et suivantes depuis une barre toujours accessible.",
+      "Consulter une fiche sans modifier son statut ni desprogrammer une fiche apprise.",
+      "Ne modifier la progression que par une action explicite de l'utilisateur."
+    ],
+    "context": [
+      "CardView envoie actuellement onSeen a chaque ouverture.",
+      "Une ecriture de progression vers seen peut remplacer learned cote serveur.",
+      "La barre actuelle affiche seulement le retour au deck et le compteur de fiche."
+    ],
+    "acceptance_criteria": [
+      "AC1: La barre de lecture reste visible en haut pendant le defilement et offre les actions fiche precedente et fiche suivante.",
+      "AC2: Les actions de navigation sont correctement desactivees sur la premiere et la derniere fiche et ramènent la nouvelle fiche en haut.",
+      "AC3: Ouvrir ou parcourir une fiche ne declenche aucune ecriture de progression.",
+      "AC4: Une fiche apprise reste apprise apres consultation et sa planification de revision est preservee.",
+      "AC5: Les changements de statut restent declenches explicitement et sont testes cote frontend et backend."
+    ]
+  },
+  "product": {
+    "title": "Lecture neutre et navigation persistante des fiches",
+    "overview": "Permettre de lire et parcourir librement un deck sans alterer la progression, avec une navigation fixe et accessible.",
+    "goals": [
+      "Rendre les actions de navigation disponibles a tout moment.",
+      "Garantir qu'une consultation est sans effet sur le statut ni les revisions.",
+      "Conserver le marquage explicite comme unique moyen de faire progresser une fiche."
+    ],
+    "non_goals": [
+      "Modifier l'algorithme SM-2 ou les intervalles de revision.",
+      "Ajouter une edition manuelle des statuts ou un nouveau mode de quiz.",
+      "Changer la structure ou le contenu des decks."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Navigation persistante et lecture neutre des fiches",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "Experience de lecture et progression",
+      "request_acs": ["AC1", "AC2", "AC3", "AC4", "AC5"],
+      "problem": [
+        "La barre de lecture disparait lors du defilement et ne permet pas de parcourir le deck.",
+        "La simple ouverture d'une fiche peut ecraser son statut apprise par vue."
+      ],
+      "scope_in": [
+        "Barre de navigation fixe, responsive et accessible dans le lecteur de deck.",
+        "Actions precedente et suivante sans ecriture de progression.",
+        "Suppression du marquage automatique a l'ouverture.",
+        "Garde backend contre une retrogradation implicite de learned vers seen.",
+        "Tests de non-regression de progression et de navigation."
+      ],
+      "scope_out": [
+        "Nouvel algorithme de repetition espacee.",
+        "Modification des donnees de decks existantes.",
+        "Refonte globale de la page de lecture."
+      ],
+      "acceptance_criteria": [
+        "AC1: La barre fixe contient le retour au deck, le compteur et les controles precedent/suivant.",
+        "AC2: Le lecteur ne persiste aucun statut pendant l'ouverture ou la navigation.",
+        "AC3: L'API ne retrograde pas une fiche learned en seen par une mise a jour implicite.",
+        "AC4: Le bouton de fin marque explicitement la fiche apprise et conserve le passage a la fiche suivante.",
+        "AC5: Les tests couvrent une fiche apprise relue puis parcourue sans perte de son statut ni de sa revision."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrer la lecture neutre et la navigation persistante",
+    "plan": [
+      "Verifier les invariants actuels de progression et ajouter les tests de non-regression.",
+      "Implementer la navigation persistante, accessible et sans effet de bord dans le lecteur.",
+      "Rendre l'API defensive contre les retrogradations implicites et verifier la conservation des revisions.",
+      "Executer formatage, tests, build, budget et validations Logics.",
+      "Preparer v1.0.3, committer, pousser, surveiller la CI puis publier la release GitHub apres succes."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/lecture_neutre_navigation_fiches.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

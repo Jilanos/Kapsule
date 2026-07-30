@@ -264,6 +264,16 @@ export class Store {
     if (!this.getCard(deckId, cardId)) {
       return { ok: false, error: `fiche introuvable : ${deckId}/${cardId}` };
     }
+    const current = this.db
+      .prepare(`SELECT state FROM progress WHERE user_id = ? AND deck_id = ? AND card_id = ?`)
+      .get(userId, deckId, cardId);
+
+    // Une consultation ou un ancien client ne doit jamais sortir une fiche du
+    // cycle de revision. Le retrait d'un statut appris devra rester une action
+    // explicite distincte, plutot qu'un effet de bord de la lecture.
+    if (current?.state === "learned" && state === "seen") {
+      return { ok: true, state: "learned", unchanged: true };
+    }
     this.db
       .prepare(
         `INSERT INTO progress (user_id, deck_id, card_id, state, quiz_score, updated_at)
@@ -277,7 +287,7 @@ export class Store {
     if (state === "learned") {
       this.ensureReview(deckId, cardId, quizScore, userId);
     }
-    return { ok: true };
+    return { ok: true, state };
   }
 
   // --- Repetition espacee SM-2 --------------------------------------------

@@ -1,0 +1,210 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression item_019_navigation_persistante_et_lecture_neutre_des_fiches task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_019_navigation_persistante_et_lecture_neutre_des_fiches"
+        ],
+        "prod": [
+          "prod_004_lecture_neutre_et_navigation_persistante_des_fiches"
+        ],
+        "req": [
+          "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression"
+        ],
+        "task": [
+          "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+        ]
+      },
+      "path": "logics/product/prod_004_lecture_neutre_et_navigation_persistante_des_fiches.md",
+      "ref": "prod_004_lecture_neutre_et_navigation_persistante_des_fiches",
+      "status": "Proposed",
+      "title": "Lecture neutre et navigation persistante des fiches"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, rendre la lecture des fiches navigable et neutre pour la progression, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Rendre la lecture des fiches navigable et neutre pour la progression",
+        "use when": "You need to implement or review the scaffolded workflow for Rendre la lecture des fiches navigable et neutre pour la progression."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_019_navigation_persistante_et_lecture_neutre_des_fiches"
+        ],
+        "prod": [
+          "prod_004_lecture_neutre_et_navigation_persistante_des_fiches"
+        ],
+        "req": [
+          "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression"
+        ]
+      },
+      "path": "logics/request/req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression.md",
+      "ref": "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Rendre la lecture des fiches navigable et neutre pour la progression"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, navigation persistante et lecture neutre des fiches, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Navigation persistante et lecture neutre des fiches",
+        "use when": "Implementing the scaffolded slice for Navigation persistante et lecture neutre des fiches."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_019_navigation_persistante_et_lecture_neutre_des_fiches"
+        ],
+        "prod": [
+          "prod_004_lecture_neutre_et_navigation_persistante_des_fiches"
+        ],
+        "req": [
+          "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression"
+        ],
+        "task": [
+          "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+        ]
+      },
+      "path": "logics/backlog/item_019_navigation_persistante_et_lecture_neutre_des_fiches.md",
+      "ref": "item_019_navigation_persistante_et_lecture_neutre_des_fiches",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Navigation persistante et lecture neutre des fiches"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_019_navigation_persistante_et_lecture_neutre_des_fiches"
+        ],
+        "prod": [
+          "prod_004_lecture_neutre_et_navigation_persistante_des_fiches"
+        ],
+        "req": [
+          "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression"
+        ],
+        "task": [
+          "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+        ]
+      },
+      "path": "logics/product/prod_004_lecture_neutre_et_navigation_persistante_des_fiches.md",
+      "ref": "prod_004_lecture_neutre_et_navigation_persistante_des_fiches",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Lecture neutre et navigation persistante des fiches"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer la lecture neutre et la navigation persistante",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_019_navigation_persistante_et_lecture_neutre_des_fiches"
+        ],
+        "prod": [
+          "prod_004_lecture_neutre_et_navigation_persistante_des_fiches"
+        ],
+        "req": [
+          "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression"
+        ],
+        "task": [
+          "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+        ]
+      },
+      "path": "logics/tasks/task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante.md",
+      "ref": "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrer la lecture neutre et la navigation persistante"
+    }
+  ],
+  "estimates": {
+    "char_count": 4181,
+    "companion_doc_count": 1,
+    "doc_count": 4
+  },
+  "generated_at": "2026-07-30T14:28:10Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression",
+      "item_019_navigation_persistante_et_lecture_neutre_des_fiches",
+      "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression,item_019_navigation_persistante_et_lecture_neutre_des_fiches,task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante",
+  "refs": [
+    "req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression",
+    "item_019_navigation_persistante_et_lecture_neutre_des_fiches",
+    "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "Missing logics/release/contract.json."
+    ],
+    "configured": false,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Run logics-manager release discover --write, then review and promote logics/release/contract.draft.json to logics/release/contract.json.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "not_configured",
+    "target_version": null
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante.md",
+      "ref": "task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante"
+    }
+  ]
+}

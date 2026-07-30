@@ -284,7 +284,7 @@ export function createApp(db, options = {}) {
       req.user.id,
     );
     if (!result.ok) return res.status(422).json({ error: result.error });
-    res.json({ ok: true, state });
+    res.json({ ok: true, state: result.state, unchanged: result.unchanged ?? false });
   });
 
   app.put("/api/decks/:deckId/progress", requireAuth, (req, res) => {
