@@ -44,8 +44,9 @@ export function CardView({
   return (
     <article className="card-view" ref={topRef}>
       <nav className="card-progress-row" aria-label="Navigation dans le deck">
-        <button type="button" className="back-link" onClick={onBack}>
-          {backLabel}
+        <button type="button" className="card-back-control" onClick={onBack}>
+          <span aria-hidden>←</span>
+          <span>{backLabel.replace("← ", "")}</span>
         </button>
         <div className="card-navigation">
           <button
@@ -53,19 +54,26 @@ export function CardView({
             className="card-nav-button"
             onClick={onPrevious}
             disabled={index === 0}
+            aria-label="Fiche précédente"
           >
-            ← Précédente
+            <span aria-hidden>←</span>
+            <span className="card-nav-label">Précédente</span>
           </button>
           <span className="card-counter" aria-live="polite">
-            Fiche {index + 1} / {total}
+            <span className="card-counter-label">Fiche</span>
+            <strong>{index + 1}</strong>
+            <span aria-hidden>/</span>
+            <span>{total}</span>
           </span>
           <button
             type="button"
             className="card-nav-button"
             onClick={onNext}
             disabled={index === total - 1}
+            aria-label="Fiche suivante"
           >
-            Suivante →
+            <span className="card-nav-label">Suivante</span>
+            <span aria-hidden>→</span>
           </button>
         </div>
       </nav>

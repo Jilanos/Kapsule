@@ -36,7 +36,10 @@ export function App() {
           <span className="brand-mark" aria-hidden>
             K
           </span>{" "}
-          Kapsule
+          <span>
+            Kapsule
+            <span className="brand-version">v{__KAPSULE_VERSION__}</span>
+          </span>
         </Link>
         <div className="header-user">
           <span className="header-email" title={user.email}>

@@ -1,11 +1,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { readFileSync } from "node:fs";
 
 // Cible de l'API backend en dev (proxy) et pour le service worker.
 const API_TARGET = process.env.VITE_API_TARGET ?? "http://localhost:3001";
+const APP_VERSION = JSON.parse(
+  readFileSync(new URL("../../package.json", import.meta.url), "utf8"),
+).version;
 
 export default defineConfig({
+  define: {
+    __KAPSULE_VERSION__: JSON.stringify(APP_VERSION),
+  },
   plugins: [
     react(),
     VitePWA({

@@ -1,10 +1,10 @@
 ## item_019_navigation_persistante_et_lecture_neutre_des_fiches - Navigation persistante et lecture neutre des fiches
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 85%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Experience de lecture et progression
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -58,3 +58,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante` was finished via `logics-manager flow finish task` on 2026-07-30.

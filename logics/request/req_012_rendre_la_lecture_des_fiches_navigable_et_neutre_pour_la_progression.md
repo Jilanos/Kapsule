@@ -1,7 +1,7 @@
 ## req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression - Rendre la lecture des fiches navigable et neutre pour la progression
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
