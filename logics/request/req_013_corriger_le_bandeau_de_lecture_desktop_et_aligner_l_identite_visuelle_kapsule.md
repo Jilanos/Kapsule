@@ -1,7 +1,7 @@
 ## req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule - Corriger le bandeau de lecture desktop et aligner l'identite visuelle Kapsule
 > From version: 1.0.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

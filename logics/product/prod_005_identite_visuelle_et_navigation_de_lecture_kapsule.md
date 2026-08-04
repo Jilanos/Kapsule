@@ -1,14 +1,26 @@
 ## prod_005_identite_visuelle_et_navigation_de_lecture_kapsule - Identite visuelle et navigation de lecture Kapsule
 > Date: 2026-08-04
-> Status: Proposed
+> Status: Settled
 > Related request: `req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule`
-> Related backlog: `item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile`, `item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure`, `item_022_verifier_et_livrer_par_tag_de_version`
+> Related backlog: `item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile`
 > Related task: `task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Aligner le lecteur de fiches desktop et l'identite visuelle du site avec les emblemes Kapsule et Paulmondou, sans regression mobile.
+
+```mermaid
+flowchart LR
+    Assets[Assets publics] --> Topbar[Top bar Kapsule]
+    Assets --> Favicon[Favicon onglet]
+    Topbar --> Parent[Lien paulmondou.fr]
+    Reader[DeckReader] --> Banner[Bandeau desktop cadre]
+    Banner --> Mobile[Mobile preserve]
+    Topbar --> Release[Release v1.0.5]
+    Favicon --> Release
+    Mobile --> Release
+```
 
 # Goals
 - Rendre le bandeau de lecture professionnel et coherent sur desktop.
@@ -34,5 +46,5 @@ Aligner le lecteur de fiches desktop et l'identite visuelle du site avec les emb
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule`
+- Product back-reference: `item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile`
 - Task back-reference: `task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee`

@@ -1,10 +1,10 @@
 ## item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure - Integrer les emblemes Kapsule et Paulmondou dans la barre superieure
 > From version: 1.0.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 70%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Branding et navigation parent
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,8 +31,10 @@
 
 # AC Traceability
 - request-AC3 -> This backlog slice. Proof: AC1: Les assets Kapsule et Paulmondou sont servis depuis apps/frontend/public ou une surface equivalente versionnee.
-- request-AC4 -> This backlog slice. Proof: AC2: Le favicon charge une ressource Kapsule dans apps/frontend/index.html.
-- request-AC5 -> This backlog slice. Proof: AC3: La top bar affiche l'embleme Kapsule a gauche et l'embleme Paulmondou a droite avec un lien vers https://paulmondou.fr.
+- request-AC4 -> This backlog slice. Proof: AC3: La top bar affiche l'embleme Kapsule a gauche et l'embleme Paulmondou a droite avec un lien vers https://paulmondou.fr.
+- request-AC5 -> This backlog slice. Proof: AC1: Les assets Kapsule et Paulmondou sont servis depuis apps/frontend/public ou une surface equivalente versionnee, sans chemin local runtime.
+- request-AC2 -> This backlog slice. Evidence needed: Sur mobile, le comportement et le rendu satisfaisants du bandeau sont preserves.
+- request-AC6 -> This backlog slice. Evidence needed: Le changement est verifie en local sur desktop et mobile, puis livre selon la sequence release: validation, commit implementation, preparation SemVer, commit version, push, CI verte, tag annote vX.Y.Z, verification release tagguee.
 
 # Decision framing
 - Product framing: Not needed
@@ -53,3 +55,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee`
+
+# Notes
+- Task `task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee` was finished via `logics-manager flow finish task` on 2026-08-04.
