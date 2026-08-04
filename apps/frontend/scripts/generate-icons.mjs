@@ -149,7 +149,10 @@ function resizeContain(source, size) {
 
 const source = decodePng(readFileSync(SOURCE_ICON));
 for (const size of [192, 512]) {
-  writeFileSync(join(OUT, `pwa-${size}x${size}.png`), encodePng(size, size, resizeContain(source, size)));
+  writeFileSync(
+    join(OUT, `pwa-${size}x${size}.png`),
+    encodePng(size, size, resizeContain(source, size)),
+  );
 }
 copyFileSync(SOURCE_ICON, join(OUT, "favicon.png"));
 console.log("Icones PWA generees dans", OUT);

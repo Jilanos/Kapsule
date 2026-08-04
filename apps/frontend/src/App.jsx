@@ -39,9 +39,7 @@ export function App() {
             alt=""
             aria-hidden="true"
           />
-          <span>
-            Kapsule
-          </span>
+          <span>Kapsule</span>
         </Link>
         <div className="header-user">
           <span className="header-version" aria-label={`Version ${__KAPSULE_VERSION__}`}>
