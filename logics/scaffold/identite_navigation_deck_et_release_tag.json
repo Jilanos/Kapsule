@@ -1,0 +1,159 @@
+{
+  "title": "Corriger le bandeau de lecture desktop et aligner l'identite visuelle Kapsule",
+  "references": [
+    "apps/frontend/src/pages/DeckReader.jsx",
+    "apps/frontend/src/styles.css",
+    "apps/frontend/index.html",
+    "apps/frontend/public",
+    "/home/paul/dev/WORK/perso/Icones/kapsule",
+    "/home/paul/dev/WORK/perso/Icones/paulmondou",
+    "logics/instructions.md"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "Experience de lecture, branding et release",
+    "needs": [
+      "Conserver le bon rendu mobile du bandeau de lecture tout en corrigeant son cadrage desktop.",
+      "Supprimer l'effet de fond blanc mal integre du bandeau desktop et harmoniser son fond avec la page.",
+      "Remplacer les icones de site par les assets Kapsule disponibles dans le dossier personnel d'icones.",
+      "Afficher l'embleme Kapsule en haut a gauche de l'application.",
+      "Ajouter a droite de la barre superieure, pres de la deconnexion, un embleme Paulmondou qui pointe vers https://paulmondou.fr.",
+      "Livrer le changement selon la politique finale de deploiement par tag de version."
+    ],
+    "context": [
+      "Le bandeau actuel du DeckReader est satisfaisant sur mobile mais presente sur desktop un cadrage et un fond blanc juges incorrects.",
+      "Les assets Kapsule source sont dans /home/paul/dev/WORK/perso/Icones/kapsule.",
+      "Les assets Paulmondou source sont dans /home/paul/dev/WORK/perso/Icones/paulmondou.",
+      "La politique de release canonique impose validation locale, commits de preparation, push, CI verte, tag annote vX.Y.Z et verification du workflow declenche par tag."
+    ],
+    "acceptance_criteria": [
+      "AC1: Sur desktop, le bandeau de lecture est correctement cadre, aligne avec le contenu, sans fond blanc incoherent, et reste lisible.",
+      "AC2: Sur mobile, le comportement et le rendu satisfaisants du bandeau sont preserves.",
+      "AC3: Les assets Kapsule sont copies dans le public frontend, l'embleme apparait en haut a gauche et le favicon de l'onglet utilise l'icone Kapsule appropriee.",
+      "AC4: Un embleme Paulmondou apparait dans la barre superieure a droite de la deconnexion et ouvre https://paulmondou.fr via un lien accessible.",
+      "AC5: Les images references sont servies par le frontend sans chemin local absolu ni dependance au dossier personnel d'icones.",
+      "AC6: Le changement est verifie en local sur desktop et mobile, puis livre selon la sequence release: validation, commit implementation, preparation SemVer, commit version, push, CI verte, tag annote vX.Y.Z, verification release tagguee."
+    ]
+  },
+  "product": {
+    "title": "Identite visuelle et navigation de lecture Kapsule",
+    "overview": "Aligner le lecteur de fiches desktop et l'identite visuelle du site avec les emblemes Kapsule et Paulmondou, sans regression mobile.",
+    "goals": [
+      "Rendre le bandeau de lecture professionnel et coherent sur desktop.",
+      "Installer les icones Kapsule comme source d'identite du site et de l'onglet.",
+      "Relier clairement Kapsule a son site parent Paulmondou depuis la barre superieure.",
+      "Encadrer la livraison par la politique de release tagguee."
+    ],
+    "non_goals": [
+      "Refondre globalement le lecteur de deck au-dela du bandeau concerne.",
+      "Modifier la logique de progression, de revision ou d'authentification.",
+      "Changer le contenu des decks existants."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Corriger le bandeau de lecture desktop sans regression mobile",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "Experience de lecture",
+      "request_acs": [
+        "AC1",
+        "AC2"
+      ],
+      "problem": [
+        "Le bandeau DeckReader est bien adapte au mobile mais son rendu desktop cree un fond blanc et un cadrage visuellement incoherents."
+      ],
+      "scope_in": [
+        "Ajuster structure et styles du bandeau de lecture pour desktop.",
+        "Conserver les controles retour, precedente, compteur et suivante.",
+        "Verifier les breakpoints desktop et mobile."
+      ],
+      "scope_out": [
+        "Changer la logique de navigation entre fiches.",
+        "Modifier le schema des decks ou les API backend."
+      ],
+      "acceptance_criteria": [
+        "AC1: Le bandeau desktop est cadre dans la largeur de lecture et ne presente plus de bande blanche incoherente.",
+        "AC2: Le rendu mobile reste conforme au comportement actuellement valide par l'utilisateur.",
+        "AC3: Les controles restent accessibles au clavier et conservent leurs etats desactives aux bornes du deck."
+      ]
+    },
+    {
+      "title": "Integrer les emblemes Kapsule et Paulmondou dans la barre superieure",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "Branding et navigation parent",
+      "request_acs": [
+        "AC3",
+        "AC4",
+        "AC5"
+      ],
+      "problem": [
+        "L'application n'utilise pas encore les assets d'identite Kapsule demandes et ne propose pas de lien visuel vers paulmondou.fr."
+      ],
+      "scope_in": [
+        "Copier les assets selectionnes dans un dossier public du frontend.",
+        "Mettre a jour le favicon de l'onglet avec l'icone Kapsule.",
+        "Afficher l'embleme Kapsule en haut a gauche.",
+        "Ajouter un lien accessible vers https://paulmondou.fr avec l'embleme Paulmondou pres de la deconnexion."
+      ],
+      "scope_out": [
+        "Creer de nouveaux logos.",
+        "Dependre de chemins locaux absolus au runtime.",
+        "Modifier l'identite des autres projets."
+      ],
+      "acceptance_criteria": [
+        "AC1: Les assets Kapsule et Paulmondou sont servis depuis apps/frontend/public ou une surface equivalente versionnee.",
+        "AC2: Le favicon charge une ressource Kapsule dans apps/frontend/index.html.",
+        "AC3: La top bar affiche l'embleme Kapsule a gauche et l'embleme Paulmondou a droite avec un lien vers https://paulmondou.fr.",
+        "AC4: Les images ont des textes alternatifs ou libelles accessibles adaptes."
+      ]
+    },
+    {
+      "title": "Verifier et livrer par tag de version",
+      "priority": "High",
+      "complexity": "Low",
+      "theme": "Release",
+      "request_acs": [
+        "AC6"
+      ],
+      "problem": [
+        "Le changement doit respecter la politique canonique de livraison finale par tag de version plutot qu'une simple modification locale."
+      ],
+      "scope_in": [
+        "Executer les validations frontend pertinentes.",
+        "Verifier visuellement les rendus desktop et mobile.",
+        "Preparer la prochaine version SemVer dans les surfaces canoniques.",
+        "Suivre la sequence release definie dans logics/instructions.md.",
+        "Consigner SHA, CI, tag et resultat release dans le closeout Logics."
+      ],
+      "scope_out": [
+        "Forcer un tag avant CI verte.",
+        "Retagger une version existante.",
+        "Faire un force-push de release."
+      ],
+      "acceptance_criteria": [
+        "AC1: Les validations locales passent avant commit.",
+        "AC2: La version SemVer choisie est coherente avec le changement et preparee dans les surfaces canoniques.",
+        "AC3: Le tag annote vX.Y.Z est cree seulement apres push et CI verte sur le commit de preparation de version.",
+        "AC4: Le workflow declenche par tag est verifie et documente dans la tache Logics."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrer correction bandeau, branding Kapsule et release tagguee",
+    "plan": [
+      "Auditer DeckReader, la top bar applicative, les styles responsive et les surfaces favicon.",
+      "Selectionner les assets Kapsule et Paulmondou les plus adaptes, puis les copier dans le public frontend.",
+      "Corriger le bandeau desktop en preservant le rendu mobile.",
+      "Integrer l'embleme Kapsule a gauche et le lien Paulmondou a droite de la top bar.",
+      "Verifier par tests automatises pertinents et controle visuel desktop/mobile.",
+      "Appliquer la politique de release finale par tag de version: validation locale, commit implementation, preparation SemVer, commit version, push, CI verte, tag annote, verification release."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/identite_navigation_deck_et_release_tag.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

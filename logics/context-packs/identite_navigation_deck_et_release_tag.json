@@ -1,0 +1,318 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure item_022_verifier_et_livrer_par_tag_de_version task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+          "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+          "item_022_verifier_et_livrer_par_tag_de_version"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ],
+        "task": [
+          "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+        ]
+      },
+      "path": "logics/product/prod_005_identite_visuelle_et_navigation_de_lecture_kapsule.md",
+      "ref": "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule",
+      "status": "Proposed",
+      "title": "Identite visuelle et navigation de lecture Kapsule"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, corriger le bandeau de lecture desktop et aligner l'identite visuelle kapsule, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Corriger le bandeau de lecture desktop et aligner l'identite visuelle Kapsule",
+        "use when": "You need to implement or review the scaffolded workflow for Corriger le bandeau de lecture desktop et aligner l'identite visuelle Kapsule."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+          "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+          "item_022_verifier_et_livrer_par_tag_de_version"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ]
+      },
+      "path": "logics/request/req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule.md",
+      "ref": "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Corriger le bandeau de lecture desktop et aligner l'identite visuelle Kapsule"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, corriger le bandeau de lecture desktop sans regression mobile, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Corriger le bandeau de lecture desktop sans regression mobile",
+        "use when": "Implementing the scaffolded slice for Corriger le bandeau de lecture desktop sans regression mobile."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ],
+        "task": [
+          "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+        ]
+      },
+      "path": "logics/backlog/item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile.md",
+      "ref": "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Corriger le bandeau de lecture desktop sans regression mobile"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, integrer les emblemes kapsule et paulmondou dans la barre superieure, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Integrer les emblemes Kapsule et Paulmondou dans la barre superieure",
+        "use when": "Implementing the scaffolded slice for Integrer les emblemes Kapsule et Paulmondou dans la barre superieure."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ],
+        "task": [
+          "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+        ]
+      },
+      "path": "logics/backlog/item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure.md",
+      "ref": "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Integrer les emblemes Kapsule et Paulmondou dans la barre superieure"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, verifier et livrer par tag de version, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Verifier et livrer par tag de version",
+        "use when": "Implementing the scaffolded slice for Verifier et livrer par tag de version."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_022_verifier_et_livrer_par_tag_de_version"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ],
+        "task": [
+          "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+        ]
+      },
+      "path": "logics/backlog/item_022_verifier_et_livrer_par_tag_de_version.md",
+      "ref": "item_022_verifier_et_livrer_par_tag_de_version",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Verifier et livrer par tag de version"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer correction bandeau, branding Kapsule et release tagguee",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+          "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+          "item_022_verifier_et_livrer_par_tag_de_version"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ],
+        "task": [
+          "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+        ]
+      },
+      "path": "logics/tasks/task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee.md",
+      "ref": "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrer correction bandeau, branding Kapsule et release tagguee"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+          "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+          "item_022_verifier_et_livrer_par_tag_de_version"
+        ],
+        "prod": [
+          "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule"
+        ],
+        "req": [
+          "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule"
+        ],
+        "task": [
+          "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+        ]
+      },
+      "path": "logics/product/prod_005_identite_visuelle_et_navigation_de_lecture_kapsule.md",
+      "ref": "prod_005_identite_visuelle_et_navigation_de_lecture_kapsule",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Identite visuelle et navigation de lecture Kapsule"
+    }
+  ],
+  "estimates": {
+    "char_count": 6982,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-04T12:57:21Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule",
+      "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+      "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+      "item_022_verifier_et_livrer_par_tag_de_version",
+      "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule,item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile,item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure,item_022_verifier_et_livrer_par_tag_de_version,task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee",
+  "refs": [
+    "req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule",
+    "item_020_corriger_le_bandeau_de_lecture_desktop_sans_regression_mobile",
+    "item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure",
+    "item_022_verifier_et_livrer_par_tag_de_version",
+    "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "release_tag",
+        "required": true,
+        "state": "tagged",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "1.0.4"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee.md",
+      "ref": "task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee"
+    }
+  ]
+}

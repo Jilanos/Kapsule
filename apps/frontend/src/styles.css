@@ -169,6 +169,13 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.header-version {
+  color: var(--muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
 .link-btn {
   appearance: none;
   border: none;
@@ -206,15 +213,33 @@ body {
   font-weight: 700;
   font-size: 0.95rem;
 }
-.brand-version {
+.brand-logo {
   display: block;
-  margin-top: -0.25rem;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  font-weight: 400;
-  letter-spacing: 0.09em;
-  line-height: 1.2;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+}
+.parent-site-link {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  border: var(--rule);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+.parent-site-link:hover {
+  border-color: var(--primary);
+}
+.parent-site-link img {
+  display: block;
+  width: 1.55rem;
+  height: 1.55rem;
+  object-fit: contain;
 }
 
 .app-main {
@@ -531,10 +556,10 @@ button.back-link {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
-  padding: 0.45rem 0.55rem;
-  background: var(--surface);
-  border-top: 3px double var(--text);
-  border-bottom: var(--rule);
+  padding: 0.45rem 0.6rem;
+  background: color-mix(in srgb, var(--bg) 88%, var(--surface));
+  border: var(--rule);
+  border-top: 2px solid var(--text);
 }
 .card-back-control {
   display: inline-flex;
@@ -609,10 +634,41 @@ button.back-link {
   font-size: 0.6rem;
 }
 @media (max-width: 640px) {
+  .app-header {
+    gap: 0.65rem;
+  }
+  .header-user {
+    gap: 0.55rem;
+  }
+  .header-email {
+    max-width: 28vw;
+  }
+  .header-version {
+    display: none;
+  }
+  .brand {
+    gap: 0.45rem;
+  }
+  .brand-logo {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+  .parent-site-link {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+  .parent-site-link img {
+    width: 1.42rem;
+    height: 1.42rem;
+  }
   .card-progress-row {
     grid-template-columns: auto 1fr;
     gap: 0.35rem;
     padding-inline: 0.35rem;
+    background: var(--surface);
+    border-top: 3px double var(--text);
+    border-right: 0;
+    border-left: 0;
   }
   .card-navigation {
     justify-content: space-between;

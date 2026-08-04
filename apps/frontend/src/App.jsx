@@ -33,21 +33,34 @@ export function App() {
       </a>
       <header className="app-header">
         <Link to="/" className="brand">
-          <span className="brand-mark" aria-hidden>
-            K
-          </span>{" "}
+          <img
+            className="brand-mark brand-logo"
+            src="/brand/kapsule-emblem.png"
+            alt=""
+            aria-hidden="true"
+          />
           <span>
             Kapsule
-            <span className="brand-version">v{__KAPSULE_VERSION__}</span>
           </span>
         </Link>
         <div className="header-user">
+          <span className="header-version" aria-label={`Version ${__KAPSULE_VERSION__}`}>
+            v{__KAPSULE_VERSION__}
+          </span>
           <span className="header-email" title={user.email}>
             {user.email}
           </span>
           <button type="button" className="link-btn" onClick={logout}>
             Déconnexion
           </button>
+          <a
+            className="parent-site-link"
+            href="https://paulmondou.fr"
+            aria-label="Ouvrir paulmondou.fr"
+            title="paulmondou.fr"
+          >
+            <img src="/brand/paulmondou-emblem.png" alt="" aria-hidden="true" />
+          </a>
         </div>
       </header>
       <main
