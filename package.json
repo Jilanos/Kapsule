@@ -1,6 +1,6 @@
 {
   "name": "kapsule",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "description": "Visionneuse de fiches de connaissance courtes (5-10 min) en decks, alimentee par un format JSON genere par des agents IA.",
   "license": "MIT",
