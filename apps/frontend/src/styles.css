@@ -225,20 +225,21 @@ body {
 .parent-site-link {
   display: inline-grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   flex: 0 0 auto;
-  border: var(--rule);
+  border: 1px solid transparent;
   border-radius: var(--radius);
-  background: var(--bg);
+  background: transparent;
 }
 .parent-site-link:hover {
   border-color: var(--primary);
+  background: var(--bg);
 }
 .parent-site-link img {
   display: block;
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 2rem;
+  height: 2rem;
   object-fit: contain;
 }
 
@@ -654,12 +655,12 @@ button.back-link {
     height: 1.8rem;
   }
   .parent-site-link {
-    width: 1.85rem;
-    height: 1.85rem;
+    width: 2rem;
+    height: 2rem;
   }
   .parent-site-link img {
-    width: 1.42rem;
-    height: 1.42rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
   .card-progress-row {
     grid-template-columns: auto 1fr;
