@@ -1,0 +1,112 @@
+{
+  "title": "Integrer les icones Icones V3 et le lien parent Paul Mondou dans Kapsule",
+  "references": [
+    "Corpus externe Icones V3/kapsule/",
+    "Corpus externe Icones V3/paulmondou/",
+    "logics/product/prod_005_identite_visuelle_et_navigation_de_lecture_kapsule.md",
+    "logics/backlog/item_021_integrer_les_emblemes_kapsule_et_paulmondou_dans_la_barre_superieure.md"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "Branding",
+    "needs": [
+      "Utiliser les assets du corpus externe Icones V3 pour remplacer l'icone d'onglet, l'embleme Kapsule et le lien vers Paul Mondou.",
+      "Rendre l'identite visuelle coherente entre le favicon, la barre applicative et la navigation parent."
+    ],
+    "context": [
+      "Le dossier source est le corpus local Icones V3 fourni par l'operateur; les chemins references ici sont internes a ce corpus pour respecter les regles Logics.",
+      "Assets attendus: kapsule/kapsule-icon-light.png, kapsule/kapsule-icon-dark.png, kapsule/kapsule-emblem-light.png, kapsule/kapsule-emblem-dark.png, puis les assets paulmondou pour le lien parent.",
+      "La livraison doit conserver le contrat de release par tag et verifier les surfaces PWA/metadata si elles existent dans le repo."
+    ],
+    "acceptance_criteria": [
+      "AC1: L'icone d'onglet Kapsule utilise l'asset Icones V3 adapte au format attendu par l'application.",
+      "AC2: L'embleme visible dans l'interface Kapsule est remplace par l'embleme Icones V3, avec variantes light/dark si l'interface les expose.",
+      "AC3: Le lien vers Paul Mondou utilise l'identite Paul Mondou issue du corpus Icones V3 et pointe vers la destination parent existante.",
+      "AC4: Les references d'assets sont servies depuis le repo Kapsule apres copie ou integration, sans dependance runtime au dossier local Icones V3."
+    ]
+  },
+  "product": {
+    "title": "Identite Kapsule alignee sur Icones V3",
+    "overview": "Kapsule expose les nouvelles icones Icones V3 sur l'onglet, l'embleme applicatif et le lien parent Paul Mondou.",
+    "goals": [
+      "Remplacer les assets de marque visibles par les variantes Icones V3.",
+      "Conserver une navigation parent claire vers Paul Mondou.",
+      "Rendre la livraison reproductible depuis les assets copies dans le repo."
+    ],
+    "non_goals": [
+      "Redessiner l'interface Kapsule hors remplacement d'identite.",
+      "Modifier l'authentification, la lecture des decks ou les workflows metier."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Remplacer favicon et embleme Kapsule par Icones V3",
+      "priority": "High - visible sur toutes les sessions et prealable a la coherence de marque",
+      "complexity": "Medium",
+      "theme": "Branding",
+      "request_acs": [
+        "AC1",
+        "AC2",
+        "AC4"
+      ],
+      "problem": [
+        "Les assets visibles de Kapsule doivent etre alignes sur le corpus Icones V3 sans lire le dossier local en production."
+      ],
+      "scope_in": [
+        "Identifier les fichiers favicon, manifest, metadata et composants d'embleme existants.",
+        "Copier les assets Kapsule pertinents depuis Icones V3 dans l'emplacement public ou source du repo.",
+        "Mettre a jour les references pour light/dark quand le design system les supporte."
+      ],
+      "scope_out": [
+        "Changer la palette globale ou la composition de l'interface.",
+        "Introduire une dependance externe au dossier Icones V3 au runtime."
+      ],
+      "acceptance_criteria": [
+        "AC1: Le favicon et les metadata d'onglet resolvent l'icone Kapsule Icones V3.",
+        "AC2: L'embleme applicatif visible utilise les fichiers Kapsule Icones V3.",
+        "AC3: Le build ou la verification statique confirme que les assets references existent dans le repo."
+      ]
+    },
+    {
+      "title": "Mettre le lien parent Paul Mondou aux couleurs Icones V3",
+      "priority": "High - la navigation parent est une exigence transversale entre sites",
+      "complexity": "Low",
+      "theme": "Navigation",
+      "request_acs": [
+        "AC3",
+        "AC4"
+      ],
+      "problem": [
+        "Le lien vers Paul Mondou doit etre identifiable comme un lien parent commun et utiliser l'identite Icones V3."
+      ],
+      "scope_in": [
+        "Localiser le lien parent actuel vers Paul Mondou.",
+        "Remplacer son icone, embleme ou avatar par l'asset Paul Mondou du corpus Icones V3.",
+        "Conserver la cible d'URL deja definie par le repo ou la configuration de deploiement."
+      ],
+      "scope_out": [
+        "Changer la structure de navigation au-dela du lien parent.",
+        "Ajouter des liens vers les autres sites enfants depuis Kapsule."
+      ],
+      "acceptance_criteria": [
+        "AC1: Le lien parent reste accessible au clavier et conserve son libelle accessible.",
+        "AC2: Le visuel du lien parent provient du corpus Paul Mondou Icones V3 copie dans le repo.",
+        "AC3: La cible du lien parent n'est pas regresse par le remplacement visuel."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrer l'integration Icones V3 dans Kapsule",
+    "plan": [
+      "Faire l'inventaire des surfaces favicon, manifest, header et lien parent dans Kapsule.",
+      "Copier les assets Icones V3 necessaires dans le repo et mettre a jour les imports ou chemins publics.",
+      "Verifier les variantes light/dark, l'accessibilite du lien parent et l'absence de reference runtime au dossier local.",
+      "Executer la validation locale pertinente puis preparer la livraison selon le reflexe release du repo."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/icon-v3-branding-and-parent-link.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}
