@@ -1,7 +1,7 @@
 ## req_014_integrer_les_icones_icones_v3_et_le_lien_parent_paul_mondou_dans_kapsule - Integrer les icones Icones V3 et le lien parent Paul Mondou dans Kapsule
 > From version: 1.0.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

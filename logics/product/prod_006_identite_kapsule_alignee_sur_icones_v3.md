@@ -1,8 +1,8 @@
 ## prod_006_identite_kapsule_alignee_sur_icones_v3 - Identite Kapsule alignee sur Icones V3
 > Date: 2026-08-05
-> Status: Proposed
+> Status: Settled
 > Related request: `req_014_integrer_les_icones_icones_v3_et_le_lien_parent_paul_mondou_dans_kapsule`
-> Related backlog: `item_023_remplacer_favicon_et_embleme_kapsule_par_icones_v3`, `item_024_mettre_le_lien_parent_paul_mondou_aux_couleurs_icones_v3`
+> Related backlog: `item_023_remplacer_favicon_et_embleme_kapsule_par_icones_v3`
 > Related task: `task_015_orchestrer_l_integration_icones_v3_dans_kapsule`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -44,5 +44,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_014_integrer_les_icones_icones_v3_et_le_lien_parent_paul_mondou_dans_kapsule`
+- Product back-reference: `item_023_remplacer_favicon_et_embleme_kapsule_par_icones_v3`
 - Task back-reference: `task_015_orchestrer_l_integration_icones_v3_dans_kapsule`
