@@ -1,0 +1,417 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_015_administrer_les_utilisateurs_et_contenus_kapsule item_025_administrer_les_comptes_et_roles_kapsule item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule task_016_orchestrer_la_console_d_administration_kapsule --mode summary-only --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_025_administrer_les_comptes_et_roles_kapsule",
+          "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule"
+        ],
+        "prod": [
+          "prod_007_console_d_administration_kapsule"
+        ],
+        "req": [
+          "req_015_administrer_les_utilisateurs_et_contenus_kapsule"
+        ],
+        "task": [
+          "task_016_orchestrer_la_console_d_administration_kapsule"
+        ]
+      },
+      "path": "logics/product/prod_007_console_d_administration_kapsule.md",
+      "ref": "prod_007_console_d_administration_kapsule",
+      "status": "Proposed",
+      "title": "Console d'administration Kapsule"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "adr": [
+          "adr_001_kapsule_architecture_direction",
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement",
+          "adr_003_kapsule_durcissement_assets_prives_cache_pwa_et_sessions"
+        ],
+        "item": [
+          "item_014_corriger_la_fuite_d_etat_des_quiz_dans_deckreader"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_009_corriger_la_fuite_d_etat_des_quiz_dans_deckreader"
+        ],
+        "task": [
+          "task_010_corriger_la_fuite_d_etat_des_quiz_dans_deckreader"
+        ]
+      },
+      "path": "logics/product/prod_001_kapsule_product_brief.md",
+      "ref": "prod_001_kapsule_product_brief",
+      "status": "Settled",
+      "title": "Kapsule product brief"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_001_kapsule_architecture_direction",
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_001_authentification_multi_appareils",
+          "req_002_repetition_espacee_sm2",
+          "req_003_deploiement_vps_ovh"
+        ]
+      },
+      "path": "logics/architecture/adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement.md",
+      "ref": "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement",
+      "status": "Accepted",
+      "title": "Kapsule v0.2 : auth multi-appareils, repetition espacee, deploiement"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, administrer les utilisateurs et contenus kapsule, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Administrer les utilisateurs et contenus Kapsule",
+        "use when": "You need to implement or review the scaffolded workflow for Administrer les utilisateurs et contenus Kapsule."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_025_administrer_les_comptes_et_roles_kapsule",
+          "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule"
+        ],
+        "prod": [
+          "prod_007_console_d_administration_kapsule"
+        ],
+        "req": [
+          "req_004_roles_utilisateurs_et_visibilite_des_decks",
+          "req_015_administrer_les_utilisateurs_et_contenus_kapsule"
+        ],
+        "task": [
+          "task_005_roles_utilisateurs_et_visibilite_des_decks"
+        ]
+      },
+      "path": "logics/request/req_015_administrer_les_utilisateurs_et_contenus_kapsule.md",
+      "ref": "req_015_administrer_les_utilisateurs_et_contenus_kapsule",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Administrer les utilisateurs et contenus Kapsule"
+    },
+    {
+      "ai_context": {
+        "keywords": "roles, permissions, visibilite, decks, admin, invite, maitre",
+        "skip when": "The change concerns SM-2 scheduling, auth sessions, or deployment infrastructure.",
+        "summary": "Roles invite/maitre/admin et visibilite des decks (private/general/master) avec enforcement API et UI.",
+        "use when": "Implementing or reviewing the roles and deck visibility work."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement"
+        ],
+        "item": [
+          "item_009_roles_utilisateurs_et_visibilite_des_decks"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_004_roles_utilisateurs_et_visibilite_des_decks"
+        ],
+        "task": [
+          "task_005_roles_utilisateurs_et_visibilite_des_decks"
+        ]
+      },
+      "path": "logics/request/req_004_roles_utilisateurs_et_visibilite_des_decks.md",
+      "ref": "req_004_roles_utilisateurs_et_visibilite_des_decks",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Roles utilisateurs et visibilite des decks"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, administrer les comptes et roles kapsule, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Administrer les comptes et roles Kapsule",
+        "use when": "Implementing the scaffolded slice for Administrer les comptes et roles Kapsule."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_025_administrer_les_comptes_et_roles_kapsule"
+        ],
+        "prod": [
+          "prod_007_console_d_administration_kapsule"
+        ],
+        "req": [
+          "req_015_administrer_les_utilisateurs_et_contenus_kapsule"
+        ],
+        "task": [
+          "task_016_orchestrer_la_console_d_administration_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_025_administrer_les_comptes_et_roles_kapsule.md",
+      "ref": "item_025_administrer_les_comptes_et_roles_kapsule",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Administrer les comptes et roles Kapsule"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, inspecter et administrer les contenus et stockage kapsule, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Inspecter et administrer les contenus et stockage Kapsule",
+        "use when": "Implementing the scaffolded slice for Inspecter et administrer les contenus et stockage Kapsule."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule"
+        ],
+        "prod": [
+          "prod_007_console_d_administration_kapsule"
+        ],
+        "req": [
+          "req_015_administrer_les_utilisateurs_et_contenus_kapsule"
+        ],
+        "task": [
+          "task_016_orchestrer_la_console_d_administration_kapsule"
+        ]
+      },
+      "path": "logics/backlog/item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule.md",
+      "ref": "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Inspecter et administrer les contenus et stockage Kapsule"
+    },
+    {
+      "ai_context": {
+        "keywords": "task, implementation, backlog, runtime, python",
+        "skip when": "The work is still at the request or backlog shaping stage.",
+        "summary": "Implement roles utilisateurs et visibilite des decks.",
+        "use when": "You need a bounded implementation task for a backlog item."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "adr": [
+          "adr_002_kapsule_evolution_v0_2_auth_sm2_deploiement"
+        ],
+        "item": [
+          "item_009_roles_utilisateurs_et_visibilite_des_decks"
+        ],
+        "prod": [
+          "prod_001_kapsule_product_brief"
+        ],
+        "req": [
+          "req_004_roles_utilisateurs_et_visibilite_des_decks"
+        ],
+        "task": [
+          "task_005_roles_utilisateurs_et_visibilite_des_decks"
+        ]
+      },
+      "path": "logics/tasks/task_005_roles_utilisateurs_et_visibilite_des_decks.md",
+      "ref": "task_005_roles_utilisateurs_et_visibilite_des_decks",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Roles utilisateurs et visibilite des decks"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_025_administrer_les_comptes_et_roles_kapsule",
+          "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule"
+        ],
+        "prod": [
+          "prod_007_console_d_administration_kapsule"
+        ],
+        "req": [
+          "req_015_administrer_les_utilisateurs_et_contenus_kapsule"
+        ],
+        "task": [
+          "task_016_orchestrer_la_console_d_administration_kapsule"
+        ]
+      },
+      "path": "logics/product/prod_007_console_d_administration_kapsule.md",
+      "ref": "prod_007_console_d_administration_kapsule",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Console d'administration Kapsule"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer la console d'administration Kapsule",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_025_administrer_les_comptes_et_roles_kapsule",
+          "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule"
+        ],
+        "prod": [
+          "prod_007_console_d_administration_kapsule"
+        ],
+        "req": [
+          "req_015_administrer_les_utilisateurs_et_contenus_kapsule"
+        ],
+        "task": [
+          "task_016_orchestrer_la_console_d_administration_kapsule"
+        ]
+      },
+      "path": "logics/tasks/task_016_orchestrer_la_console_d_administration_kapsule.md",
+      "ref": "task_016_orchestrer_la_console_d_administration_kapsule",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrer la console d'administration Kapsule"
+    }
+  ],
+  "estimates": {
+    "char_count": 7926,
+    "companion_doc_count": 3,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-06T13:01:46Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_015_administrer_les_utilisateurs_et_contenus_kapsule",
+      "item_025_administrer_les_comptes_et_roles_kapsule",
+      "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule",
+      "task_016_orchestrer_la_console_d_administration_kapsule"
+    ],
+    "validation_summary_count": 2
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "deep",
+  "ref": "req_015_administrer_les_utilisateurs_et_contenus_kapsule,item_025_administrer_les_comptes_et_roles_kapsule,item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule,task_016_orchestrer_la_console_d_administration_kapsule",
+  "refs": [
+    "req_015_administrer_les_utilisateurs_et_contenus_kapsule",
+    "item_025_administrer_les_comptes_et_roles_kapsule",
+    "item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule",
+    "task_016_orchestrer_la_console_d_administration_kapsule"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit",
+      "release_tag: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "release_tag",
+        "required": true,
+        "state": "tagged",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "1.0.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Tests backend verts (`npm test` dans `apps/backend`), y compris les nouveaux tests de la matrice des droits (visibilite, creation, suppression, changement de visibilite, cas 403).",
+        "- Build frontend vert (`npm run build` dans `apps/frontend`).",
+        "- Smoke live apres deploiement : un invite ne voit pas les decks maitres ni les decks prives d'autrui ; suppression refusee (403) pour non-admin.",
+        "- Verification en production : roles de paul.mondou12@gmail.com (admin) et a.agostini.fr@gmail.com (master) ; decks existants en 'general' avec proprietaire admin.",
+        "- Run `logics-manager lint --require-status`.",
+        "- Use `logics-manager flow progress task task_005_roles_utilisateurs_et_visibilite_des_decks --progress <n>%` during multi-wave work.",
+        "- Run `logics-manager flow finish task task_005_roles_utilisateurs_et_visibilite_des_decks` after implementation.",
+        "- Finish workflow executed on 2026-07-18."
+      ],
+      "path": "logics/tasks/task_005_roles_utilisateurs_et_visibilite_des_decks.md",
+      "ref": "task_005_roles_utilisateurs_et_visibilite_des_decks"
+    },
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_016_orchestrer_la_console_d_administration_kapsule.md",
+      "ref": "task_016_orchestrer_la_console_d_administration_kapsule"
+    }
+  ]
+}

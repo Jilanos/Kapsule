@@ -18,6 +18,7 @@
 | [prod_004_lecture_neutre_et_navigation_persistante_des_fiches](product/prod_004_lecture_neutre_et_navigation_persistante_des_fiches.md) | Lecture neutre et navigation persistante des fiches | Proposed |  |  | product/prod_004_lecture_neutre_et_navigation_persistante_des_fiches.md |
 | [prod_005_identite_visuelle_et_navigation_de_lecture_kapsule](product/prod_005_identite_visuelle_et_navigation_de_lecture_kapsule.md) | Identite visuelle et navigation de lecture Kapsule | Settled |  |  | product/prod_005_identite_visuelle_et_navigation_de_lecture_kapsule.md |
 | [prod_006_identite_kapsule_alignee_sur_icones_v3](product/prod_006_identite_kapsule_alignee_sur_icones_v3.md) | Identite Kapsule alignee sur Icones V3 | Settled |  |  | product/prod_006_identite_kapsule_alignee_sur_icones_v3.md |
+| [prod_007_console_d_administration_kapsule](product/prod_007_console_d_administration_kapsule.md) | Console d'administration Kapsule | Proposed |  |  | product/prod_007_console_d_administration_kapsule.md |
 
 ## Roadmaps
 
@@ -42,6 +43,7 @@ _None_
 | [req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression](request/req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression.md) | Rendre la lecture des fiches navigable et neutre pour la progression | Done |  |  | request/req_012_rendre_la_lecture_des_fiches_navigable_et_neutre_pour_la_progression.md |
 | [req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule](request/req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule.md) | Corriger le bandeau de lecture desktop et aligner l'identite visuelle Kapsule | Done |  |  | request/req_013_corriger_le_bandeau_de_lecture_desktop_et_aligner_l_identite_visuelle_kapsule.md |
 | [req_014_integrer_les_icones_icones_v3_et_le_lien_parent_paul_mondou_dans_kapsule](request/req_014_integrer_les_icones_icones_v3_et_le_lien_parent_paul_mondou_dans_kapsule.md) | Integrer les icones Icones V3 et le lien parent Paul Mondou dans Kapsule | Done |  |  | request/req_014_integrer_les_icones_icones_v3_et_le_lien_parent_paul_mondou_dans_kapsule.md |
+| [req_015_administrer_les_utilisateurs_et_contenus_kapsule](request/req_015_administrer_les_utilisateurs_et_contenus_kapsule.md) | Administrer les utilisateurs et contenus Kapsule | Draft |  |  | request/req_015_administrer_les_utilisateurs_et_contenus_kapsule.md |
 
 ## Backlog
 
@@ -71,6 +73,8 @@ _None_
 | [item_022_verifier_et_livrer_par_tag_de_version](backlog/item_022_verifier_et_livrer_par_tag_de_version.md) | Verifier et livrer par tag de version | Done |  | 100% | backlog/item_022_verifier_et_livrer_par_tag_de_version.md |
 | [item_023_remplacer_favicon_et_embleme_kapsule_par_icones_v3](backlog/item_023_remplacer_favicon_et_embleme_kapsule_par_icones_v3.md) | Remplacer favicon et embleme Kapsule par Icones V3 | Done |  | 100% | backlog/item_023_remplacer_favicon_et_embleme_kapsule_par_icones_v3.md |
 | [item_024_mettre_le_lien_parent_paul_mondou_aux_couleurs_icones_v3](backlog/item_024_mettre_le_lien_parent_paul_mondou_aux_couleurs_icones_v3.md) | Mettre le lien parent Paul Mondou aux couleurs Icones V3 | Done |  | 100% | backlog/item_024_mettre_le_lien_parent_paul_mondou_aux_couleurs_icones_v3.md |
+| [item_025_administrer_les_comptes_et_roles_kapsule](backlog/item_025_administrer_les_comptes_et_roles_kapsule.md) | Administrer les comptes et roles Kapsule | Ready |  | 0% | backlog/item_025_administrer_les_comptes_et_roles_kapsule.md |
+| [item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule](backlog/item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule.md) | Inspecter et administrer les contenus et stockage Kapsule | Ready |  | 0% | backlog/item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule.md |
 
 ## Tasks
 
@@ -91,3 +95,4 @@ _None_
 | [task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante](tasks/task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante.md) | Orchestrer la lecture neutre et la navigation persistante | Done | Codex | 100% | tasks/task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante.md |
 | [task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee](tasks/task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee.md) | Orchestrer correction bandeau, branding Kapsule et release tagguee | Done | Codex | 100% | tasks/task_014_orchestrer_correction_bandeau_branding_kapsule_et_release_tagguee.md |
 | [task_015_orchestrer_l_integration_icones_v3_dans_kapsule](tasks/task_015_orchestrer_l_integration_icones_v3_dans_kapsule.md) | Orchestrer l'integration Icones V3 dans Kapsule | Done | Codex | 100% | tasks/task_015_orchestrer_l_integration_icones_v3_dans_kapsule.md |
+| [task_016_orchestrer_la_console_d_administration_kapsule](tasks/task_016_orchestrer_la_console_d_administration_kapsule.md) | Orchestrer la console d'administration Kapsule | Ready |  | 0% | tasks/task_016_orchestrer_la_console_d_administration_kapsule.md |
