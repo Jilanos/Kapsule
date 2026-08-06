@@ -1,10 +1,10 @@
 ## item_029_remplacer_les_assets_brand_et_les_icones_pwa_kapsule - Remplacer les assets brand et les icones PWA Kapsule
 > From version: 1.0.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 60%
 > Complexity: Medium
 > Theme: Brand asset integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -15,10 +15,10 @@
 # Scope
 - In:
   - `public/brand/kapsule-emblem.png` depuis `kapsule/kapsule-emblem.png`
-  - `public/brand/kapsule-favicon.png` et `public/favicon.png` depuis `kapsule/kapsule-icon.png`
+  - `public/brand/kapsule-favicon.png` depuis `kapsule/kapsule-icon.png` en 512 px: c'est la source versionnee du generateur
   - `public/brand/gnosis-icon.png` depuis `gnosis/gnosis.png`
   - `public/brand/paulmondou-emblem.png` depuis `paulmondou/paulmondou-emblem.png`
-  - Regeneration de `pwa-192x192.png` et `pwa-512x512.png` par redimensionnement de `kapsule-icon.png`
+  - Regeneration de `public/favicon.png` et des icones PWA via `node scripts/generate-icons.mjs` (deja branche sur `predev`/`prebuild`)
 - Out:
   - Editer `apps/frontend/dist/`: sortie de build regeneree par la CI.
   - Modifier les captures de `docs/screenshots/`.
