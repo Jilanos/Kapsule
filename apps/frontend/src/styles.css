@@ -1085,6 +1085,22 @@ button.back-link {
   border-radius: var(--radius);
   padding: 0.5rem 0.9rem;
 }
+.deck-create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.generate-deck-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+}
+.generate-deck-link img {
+  width: 1.1rem;
+  height: 1.1rem;
+  object-fit: contain;
+}
 .import-panel {
   background: var(--surface);
   border: var(--rule);

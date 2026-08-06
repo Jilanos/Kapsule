@@ -59,9 +59,20 @@ export function ImportDeck({ onImported }) {
 
   if (!open) {
     return (
-      <button type="button" className="import-toggle" onClick={() => setOpen(true)}>
-        + Importer un deck
-      </button>
+      <div className="deck-create-actions">
+        <button type="button" className="import-toggle" onClick={() => setOpen(true)}>
+          + Importer un deck
+        </button>
+        <a
+          className="import-toggle generate-deck-link"
+          href="https://gnosis.paulmondou.fr"
+          aria-label="Générer un deck avec Gnosis"
+          title="Générer un deck avec Gnosis"
+        >
+          <img src="/brand/gnosis-icon.png" alt="" aria-hidden="true" />
+          Générer un deck
+        </a>
+      </div>
     );
   }
 
