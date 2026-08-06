@@ -20,6 +20,7 @@
 | [prod_006_identite_kapsule_alignee_sur_icones_v3](product/prod_006_identite_kapsule_alignee_sur_icones_v3.md) | Identite Kapsule alignee sur Icones V3 | Settled |  |  | product/prod_006_identite_kapsule_alignee_sur_icones_v3.md |
 | [prod_007_console_d_administration_kapsule](product/prod_007_console_d_administration_kapsule.md) | Console d'administration Kapsule | Proposed |  |  | product/prod_007_console_d_administration_kapsule.md |
 | [prod_008_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck](product/prod_008_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md) | Publier les derniers assets Icones V3 et ajouter Generer un deck | Proposed |  |  | product/prod_008_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md |
+| [prod_009_identite_kapsule_alignee_sur_icones_v3_corrige](product/prod_009_identite_kapsule_alignee_sur_icones_v3_corrige.md) | Identite Kapsule alignee sur Icones V3 corrige | Proposed |  |  | product/prod_009_identite_kapsule_alignee_sur_icones_v3_corrige.md |
 
 ## Roadmaps
 
@@ -47,6 +48,7 @@ _None_
 | [req_015_administrer_les_utilisateurs_et_contenus_kapsule](request/req_015_administrer_les_utilisateurs_et_contenus_kapsule.md) | Administrer les utilisateurs et contenus Kapsule | Draft |  |  | request/req_015_administrer_les_utilisateurs_et_contenus_kapsule.md |
 | [req_016_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck](request/req_016_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md) | Publier les derniers assets Icones V3 et ajouter Generer un deck | Done |  |  | request/req_016_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md |
 | [req_017_publier_la_release_patch_v1_0_8_de_kapsule](request/req_017_publier_la_release_patch_v1_0_8_de_kapsule.md) | Publier la release patch v1.0.8 de Kapsule | Done |  |  | request/req_017_publier_la_release_patch_v1_0_8_de_kapsule.md |
+| [req_018_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges](request/req_018_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges.md) | Remplacer les assets brand Kapsule par les masters Icones V3 corriges | Draft |  |  | request/req_018_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges.md |
 
 ## Backlog
 
@@ -80,6 +82,8 @@ _None_
 | [item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule](backlog/item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule.md) | Inspecter et administrer les contenus et stockage Kapsule | Ready |  | 0% | backlog/item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule.md |
 | [item_027_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck](backlog/item_027_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md) | Publier les derniers assets Icones V3 et ajouter Generer un deck | Done |  | 100% | backlog/item_027_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md |
 | [item_028_publier_la_release_patch_v1_0_8_de_kapsule](backlog/item_028_publier_la_release_patch_v1_0_8_de_kapsule.md) | Publier la release patch v1.0.8 de Kapsule | Done |  | 100% | backlog/item_028_publier_la_release_patch_v1_0_8_de_kapsule.md |
+| [item_029_remplacer_les_assets_brand_et_les_icones_pwa_kapsule](backlog/item_029_remplacer_les_assets_brand_et_les_icones_pwa_kapsule.md) | Remplacer les assets brand et les icones PWA Kapsule | Ready |  | 0% | backlog/item_029_remplacer_les_assets_brand_et_les_icones_pwa_kapsule.md |
+| [item_030_publier_la_version_1_0_9_apres_remplacement_des_assets](backlog/item_030_publier_la_version_1_0_9_apres_remplacement_des_assets.md) | Publier la version 1.0.9 apres remplacement des assets | Ready |  | 0% | backlog/item_030_publier_la_version_1_0_9_apres_remplacement_des_assets.md |
 
 ## Tasks
 
@@ -103,3 +107,4 @@ _None_
 | [task_016_orchestrer_la_console_d_administration_kapsule](tasks/task_016_orchestrer_la_console_d_administration_kapsule.md) | Orchestrer la console d'administration Kapsule | Ready |  | 0% | tasks/task_016_orchestrer_la_console_d_administration_kapsule.md |
 | [task_017_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck](tasks/task_017_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md) | Publier les derniers assets Icones V3 et ajouter Generer un deck | Done | codex | 100% | tasks/task_017_publier_les_derniers_assets_icones_v3_et_ajouter_generer_un_deck.md |
 | [task_018_publier_la_release_patch_v1_0_8_de_kapsule](tasks/task_018_publier_la_release_patch_v1_0_8_de_kapsule.md) | Publier la release patch v1.0.8 de Kapsule | Done | Claude | 100% | tasks/task_018_publier_la_release_patch_v1_0_8_de_kapsule.md |
+| [task_019_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges](tasks/task_019_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges.md) | Remplacer les assets brand Kapsule par les masters Icones V3 corriges | Ready |  | 0% | tasks/task_019_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges.md |

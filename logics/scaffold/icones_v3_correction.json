@@ -1,0 +1,121 @@
+{
+  "title": "Remplacer les assets brand Kapsule par les masters Icones V3 corriges",
+  "references": [
+    "WORK/perso/Icones V3/"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "Brand asset integration",
+    "needs": [
+      "Remplacer les assets de `apps/frontend/public/brand/`, le favicon et les icones PWA par les masters corriges."
+    ],
+    "context": [
+      "Les masters approuves sont dans `WORK/perso/Icones V3`, tous en PNG RGBA 1024x1024.",
+      "Le suffixe de variante designe le contour: `-dark` porte un lisere pale et se pose sur fond sombre, `-light` porte un contour navy et se pose sur fond clair.",
+      "Le lot Icones V3 precedemment integre reposait sur de mauvaises images: ce corpus corrige la source, pas la demarche.",
+      "Certaines marques n'ont qu'un ou deux masters (Gnosis, Paul Mondou, Kapsule, F1 Datas). Consigne operateur: reutiliser ce master unique pour l'embleme comme pour l'icone.",
+      "Les quatorze masters sont a fond transparent: coins a alpha=0 et 28% a 87% de pixels transparents selon l'asset. Consigne operateur: ne rien ajouter derriere, ni en favicon ni en embleme.",
+      "Kapsule dispose de deux masters (`kapsule-emblem.png`, `kapsule-icon.png`) sans declinaison dark/light.",
+      "`apps/frontend/dist/` est une sortie de build: elle se regenere et ne doit pas etre editee a la main.",
+      "Les icones PWA 192 et 512 sont des derives a re-generer depuis `kapsule-icon.png`."
+    ],
+    "acceptance_criteria": [
+      "AC1: Chaque fichier d'icone livre est octet pour octet le master correspondant de Icones V3.",
+      "AC2: Aucune reference d'asset n'est cassee apres remplacement, extensions et types MIME inclus.",
+      "AC3: Le rendu est verifie visuellement sur le theme reellement servi par l'application.",
+      "AC4: La transparence des masters est preservee: aucun fond, plaque ou cartouche n'est ajoute derriere l'asset, favicon et embleme compris.",
+      "AC5: La livraison se termine par un commit de version X.Y.Z+1, un push, puis un tag annote vX.Y.Z+1 dont le workflow release est vert."
+    ]
+  },
+  "product": {
+    "title": "Identite Kapsule alignee sur Icones V3 corrige",
+    "overview": "L'application et son manifeste PWA doivent servir les masters approuves.",
+    "goals": [
+      "Embleme, favicon et icones PWA issus d'une source unique.",
+      "Liens vers Gnosis et Paul Mondou coherents avec leurs masters."
+    ],
+    "non_goals": [
+      "Modifier la strategie de theming du frontend."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Remplacer les assets brand et les icones PWA Kapsule",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "Brand asset integration",
+      "request_acs": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4"
+      ],
+      "problem": [
+        "Les assets brand servis proviennent d'un lot errone."
+      ],
+      "scope_in": [
+        "`public/brand/kapsule-emblem.png` depuis `kapsule/kapsule-emblem.png`",
+        "`public/brand/kapsule-favicon.png` et `public/favicon.png` depuis `kapsule/kapsule-icon.png`",
+        "`public/brand/gnosis-icon.png` depuis `gnosis/gnosis.png`",
+        "`public/brand/paulmondou-emblem.png` depuis `paulmondou/paulmondou-emblem.png`",
+        "Regeneration de `pwa-192x192.png` et `pwa-512x512.png` par redimensionnement de `kapsule-icon.png`"
+      ],
+      "scope_out": [
+        "Editer `apps/frontend/dist/`: sortie de build regeneree par la CI.",
+        "Modifier les captures de `docs/screenshots/`.",
+        "Ajouter un fond, une plaque de couleur ou un cartouche derriere un asset transparent."
+      ],
+      "acceptance_criteria": [
+        "AC1: Les quatre assets de `public/brand/` correspondent aux masters attendus.",
+        "AC2: Les deux icones PWA sont des reductions propres du master icone.",
+        "AC3: Le favicon et l'embleme s'affichent correctement dans l'application buildee."
+      ]
+    },
+    {
+      "title": "Publier la version 1.0.9 apres remplacement des assets",
+      "priority": "High",
+      "complexity": "Low",
+      "theme": "Release delivery",
+      "request_acs": [
+        "AC5"
+      ],
+      "problem": [
+        "Sans commit de version ni tag, les nouveaux assets restent non deployes: le tag `v1.0.9` est le seul declencheur du deploiement."
+      ],
+      "scope_in": [
+        "Incrementer `package.json` et la racine de `package-lock.json` de `1.0.8` vers `1.0.9`",
+        "Commit `Prepare ... v1.0.9` puis push sur `main`",
+        "Attente du CI vert sur ce commit exact avant tout tag",
+        "Tag annote `v1.0.9` pousse, puis verification des jobs validate, publish, deploy et release"
+      ],
+      "scope_out": [
+        "Taguer avant que le CI requis ne soit vert.",
+        "Retaguer une release existante ou forcer un push sur la branche de release."
+      ],
+      "acceptance_criteria": [
+        "AC1: Toutes les surfaces canoniques declarent `1.0.9`.",
+        "AC2: Le tag annote `v1.0.9` pointe sur le commit de version pousse sur `main`.",
+        "AC3: Le workflow release est vert sur validate, publish, deploy et release.",
+        "AC4: Le SHA, le tag et l'URL du run sont consignes dans le closeout de la tache."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Remplacer les assets brand Kapsule par les masters Icones V3 corriges",
+    "plan": [
+      "Copier les quatre masters vers `apps/frontend/public/brand/` et `public/favicon.png`.",
+      "Regenerer les deux icones PWA depuis le master icone.",
+      "Rebuilder le frontend et verifier que `dist/` reprend bien les nouveaux assets.",
+      "Controler favicon, embleme et lien Gnosis dans l'application.",
+      "Preparer la version `1.0.8` -> `1.0.9` dans `package.json` et la racine de `package-lock.json`.",
+      "Committer `Prepare ... v1.0.9`, pousser sur `main` et attendre le CI vert sur ce commit.",
+      "Creer et pousser le tag annote `v1.0.9`, puis verifier les quatre jobs du workflow release.",
+      "Consigner SHA, tag et URL du run dans le closeout."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/icones_v3_correction.md",
+    "mode": "diff-first",
+    "profile": "normal"
+  }
+}
