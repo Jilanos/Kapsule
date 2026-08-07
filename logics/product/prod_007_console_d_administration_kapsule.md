@@ -1,14 +1,27 @@
 ## prod_007_console_d_administration_kapsule - Console d'administration Kapsule
 > Date: 2026-08-06
-> Status: Proposed
+> Status: Settled
 > Related request: `req_015_administrer_les_utilisateurs_et_contenus_kapsule`
-> Related backlog: `item_025_administrer_les_comptes_et_roles_kapsule`, `item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule`
+> Related backlog: `item_025_administrer_les_comptes_et_roles_kapsule`
 > Related task: `task_016_orchestrer_la_console_d_administration_kapsule`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Un espace d'administration interne, protege par les sessions et le role admin Kapsule, pour gerer les comptes et contenus de facon explicite, tracable et sans acces SQL direct.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|console_d_administration_kapsule|generated
+flowchart TD
+    Admin[Session role admin] --> Guard[Garde serveur requireAdmin]
+    Guard --> Accounts[Comptes et roles]
+    Guard --> Content[Contenus et stockage]
+    Accounts --> Impact[Impact affiche puis confirmation]
+    Content --> Impact
+    Impact --> Mutation[Mutation transactionnelle]
+    Mutation --> Audit[Journal d audit en lecture seule]
+```
 
 # Goals
 - Rendre autonomes les operations courantes sur les utilisateurs, en particulier la gestion des roles guest, master et admin.
@@ -35,5 +48,5 @@ Un espace d'administration interne, protege par les sessions et le role admin Ka
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_015_administrer_les_utilisateurs_et_contenus_kapsule`
+- Product back-reference: `item_025_administrer_les_comptes_et_roles_kapsule`
 - Task back-reference: `task_016_orchestrer_la_console_d_administration_kapsule`

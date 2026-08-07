@@ -1,7 +1,7 @@
 ## req_015_administrer_les_utilisateurs_et_contenus_kapsule - Administrer les utilisateurs et contenus Kapsule
 > From version: 1.0.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

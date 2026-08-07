@@ -1,10 +1,10 @@
 ## item_026_inspecter_et_administrer_les_contenus_et_stockage_kapsule - Inspecter et administrer les contenus et stockage Kapsule
 > From version: 1.0.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Observation des donnees
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,12 +32,12 @@
 - AC5: Les ecrans de contenus restent navigables au clavier, les tableaux ont des intitules accessibles et les retours asynchrones sont annonces.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: Seul un admin peut obtenir les listings et details de contenus; les resultats appliquent des limites, pagination et champs explicitement allowlistes.
-- request-AC4 -> This backlog slice. Proof: AC2: Chaque deck affiche son proprietaire, sa visibilite, ses compteurs utiles et une estimation de volume lorsque celle-ci est definissable de facon fiable; les valeurs indisponibles sont indiquees sans approximation trompeuse.
-- request-AC5 -> This backlog slice. Proof: AC3: Le tableau de stockage affiche les tailles agregees de base, uploads et sauvegardes disponibles, sans chemin absolu ni acces au contenu des fichiers.
-- request-AC6 -> This backlog slice. Proof: AC4: Toute suppression de contenu affiche les dependances et consequences, demande confirmation, s'execute dans une transaction ou selon une strategie compensee documentee, puis laisse un evenement d'audit.
-- request-AC7 -> This backlog slice. Proof: AC5: Les ecrans de contenus restent navigables au clavier, les tableaux ont des intitules accessibles et les retours asynchrones sont annonces.
-- request-AC8 -> This backlog slice. Proof: AC5: Les ecrans de contenus restent navigables au clavier, les tableaux ont des intitules accessibles et les retours asynchrones sont annonces.
+- request-AC1 -> This backlog slice. Proof: AC1: Seul un admin peut obtenir les listings et details de contenus; les resultats appliquent des limites, pagination et champs explicitement allowlistes. Verifie par `apps/backend/test/admin-content.test.mjs` : jeu de cles exact du listing decks, pagination plafonnee, recherche titre et identifiant ; routes gardees (voir `admin-accounts.test.mjs`).
+- request-AC4 -> This backlog slice. Proof: AC2: Chaque deck affiche son proprietaire, sa visibilite, ses compteurs utiles et une estimation de volume lorsque celle-ci est definissable de facon fiable; les valeurs indisponibles sont indiquees sans approximation trompeuse. Verifie par `apps/backend/test/admin-content.test.mjs` : proprietaire, email, visibilite, compteurs et `dataBytes` exacts ; `assetBytes` a `null` quand le dossier est absent, octets reels sinon.
+- request-AC5 -> This backlog slice. Proof: AC3: Le tableau de stockage affiche les tailles agregees de base, uploads et sauvegardes disponibles, sans chemin absolu ni acces au contenu des fichiers. Verifie par `apps/backend/test/admin-content.test.mjs` : tailles agregees base/uploads/sauvegardes, categorie indisponible annoncee telle quelle, aucun chemin ni nom de fichier dans la reponse.
+- request-AC6 -> This backlog slice. Proof: AC4: Toute suppression de contenu affiche les dependances et consequences, demande confirmation, s'execute dans une transaction ou selon une strategie compensee documentee, puis laisse un evenement d'audit. Verifie par `apps/backend/test/admin-content.test.mjs` : impact prealable avec `affectedUsers`, `confirmId` obligatoire, suppression transactionnelle de deck/fiches/progression/revisions, retrait des assets apres commit, evenement `deck.delete` audite.
+- request-AC7 -> This backlog slice. Proof: AC5: Les ecrans de contenus restent navigables au clavier, les tableaux ont des intitules accessibles et les retours asynchrones sont annonces. Verifie par `apps/backend/test/admin-content.test.mjs` : l'apercu ne contient ni chemin absolu, ni `.sqlite`, ni nom de fichier ; aucune route de lecture ou de telechargement d'upload ou de sauvegarde n'est exposee.
+- request-AC8 -> This backlog slice. Proof: AC5: Les ecrans de contenus restent navigables au clavier, les tableaux ont des intitules accessibles et les retours asynchrones sont annonces. Verifie par `apps/frontend/test/admin-format.test.mjs` (mise en forme non trompeuse : `indisponible` plutot que `0`) et `apps/frontend/test/admin-dialog.test.mjs` (markup accessible de la confirmation et de la pagination).
 
 # Decision framing
 - Product framing: Not needed
@@ -58,3 +58,9 @@
 # Priority
 - Priority: Medium - apporte la visibilite operationnelle apres la suppression du besoin urgent de SQL pour les comptes.
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_016_orchestrer_la_console_d_administration_kapsule`
+
+# Notes
+- Task `task_016_orchestrer_la_console_d_administration_kapsule` was finished via `logics-manager flow finish task` on 2026-08-07.
