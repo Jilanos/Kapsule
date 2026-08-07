@@ -97,4 +97,45 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ state, quizScore }),
     }),
+
+  // Console d'administration (role admin ; le backend renvoie 403 sinon — le
+  // masquage de l'entree de menu n'est qu'un confort, jamais la securite).
+  admin: {
+    listUsers: (params) => req(`/admin/users${adminQuery(params)}`),
+    getUser: (userId) => req(`/admin/users/${encodeURIComponent(userId)}`),
+    setUserRole: (userId, role) =>
+      req(`/admin/users/${encodeURIComponent(userId)}/role`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ role }),
+      }),
+    // `confirmId` reprend l'identifiant de la cible : une suppression ne peut
+    // pas partir d'un simple clic (contrat serveur).
+    deleteUser: (userId) =>
+      req(`/admin/users/${encodeURIComponent(userId)}`, {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ confirmId: userId }),
+      }),
+    listDecks: (params) => req(`/admin/decks${adminQuery(params)}`),
+    getDeckImpact: (deckId) => req(`/admin/decks/${encodeURIComponent(deckId)}/impact`),
+    deleteDeck: (deckId) =>
+      req(`/admin/decks/${encodeURIComponent(deckId)}`, {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ confirmId: deckId }),
+      }),
+    storage: () => req("/admin/storage"),
+    listAudit: (params) => req(`/admin/audit${adminQuery(params)}`),
+  },
 };
+
+/** Chaine de requete admin : seules les cles fournies sont envoyees. */
+function adminQuery({ q, limit, offset } = {}) {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (limit != null) params.set("limit", String(limit));
+  if (offset) params.set("offset", String(offset));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}

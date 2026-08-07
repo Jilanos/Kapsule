@@ -60,6 +60,18 @@ export class Store {
     );
   }
 
+  /**
+   * Metadonnees lisibles d'un deck (titre + visibilite + proprietaire) ou null.
+   * Sert a capturer l'etat *avant* une mutation administrative pour l'audit.
+   */
+  getDeckSummary(deckId) {
+    return (
+      this.db
+        .prepare(`SELECT id, title, visibility, owner_id AS ownerId FROM decks WHERE id = ?`)
+        .get(deckId) ?? null
+    );
+  }
+
   /** Change la visibilite d'un deck (route admin). Renvoie true si applique. */
   setDeckVisibility(deckId, visibility) {
     const info = this.db

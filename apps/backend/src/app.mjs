@@ -9,6 +9,8 @@ import { fileURLToPath } from "node:url";
 import { formatErrors } from "@kapsule/schema";
 import { Store } from "./store.mjs";
 import { AuthStore } from "./auth.mjs";
+import { AuditStore } from "./audit.mjs";
+import { AdminStore, normalizePaging } from "./admin.mjs";
 import { createRateLimiter } from "./rate-limit.mjs";
 import {
   canonicalAssetPath,
@@ -24,6 +26,9 @@ import {
   canDeleteDeck,
   canChangeVisibility,
   canMarkDeckLearned,
+  canAdminister,
+  checkRoleChange,
+  checkUserDeletion,
 } from "./permissions.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,6 +45,18 @@ const STATIC_DIR =
 export function createApp(db, options = {}) {
   const store = new Store(db);
   const auth = new AuthStore(db);
+  const audit = new AuditStore(db);
+  // Chemins de stockage pour l'apercu admin. `db.name` est le fichier ouvert par
+  // better-sqlite3 : pas de duplication de la logique de resolution de db.mjs.
+  // Ces chemins restent internes, seules des tailles en octets sont exposees.
+  const dbPath = db.name;
+  const admin = new AdminStore(db, {
+    dbPath,
+    uploadsDir: UPLOADS_DIR,
+    backupDir:
+      process.env.KAPSULE_BACKUP_DIR ??
+      (dbPath && dbPath !== ":memory:" ? join(dirname(dbPath), "backups") : null),
+  });
   const app = express();
   // Caddy est l'unique proxy attendu; ne faire confiance qu'a son saut direct.
   app.set("trust proxy", Number(process.env.KAPSULE_TRUST_PROXY_HOPS ?? 1));
@@ -250,18 +267,33 @@ export function createApp(db, options = {}) {
     if (!VALID_VISIBILITY.includes(visibility)) {
       return res.status(400).json({ error: `visibilite invalide "${visibility}"` });
     }
+    // Etat avant mutation : necessaire a la trace d'audit (req_015 AC6).
+    const before = store.getDeckSummary(req.params.deckId);
+    if (!before) return res.status(404).json({ error: "deck introuvable" });
     if (!store.setDeckVisibility(req.params.deckId, visibility)) {
       return res.status(404).json({ error: "deck introuvable" });
     }
+    admin.recordVisibilityChange(req.params.deckId, before, visibility, audit, {
+      id: req.user.id,
+      email: req.user.email,
+    });
     res.json({ ok: true, visibility });
   });
 
+  // Suppression d'un deck depuis le lecteur (contrat historique : 204, sans
+  // confirmation portee par le corps). Delegue a l'adaptateur admin pour
+  // beneficier du meme nettoyage de dependances et de la meme trace d'audit que
+  // la console : la progression et les revisions du deck ne doivent pas survivre
+  // au deck (ces tables n'ont pas de cle etrangere).
   app.delete("/api/decks/:deckId", requireAuth, (req, res) => {
     if (!canDeleteDeck(req.user)) {
       return res.status(403).json({ error: "seul l'administrateur peut supprimer un deck" });
     }
-    const removed = store.deleteDeck(req.params.deckId);
-    if (!removed) return res.status(404).json({ error: "deck introuvable" });
+    const result = admin.deleteDeck(req.params.deckId, audit, {
+      id: req.user.id,
+      email: req.user.email,
+    });
+    if (!result.ok) return res.status(404).json({ error: "deck introuvable" });
     res.status(204).end();
   });
 
@@ -333,6 +365,94 @@ export function createApp(db, options = {}) {
     );
     if (!result.ok) return res.status(404).json({ error: result.error });
     res.json({ ok: true, review: result.review });
+  });
+
+  // --- Console d'administration (req_015) ----------------------------------
+  // Toutes les routes ci-dessous passent par requireAuth puis requireAdmin :
+  // l'autorisation est portee par le serveur, jamais par le masquage frontend.
+  // 401 sans session valide, 403 pour un invite ou un maitre, y compris en
+  // appelant l'URL directement (req_015 AC1).
+
+  const requireAdmin = (req, res, next) => {
+    if (!canAdminister(req.user)) {
+      return res.status(403).json({ error: "action reservee a l'administrateur" });
+    }
+    next();
+  };
+  const adminOnly = [requireAuth, requireAdmin];
+  // Acteur consigne dans l'audit : identite minimale, jamais le token.
+  const actorOf = (req) => ({ id: req.user.id, email: req.user.email });
+  // Une suppression doit porter l'identifiant de sa cible : un clic seul ne
+  // suffit pas (item_025 AC4 / item_026 AC4).
+  const confirmationMatches = (req, expectedId) => (req.body?.confirmId ?? null) === expectedId;
+
+  app.get("/api/admin/users", ...adminOnly, (req, res) => {
+    res.json(admin.listUsers({ q: req.query.q, limit: req.query.limit, offset: req.query.offset }));
+  });
+
+  app.get("/api/admin/users/:userId", ...adminOnly, (req, res) => {
+    const user = admin.getUser(req.params.userId);
+    if (!user) return res.status(404).json({ error: "compte introuvable" });
+    res.json({ user });
+  });
+
+  app.patch("/api/admin/users/:userId/role", ...adminOnly, (req, res) => {
+    const target = admin.getUserForMutation(req.params.userId);
+    if (!target) return res.status(404).json({ error: "compte introuvable" });
+    const { role } = req.body ?? {};
+    const check = checkRoleChange(req.user, target, role, admin.countAdmins());
+    if (!check.ok) return res.status(check.status).json({ error: check.error });
+    const result = admin.setUserRole(target, role, audit, actorOf(req));
+    if (!result.ok) return res.status(404).json({ error: "compte introuvable" });
+    res.json({ ok: true, user: result.user });
+  });
+
+  app.delete("/api/admin/users/:userId", ...adminOnly, (req, res) => {
+    const target = admin.getUserForMutation(req.params.userId);
+    if (!target) return res.status(404).json({ error: "compte introuvable" });
+    const check = checkUserDeletion(req.user, target, admin.countAdmins());
+    if (!check.ok) return res.status(check.status).json({ error: check.error });
+    if (!confirmationMatches(req, target.id)) {
+      return res
+        .status(400)
+        .json({ error: "confirmation manquante : renvoyez l'identifiant du compte cible" });
+    }
+    const result = admin.deleteUser(target, audit, actorOf(req));
+    if (!result.ok) return res.status(404).json({ error: "compte introuvable" });
+    res.json({ ok: true, impact: result.impact, assetCleanup: result.assetCleanup });
+  });
+
+  app.get("/api/admin/decks", ...adminOnly, (req, res) => {
+    res.json(admin.listDecks({ q: req.query.q, limit: req.query.limit, offset: req.query.offset }));
+  });
+
+  app.get("/api/admin/decks/:deckId/impact", ...adminOnly, (req, res) => {
+    const impact = admin.getDeckDeletionImpact(req.params.deckId);
+    if (!impact) return res.status(404).json({ error: "deck introuvable" });
+    res.json({ impact });
+  });
+
+  // Suppression administrative d'un deck : contrairement a DELETE /api/decks/:id,
+  // elle exige une confirmation portant l'identifiant, nettoie la progression et
+  // les revisions (tables sans cle etrangere) et laisse une trace d'audit.
+  app.delete("/api/admin/decks/:deckId", ...adminOnly, (req, res) => {
+    if (!confirmationMatches(req, req.params.deckId)) {
+      return res
+        .status(400)
+        .json({ error: "confirmation manquante : renvoyez l'identifiant du deck cible" });
+    }
+    const result = admin.deleteDeck(req.params.deckId, audit, actorOf(req));
+    if (!result.ok) return res.status(404).json({ error: "deck introuvable" });
+    res.json({ ok: true, impact: result.impact, assetCleanup: result.assetCleanup });
+  });
+
+  app.get("/api/admin/storage", ...adminOnly, (_req, res) => {
+    res.json(admin.storageOverview());
+  });
+
+  app.get("/api/admin/audit", ...adminOnly, (req, res) => {
+    const { limit, offset } = normalizePaging({ limit: req.query.limit, offset: req.query.offset });
+    res.json({ ...audit.list({ limit, offset }), limit, offset });
   });
 
   // --- Frontend statique (production) --------------------------------------

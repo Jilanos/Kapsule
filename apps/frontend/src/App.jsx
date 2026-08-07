@@ -3,6 +3,7 @@ import { Link, useLocation } from "./router.jsx";
 import { DeckList } from "./pages/DeckList.jsx";
 import { DeckReader } from "./pages/DeckReader.jsx";
 import { ReviewSession } from "./pages/ReviewSession.jsx";
+import { AdminConsole } from "./pages/AdminConsole.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
 import { AuthScreen } from "./auth/AuthScreen.jsx";
 
@@ -48,6 +49,13 @@ export function App() {
           <span className="header-email" title={user.email}>
             {user.email}
           </span>
+          {/* Entree de menu reservee a l'admin. Ce n'est qu'un confort : la
+              console et ses routes API refusent d'elles-memes tout autre role. */}
+          {user.role === "admin" && (
+            <Link to="/admin" className="link-btn">
+              Administration
+            </Link>
+          )}
           <button type="button" className="link-btn" onClick={logout}>
             Déconnexion
           </button>
@@ -69,6 +77,7 @@ export function App() {
       >
         {pathname === "/" && <DeckList />}
         {pathname === "/reviews" && <ReviewSession />}
+        {pathname === "/admin" && <AdminConsole />}
         {pathname.startsWith("/decks/") && <DeckReader />}
       </main>
     </div>

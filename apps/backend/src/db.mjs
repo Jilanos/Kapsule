@@ -137,6 +137,30 @@ const MIGRATIONS = [
       update.run(createHash("sha256").update(row.token).digest("hex"), row.token);
     }
   },
+
+  // 6 : journal d'audit des actions d'administration (console admin).
+  // Volontairement sans cle etrangere vers users : le journal doit survivre a
+  // la suppression du compte acteur ou cible, sinon l'audit disparaitrait avec
+  // la trace qu'il justifie. L'email de l'acteur est donc recopie au moment de
+  // l'ecriture. Aucun secret n'y est jamais consigne (pas de hash, pas de
+  // token) : les etats avant/apres sont des JSON de champs allowlistes.
+  (db) =>
+    db.exec(`
+    CREATE TABLE IF NOT EXISTS audit_log (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at    TEXT NOT NULL,
+      actor_id      TEXT,                   -- instantane : pas de FK (voir ci-dessus)
+      actor_email   TEXT,
+      action        TEXT NOT NULL,          -- ex. 'user.role.update', 'deck.delete'
+      target_type   TEXT NOT NULL,          -- 'user' | 'deck'
+      target_id     TEXT,
+      target_label  TEXT,                   -- email ou titre, pour rester lisible apres suppression
+      before_state  TEXT,                   -- JSON allowliste ou NULL
+      after_state   TEXT,                   -- JSON allowliste ou NULL
+      detail        TEXT                    -- JSON : compteurs d'impact ou NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC, id DESC);
+  `),
 ];
 
 /** Applique les migrations manquantes selon PRAGMA user_version. */

@@ -74,6 +74,9 @@ planification SM-2. Kapsule vous rappelle **quoi réviser, et quand** — la vue
 - **Rôles & visibilité** : `guest` / `master` / `admin` ; decks `private`,
   `general`, `master`. Toute route liée à un deck applique la même décision
   d'autorisation.
+- **Console d'administration** (`/admin`, rôle `admin`) : comptes et rôles,
+  inspection des contenus, aperçu du stockage, journal d'audit
+  (voir [Administrer Kapsule](#administrer-kapsule)).
 - **Progression** cloisonnée par utilisateur.
 - **Répétition espacée (SM-2)** : la note dérive du score de quiz ; vue
   « Révisions du jour » multi-decks.
@@ -117,13 +120,14 @@ npm run validate-deck -- decks/reseaux-essentiels.json
 
 ## Configuration (variables d'environnement)
 
-| Variable               | Rôle                                                                 | Défaut               |
-| ---------------------- | -------------------------------------------------------------------- | -------------------- |
-| `PORT`                 | Port d'écoute de l'API                                               | `3001`               |
-| `KAPSULE_DB`           | Chemin du fichier SQLite                                             | local `apps/backend` |
-| `KAPSULE_UPLOADS`      | Dossier des assets d'images de decks                                 | local `apps/backend` |
-| `KAPSULE_REGISTRATION` | `open` / `closed` — **fermée par défaut** si `NODE_ENV=production`   | selon environnement  |
-| `KAPSULE_ASSET_SECRET` | Secret HMAC de signature des URLs d'assets (**obligatoire** en prod) | —                    |
+| Variable               | Rôle                                                                 | Défaut                    |
+| ---------------------- | -------------------------------------------------------------------- | ------------------------- |
+| `PORT`                 | Port d'écoute de l'API                                               | `3001`                    |
+| `KAPSULE_DB`           | Chemin du fichier SQLite                                             | local `apps/backend`      |
+| `KAPSULE_UPLOADS`      | Dossier des assets d'images de decks                                 | local `apps/backend`      |
+| `KAPSULE_REGISTRATION` | `open` / `closed` — **fermée par défaut** si `NODE_ENV=production`   | selon environnement       |
+| `KAPSULE_ASSET_SECRET` | Secret HMAC de signature des URLs d'assets (**obligatoire** en prod) | —                         |
+| `KAPSULE_BACKUP_DIR`   | Dossier des sauvegardes (mesuré par l'aperçu de stockage admin)      | `<KAPSULE_DB>/../backups` |
 
 Les variables et secrets de production sont documentes dans le repo
 [`paulmondou-infra`](https://github.com/Jilanos/paulmondou-infra), qui porte le
@@ -138,6 +142,64 @@ Compose VPS et les fichiers Caddy.
 - **Frontend** : React + React Router + Vite (PWA via `vite-plugin-pwa`).
 - **Décisions d'architecture** : voir `logics/architecture/` (ADR 001–003).
 
+## Administrer Kapsule
+
+La console `/admin` remplace les interventions SQL ponctuelles en production.
+Elle est réservée au rôle `admin` : chaque route `/api/admin/*` vérifie la
+session côté serveur et répond `403` à un `guest` ou un `master`, y compris en
+appel direct. Le masquage de l'entrée de menu n'est qu'un confort.
+
+**Premier administrateur.** Aucune route ne crée d'admin : le premier doit être
+promu en base, une seule fois.
+
+```bash
+sqlite3 "$KAPSULE_DB" \
+  "UPDATE users SET role='admin' WHERE email='vous@exemple.fr';"
+```
+
+Ensuite, tout se fait depuis la console.
+
+**Ce que la console permet.**
+
+| Onglet   | Contenu                                                                     |
+| -------- | --------------------------------------------------------------------------- |
+| Comptes  | Recherche par email, rôles, activité, compteurs de contenus, suppression    |
+| Contenus | Decks avec propriétaire, visibilité, fiches, volumes, lecteurs, suppression |
+| Stockage | Tailles agrégées (base, images, sauvegardes) et compteurs de données        |
+| Journal  | Trace en lecture seule des actions sensibles                                |
+
+**Garde-fous.** Ils sont appliqués par le serveur, pas par l'interface :
+
+- le **dernier administrateur** ne peut être ni rétrogradé ni supprimé ;
+- personne ne modifie son propre rôle ni ne supprime son propre compte ;
+- toute suppression exige de **retaper l'identifiant** de la cible, après
+  affichage de son impact ;
+- chaque changement de rôle, de visibilité et chaque suppression produit une
+  entrée d'audit (acteur, cible, avant/après, horodatage). Aucun secret n'y est
+  consigné, et l'API n'expose aucune écriture sur ce journal.
+
+**Politique de suppression d'un compte** — transactionnelle et documentée :
+
+- sessions, progression et révisions du compte : **supprimées** ;
+- ses decks **privés** : supprimés avec leurs fiches et leurs images ;
+- ses decks **partagés** (`general`, `master`) : **conservés** et rattachés à
+  « sans propriétaire ». Supprimer du contenu collectif ne doit pas être un
+  effet de bord de la suppression d'un compte.
+
+**Politique de suppression d'un deck** : fiches, progression et révisions de
+tous les lecteurs partent avec lui. L'écran annonce le nombre de comptes
+affectés avant confirmation.
+
+**Limites de l'aperçu de stockage.** Il mesure uniquement le volume Kapsule :
+fichier SQLite (et ses journaux WAL), dossier d'images, dossier de sauvegardes.
+Il ne renvoie ni chemin, ni nom de fichier, ni contenu, et ne permet aucun
+téléchargement. Une catégorie non montée est affichée **« indisponible »** —
+jamais `0`, qui laisserait croire à un volume mesuré et vide. Les volumes des
+autres applications et de l'hôte Docker sont hors périmètre.
+
+**Ce que la console n'est pas** : ni console SQL, ni éditeur de colonnes brutes,
+ni portail transverse aux autres applications, ni explorateur de fichiers.
+
 ## Sécurité
 
 - Mots de passe hachés (`scrypt`, sel par utilisateur), hachage asynchrone.
@@ -145,6 +207,8 @@ Compose VPS et les fichiers Caddy.
   expirées, écritures de session throttlées.
 - Rate limiting sur `login`/`register`, bornage des entrées.
 - Assets d'images de decks servis par **URL signée** à durée de vie courte.
+- Console d'administration gardée côté serveur, mutations sensibles auditées et
+  projections allowlistées (ni hash, ni token, ni chemin absolu en réponse).
 - En production : conteneur non-root, en-têtes CSP/HSTS via Caddy, inscription
   fermée par défaut.
 - CI : tests, build, audit des dépendances, scan de secrets (gitleaks), CodeQL,
