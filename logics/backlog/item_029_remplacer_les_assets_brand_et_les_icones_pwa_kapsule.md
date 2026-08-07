@@ -1,10 +1,10 @@
 ## item_029_remplacer_les_assets_brand_et_les_icones_pwa_kapsule - Remplacer les assets brand et les icones PWA Kapsule
 > From version: 1.0.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 60%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Brand asset integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,6 +34,7 @@
 - request-AC2 -> This backlog slice. Proof: AC2: Les deux icones PWA sont des reductions propres du master icone.
 - request-AC3 -> This backlog slice. Proof: AC3: Le favicon et l'embleme s'affichent correctement dans l'application buildee.
 - request-AC4 -> This backlog slice. Proof: AC3: Le favicon et l'embleme s'affichent correctement dans l'application buildee.
+- request-AC5 -> This backlog slice. Evidence needed: La livraison se termine par un commit de version X.Y.Z+1, un push, puis un tag annote vX.Y.Z+1 dont le workflow release est vert.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +55,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_019_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges`
+
+# Notes
+- Task `task_019_remplacer_les_assets_brand_kapsule_par_les_masters_icones_v3_corriges` was finished via `logics-manager flow finish task` on 2026-08-07.
