@@ -6,9 +6,23 @@
 > Related task: `task_012_orchestrer_la_remediation_de_l_audit_kapsule`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Overview
 Retablir un gate de release, des limites de ressources et des sessions defensives.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|securisation_et_fiabilisation_de_kapsule|generated
+flowchart TD
+    Audit[Constats d audit technique] --> Deps[Gate dependances et controles proxy]
+    Audit --> Limits[Bornes imports stockage et contrat assets]
+    Audit --> Sessions[Sessions defensives et couverture navigateur]
+    Deps --> Gate[Gate de release retabli]
+    Limits --> Gate
+    Sessions --> Gate
+    Gate --> Ops[Operations testees]
+```
 
 # Goals
 - Dependances sures

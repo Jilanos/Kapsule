@@ -6,9 +6,22 @@
 > Related task: `task_013_orchestrer_la_lecture_neutre_et_la_navigation_persistante`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Overview
 Permettre de lire et parcourir librement un deck sans alterer la progression, avec une navigation fixe et accessible.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|lecture_neutre_et_navigation_persistante_des_fiches|generated
+flowchart TD
+    Reader[Lecture d une fiche] --> Nav[Navigation fixe et accessible]
+    Reader --> Neutral[Consultation sans effet]
+    Neutral --> Status[Statut inchange]
+    Neutral --> Reviews[Revisions inchangees]
+    Explicit[Marquage explicite] --> Progress[Seule voie de progression]
+    Progress --> Reviews
+```
 
 # Goals
 - Rendre les actions de navigation disponibles a tout moment.
