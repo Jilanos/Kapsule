@@ -21,14 +21,22 @@
   une preuve non sensible et une coordination operateur explicite.
 
 # Definition of Done (DoD)
-- [ ] Les protections P0 secrets, cache et autorisations sont livrees et verifiees.
-- [ ] Les 11 criteres d'acceptation ont une preuve reproductible ou une preuve
-  operateur non sensible referencee dans le rapport.
-- [ ] Tests, build, lint, audits, controles accessibilite et smokes de deploiement
-  passent selon la section Validation.
-- [ ] Le brief produit et les ADR affectees sont alignes et settles via la CLI.
-- [ ] Chaque vague suit le checkpoint ADR 009 et laisse le depot commit-ready sans
-  imposer un commit par micro-etape.
+> DoD soldee par transfert, non par livraison directe : cette task est `Obsolete`
+> a 95% et `task_012_orchestrer_la_remediation_de_l_audit_kapsule` (Done, 100%,
+> DoD complete) a repris le reliquat. Les cases ci-dessous sont cochees au titre
+> de ce transfert, pas d'une verification refaite ici ; la preuve de chaque point
+> vit dans `task_012`. Le reliquat au moment de la bascule etait entierement
+> constitue de preuves dependantes de l'operateur (AC7 secret et smoke VPS, AC8
+> run accessibilite, AC10 sauvegarde hors site et restauration, AC11 metadonnees
+> GitHub), ce qui a motive la bascule.
+- [x] Les protections P0 secrets, cache et autorisations sont livrees et verifiees. Soldee par `task_012`.
+- [x] Les 11 criteres d'acceptation ont une preuve reproductible ou une preuve
+  operateur non sensible referencee dans le rapport. Soldee par `task_012`.
+- [x] Tests, build, lint, audits, controles accessibilite et smokes de deploiement
+  passent selon la section Validation. Soldee par `task_012`.
+- [x] Le brief produit et les ADR affectees sont alignes et settles via la CLI. Soldee par `task_012` ; `adr_003` est la decision portee par ce chantier.
+- [x] Chaque vague suit le checkpoint ADR 009 et laisse le depot commit-ready sans
+  imposer un commit par micro-etape. Soldee par `task_012`.
 
 # Backlog
 - `item_010_durcir_kapsule_apres_audit_transversal`
