@@ -9,6 +9,7 @@
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Owner: Claude
+> Indicators reviewed: 2026-08-08
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -41,6 +42,7 @@
 - request-AC4, request-AC6 -> `item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3`. Proof: les trois marques affichees sont servies depuis les masters SVG Icones V3 (`public/brand/kapsule-emblem.svg`, `paulmondou-emblem.svg`, `gnosis.svg`) ; les quatre PNG brand precedents sont retires, le favicon passe en SVG avec repli PNG genere, et `pwa-192x192.png` / `pwa-512x512.png` / `favicon.png` sont regeneres a l'identique depuis le master raster Kapsule. Aucune marque du lot hors Kapsule / Paul Mondou / Gnosis n'entre dans le depot.
 
 # Validation
+- `logics-manager release validate 1.0.11` : passed, six gates au vert et worktree propre.
 - `npm run format:check` : All matched files use Prettier code style.
 - `npm test` : 117 tests, 0 echec (10 schema, 79 backend, 28 frontend) — contre 105 avant la tache.
 - `npm run build` : build Vite OK, `dist/brand/` ne contient que les trois SVG Icones V3, precache PWA 8 entrees.
@@ -57,7 +59,9 @@
 - Edition de deck (item_032) : `decks.data` porte le JSON complet servi au lecteur et y duplique titre et description. La colonne et le JSON sont donc ecrits dans la meme transaction que l'audit — un titre corrige dans la console mais pas dans le lecteur aurait ete pire que pas de correction. `description` est ajoutee a l'allowlist d'audit ; `describeAuditTransition` ne resume plus que les champs reellement modifies, sinon une edition de titre aurait affiche « general → general ».
 - Une route `GET /api/admin/decks/:deckId` est ajoutee : le formulaire part de l'etat serveur et non du dernier listing, dont la projection bornee n'expose pas la description. Ce choix evite d'alourdir le listing d'un champ de 500 caracteres par ligne jamais affiche dans le tableau.
 - Assets (item_033) : le master raster Kapsule quitte `public/` pour `apps/frontend/assets/brand/kapsule-icon-master.png`. Il n'est jamais servi — c'est une source de build, le pipeline d'icones n'ayant aucun moteur de rendu SVG — et 83 Ko de poids mort sortent ainsi de `dist/`.
-- Non fait volontairement : aucune release ni bump de version. Le plan de cette tache ne porte pas d'etape de publication ; la version reste `1.0.10`.
+- Publication demandee par l'operateur apres la cloture de la tache : le contenu est livre en `v1.0.11` (commits `fd8e66b` travail et `b219c36` preparation de version). Le plan de la tache ne portait pas d'etape de publication, elle est donc tracee ici et dans les gates de release.
+- Chaine de release : CI run 31250475455 et CodeQL run 31250475442 verts sur `b219c36` *avant* la pose du tag, conformement a la lecon de `task_019` (ne jamais tagger sur un CI non valide). Tag annote `v1.0.11`, workflow `Release by tag` run 31250574026 avec ses quatre jobs verts (validate, publish, deploy, release).
+- Prod verifiee apres deploiement : `/api/health` renvoie `ok=true, ready=true, schemaVersion=6`, et les trois masters Icones V3 sont servis en `image/svg+xml`. L'ancien `/brand/kapsule-emblem.png` ne renvoie plus que le repli SPA : le fichier est bien absent du build deploye.
 - Finished on 2026-08-08.
 - Linked backlog item(s): `item_031_etendre_et_rendre_lisible_la_console_d_administration`, `item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration`, `item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3`
 - Related request(s): `req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3`
