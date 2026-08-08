@@ -10,7 +10,7 @@ import { formatErrors } from "@kapsule/schema";
 import { Store } from "./store.mjs";
 import { AuthStore } from "./auth.mjs";
 import { AuditStore } from "./audit.mjs";
-import { AdminStore, normalizePaging } from "./admin.mjs";
+import { AdminStore, normalizePaging, parseDeckMetadataPatch } from "./admin.mjs";
 import { createRateLimiter } from "./rate-limit.mjs";
 import {
   canonicalAssetPath,
@@ -426,10 +426,30 @@ export function createApp(db, options = {}) {
     res.json(admin.listDecks({ q: req.query.q, limit: req.query.limit, offset: req.query.offset }));
   });
 
+  // Metadonnees editables d'un deck. Lues juste avant d'ouvrir l'edition, pour
+  // que le formulaire parte de l'etat serveur et non du dernier listing.
+  app.get("/api/admin/decks/:deckId", ...adminOnly, (req, res) => {
+    const deck = admin.getDeckMetadata(req.params.deckId);
+    if (!deck) return res.status(404).json({ error: "deck introuvable" });
+    res.json({ deck });
+  });
+
   app.get("/api/admin/decks/:deckId/impact", ...adminOnly, (req, res) => {
     const impact = admin.getDeckDeletionImpact(req.params.deckId);
     if (!impact) return res.status(404).json({ error: "deck introuvable" });
     res.json({ impact });
+  });
+
+  // Edition administrative bornee des metadonnees d'un deck (item_032).
+  // L'allowlist est portee par `parseDeckMetadataPatch` : l'identifiant, le
+  // proprietaire, les fiches et les assets ne sont accessibles par aucun champ
+  // de cette route, et une cle inconnue est refusee en 400 plutot qu'ignoree.
+  app.patch("/api/admin/decks/:deckId", ...adminOnly, (req, res) => {
+    const parsed = parseDeckMetadataPatch(req.body);
+    if (!parsed.ok) return res.status(parsed.status).json({ error: parsed.error });
+    const result = admin.updateDeckMetadata(req.params.deckId, parsed.patch, audit, actorOf(req));
+    if (!result.ok) return res.status(404).json({ error: "deck introuvable" });
+    res.json({ ok: true, deck: result.deck });
   });
 
   // Suppression administrative d'un deck : contrairement a DELETE /api/decks/:id,

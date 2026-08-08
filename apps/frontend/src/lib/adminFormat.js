@@ -128,16 +128,40 @@ export const AUDIT_ACTION_LABEL = {
   "user.delete": "Suppression de compte",
   "deck.delete": "Suppression de deck",
   "deck.visibility.update": "Changement de visibilité",
+  "deck.metadata.update": "Modification de deck",
 };
 
-/** Resume « avant -> apres » d'un evenement d'audit, ou chaine vide. */
+/** Libelle humain d'un champ de deck ou de compte trace par l'audit. */
+const AUDIT_FIELD_LABEL = {
+  role: "rôle",
+  title: "titre",
+  description: "description",
+  visibility: "visibilité",
+};
+
+/**
+ * Resume « avant -> apres » d'un evenement d'audit, ou chaine vide.
+ *
+ * Une edition de metadonnees porte trois champs a la fois : seuls ceux qui ont
+ * reellement change sont resumes, sinon un changement de titre afficherait
+ * « general → general » et noierait l'information utile (item_032 AC3).
+ */
 export function describeAuditTransition(event) {
   const before = event?.beforeState ?? null;
   const after = event?.afterState ?? null;
-  const field = (state) => state?.role ?? state?.visibility ?? null;
-  const from = field(before);
-  const to = field(after);
-  if (from && to) return `${from} → ${to}`;
-  if (from && !after) return `${from} → supprimé`;
-  return "";
+  const single = (state) => state?.role ?? state?.visibility ?? null;
+
+  if (before && !after) return single(before) ? `${single(before)} → supprimé` : "";
+  if (!before || !after) return "";
+
+  const changed = Object.keys(after).filter((key) => before[key] !== after[key]);
+  if (changed.length === 0) return "";
+  // Un seul champ enumere (role, visibilite) : sa transition se lit directement.
+  if (changed.length === 1 && (changed[0] === "role" || changed[0] === "visibility")) {
+    return `${before[changed[0]]} → ${after[changed[0]]}`;
+  }
+  // Sinon on nomme les champs touches : afficher des descriptions entieres dans
+  // une cellule de tableau serait illisible, et le journal garde le detail.
+  const fields = changed.map((key) => AUDIT_FIELD_LABEL[key] ?? key);
+  return `${fields.join(", ")} modifié${changed.length > 1 ? "s" : ""}`;
 }

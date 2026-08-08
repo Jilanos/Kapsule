@@ -69,7 +69,7 @@ export function ImportDeck({ onImported }) {
           aria-label="Générer un deck avec Gnosis"
           title="Générer un deck avec Gnosis"
         >
-          <img src="/brand/gnosis-icon.png" alt="" aria-hidden="true" />
+          <img src="/brand/gnosis.svg" alt="" aria-hidden="true" />
           Générer un deck
         </a>
       </div>

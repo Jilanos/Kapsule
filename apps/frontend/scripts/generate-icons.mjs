@@ -1,5 +1,12 @@
-// Genere les icones PWA (PNG) sans dependance externe et conserve le favicon
-// Kapsule versionne dans public/brand.
+// Genere les icones PWA (PNG) et le favicon de repli, sans dependance externe.
+//
+// Source : `assets/brand/kapsule-icon-master.png`, rendu raster du master
+// Kapsule Icones V3. Les emblemes affiches par l'application sont servis en SVG
+// depuis ce meme lot, mais le manifeste PWA impose des PNG 192/512 et ce script
+// n'a aucun moteur de rendu SVG : le raster reste donc la source du pipeline
+// d'icones (item_033 AC3). Il vit hors de `public/` parce qu'il n'est jamais
+// servi : c'est une source de build, pas un asset de l'application. Le
+// regenerer suppose d'abord de reexporter ce PNG depuis le master Icones V3.
 import { deflateSync, inflateSync } from "node:zlib";
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -7,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, "..", "public");
-const SOURCE_ICON = join(OUT, "brand", "kapsule-favicon.png");
+const SOURCE_ICON = join(__dirname, "..", "assets", "brand", "kapsule-icon-master.png");
 mkdirSync(OUT, { recursive: true });
 
 function crc32(buf) {

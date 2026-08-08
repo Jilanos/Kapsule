@@ -8,7 +8,10 @@
 /** Champs d'un compte autorises dans un etat d'audit. */
 const USER_STATE_FIELDS = ["email", "role"];
 /** Champs d'un deck autorises dans un etat d'audit. */
-const DECK_STATE_FIELDS = ["title", "visibility", "ownerId"];
+// `description` est une metadonnee editable depuis la console (item_032 AC3) :
+// elle doit apparaitre dans l'etat avant/apres. Le JSON des fiches, lui, reste
+// hors allowlist — le journal trace une decision, il ne duplique pas le contenu.
+const DECK_STATE_FIELDS = ["title", "description", "visibility", "ownerId"];
 
 const ALLOWLIST = { user: USER_STATE_FIELDS, deck: DECK_STATE_FIELDS };
 

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Kapsule emblem">
+  <title>Kapsule</title>
+  <defs>
+    <linearGradient id="kp-cup" x1="433" y1="0" x2="685" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#06415B"/>
+      <stop offset=".32" stop-color="#054F6D"/>
+      <stop offset=".74" stop-color="#0A6D8B"/>
+      <stop offset="1" stop-color="#065A79"/>
+    </linearGradient>
+    <linearGradient id="kp-cap" x1="-106" y1="0" x2="106" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#05566E"/>
+      <stop offset=".55" stop-color="#0A7290"/>
+      <stop offset="1" stop-color="#096B89"/>
+    </linearGradient>
+    <linearGradient id="kp-gloss" x1="0" y1="-195" x2="0" y2="-10" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D8F6FB" stop-opacity=".25"/>
+      <stop offset=".25" stop-color="#CFF2FA" stop-opacity=".92"/>
+      <stop offset=".62" stop-color="#8FDCEB" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#5FC0D6" stop-opacity=".15"/>
+    </linearGradient>
+    <clipPath id="kp-capclip">
+      <path d="M-106 0A106 50 0 0 1 106 0V-88.6A106 106 0 0 0-106-88.6Z"/>
+    </clipPath>
+    <linearGradient id="kp-paper" x1="475" y1="338" x2="650" y2="580" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FDFBF1"/>
+      <stop offset="1" stop-color="#EDE6D0"/>
+    </linearGradient>
+    <linearGradient id="kp-mouth" x1="-106" y1="-40" x2="60" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#DCD8C4"/>
+      <stop offset=".45" stop-color="#F3EEDC"/>
+      <stop offset="1" stop-color="#FBF7E7"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#083A52" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">
+
+    <!-- ===== cap: tilted top half ===== -->
+    <g transform="translate(459.7 325.2) rotate(-43)">
+      <path d="M-106 0A106 50 0 0 0 106 0V-88.6A106 106 0 0 0-106-88.6Z" fill="url(#kp-mouth)"/>
+      <path d="M-106 0A106 50 0 0 1 106 0V-88.6A106 106 0 0 0-106-88.6Z" fill="url(#kp-cap)"/>
+      <g clip-path="url(#kp-capclip)" stroke="none">
+        <path d="M-14.7-191.6A104 104 0 0 0-14.7 14.4A119 119 0 0 1-14.7-191.6Z" fill="#04364A" opacity=".38"/>
+        <path d="M-8.4-188.2A100 100 0 0 1-8.4 11A110 110 0 0 0-8.4-188.2Z" fill="#CDEEF8" opacity=".2"/>
+        <path d="M10.6-180A92 92 0 0 1 10.6 2.8A100 100 0 0 0 10.6-180Z" fill="url(#kp-gloss)"/>
+      </g>
+      <path d="M-106 0A106 50 0 0 1 106 0" fill="none" stroke="#0A4A63" stroke-width="9"/>
+    </g>
+
+    <!-- ===== cup: outer silhouette ===== -->
+    <path d="M433 506a126 42 0 0 1 252 0v200a126 126 0 0 1-252 0Z" fill="url(#kp-cup)"/>
+
+    <!-- opening -->
+    <ellipse cx="559" cy="506" rx="110" ry="34" fill="#06293C"/>
+
+    <!-- ===== document ===== -->
+    <g>
+      <path d="M481 342h111l54 54v186H481a10 10 0 0 1-10-10V352a10 10 0 0 1 10-10Z" fill="url(#kp-paper)"/>
+      <path d="M592 342v54h54" fill="none"/>
+      <g stroke-width="14">
+        <path d="M518 435h81"/>
+        <path d="M518 470h81"/>
+        <path d="M518 505h81"/>
+      </g>
+    </g>
+
+    <!-- ===== cup: front wall drawn over the document ===== -->
+    <path d="M449 506a110 34 0 0 0 220 0h16v200a126 126 0 0 1-252 0V506Z" fill="url(#kp-cup)" stroke="none"/>
+    <path d="M449 506a110 34 0 0 0 220 0" fill="none" stroke-width="10"/>
+    <path d="M435 506a126 42 0 0 0 248 0" fill="none" stroke="#2E96AD" stroke-width="9"/>
+    <path d="M433 520v186a126 126 0 0 0 252 0V520" fill="none"/>
+    <path d="M561 583v186" stroke="#F3E9D7" stroke-width="13"/>
+
+  </g>
+</svg>

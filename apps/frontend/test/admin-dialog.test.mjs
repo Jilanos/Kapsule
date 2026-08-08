@@ -24,6 +24,7 @@ const outfile = join(tempDir, "bundle.mjs");
 writeFileSync(
   entry,
   `export { ConfirmDialog } from "${join(root, "src", "components", "admin", "ConfirmDialog.jsx")}";
+   export { EditDeckDialog } from "${join(root, "src", "components", "admin", "EditDeckDialog.jsx")}";
    export { Pager } from "${join(root, "src", "components", "admin", "Pager.jsx")}";`,
 );
 
@@ -38,7 +39,7 @@ await build({
   logLevel: "silent",
 });
 
-const { ConfirmDialog, Pager } = await import(`file://${outfile}`);
+const { ConfirmDialog, EditDeckDialog, Pager } = await import(`file://${outfile}`);
 
 // React separe les noeuds texte adjacents par des commentaires d'hydratation
 // (`Page <!-- -->2<!-- --> sur 3`) : on les retire pour asserter sur le texte
@@ -94,6 +95,68 @@ test("une erreur de suppression est rendue dans une alerte", () => {
   );
   assert.match(html, /role="alert"/);
   assert.match(html, /dernier administrateur/);
+});
+
+// --- Edition bornee d'un deck (item_032 AC4) -------------------------------
+
+const editProps = {
+  deck: {
+    id: "reseaux",
+    title: "Titre initial",
+    description: "Description initiale",
+    visibility: "general",
+    ownerEmail: "proprio@exemple.fr",
+  },
+  onSave: () => {},
+  onCancel: () => {},
+};
+
+test("l'edition n'expose que les trois champs modifiables, chacun etiquete", () => {
+  const html = renderToString(createElement(EditDeckDialog, editProps));
+
+  assert.match(html, /<dialog[^>]*aria-labelledby="[^"]+"/);
+  // Trois champs, trois libelles associes : titre, description, visibilite.
+  assert.match(html, /<span>Titre<\/span>/);
+  assert.match(html, /<span>Description<\/span>/);
+  assert.match(html, /<span>Visibilité<\/span>/);
+  assert.equal(html.match(/<label[^>]*for="[^"]+"/g).length, 3);
+  assert.match(html, /<input[^>]*value="Titre initial"/);
+  assert.match(html, /<textarea[^>]*>Description initiale<\/textarea>/);
+  assert.match(html, /<select[^>]/);
+
+  // L'identifiant et le proprietaire sont rappeles, mais en lecture seule, et
+  // la portee de l'edition est dite explicitement.
+  assert.match(html, /<code>reseaux<\/code>/);
+  assert.match(plain(html), /propriétaire proprio@exemple\.fr/);
+  assert.match(plain(html), /fiches et les assets ne sont pas modifiables/);
+  // Aucun champ de saisie pour l'identifiant, le proprietaire ou les fiches.
+  assert.equal(/name="(id|ownerId|cards)"/.test(html), false);
+});
+
+test("l'edition refuse l'enregistrement d'un titre vide et l'annonce", () => {
+  const html = renderToString(
+    createElement(EditDeckDialog, { ...editProps, deck: { ...editProps.deck, title: "  " } }),
+  );
+  assert.match(html, /type="submit"[^>]*disabled/);
+  assert.match(html, /role="status"[^>]*>Le titre ne peut pas être vide/);
+});
+
+test("l'enregistrement en cours verrouille le formulaire et signale l'attente", () => {
+  const html = renderToString(createElement(EditDeckDialog, { ...editProps, busy: true }));
+  assert.match(html, /Enregistrement…/);
+  // Champs et boutons sont hors d'atteinte pendant l'appel.
+  assert.equal(html.match(/disabled/g).length >= 5, true);
+});
+
+test("une erreur d'edition est rendue dans une alerte", () => {
+  const html = renderToString(
+    createElement(EditDeckDialog, {
+      ...editProps,
+      error: "titre invalide : 120 caracteres maximum",
+    }),
+  );
+  assert.match(html, /role="alert"/);
+  assert.match(html, /120 caracteres maximum/);
 });
 
 test("la pagination s'annonce et disparait quand tout tient sur une page", () => {

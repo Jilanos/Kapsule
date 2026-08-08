@@ -1,0 +1,402 @@
+{
+  "budgets": {
+    "max_docs": 40,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3 item_031_etendre_et_rendre_lisible_la_console_d_administration item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3 task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3 --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+          "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+          "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ],
+        "task": [
+          "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+        ]
+      },
+      "path": "logics/product/prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete.md",
+      "ref": "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete",
+      "sections": {
+        "Goals": [
+          "- Rendre les donn\u00e9es administratives lisibles et les op\u00e9rations courantes r\u00e9alisables sans SQL.",
+          "- Ajouter une \u00e9dition de deck limit\u00e9e, s\u00fbre et audit\u00e9e.",
+          "- Aligner l'ensemble des marques et ic\u00f4nes visibles avec le lot Icones V3 fourni."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Une console large, lisible et r\u00e9ellement actionnable, accompagn\u00e9e d'une identit\u00e9 visuelle servie uniquement depuis les masters Icones V3 pertinents."
+        ],
+        "References": [
+          "- Product back-reference: `req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3`",
+          "- Task back-reference: `task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Console d'administration exploitable et identite Icones V3 complete"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, rendre la console d'administration pleine largeur, editable et alignee sur icones v3, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Rendre la console d'administration pleine largeur, editable et alignee sur Icones V3",
+        "use when": "You need to implement or review the scaffolded workflow for Rendre la console d'administration pleine largeur, editable et alignee sur Icones V3."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+          "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+          "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ]
+      },
+      "path": "logics/request/req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3.md",
+      "ref": "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Sur un viewport desktop de 1440 px, la route /admin exploite toute la largeur disponible du contenu applicatif ; la colonne Email a une largeur minimale document\u00e9e et les adresses ne sont ni coup\u00e9es caract\u00e8re par caract\u00e8re ni tronqu\u00e9es sans moyen de les consulter.",
+          "- AC2: Un administrateur peut modifier le r\u00f4le d'un autre compte et supprimer un compte depuis /admin ; l'interface affiche succ\u00e8s ou erreur, respecte les protections du dernier administrateur et de l'auto-modification, et les routes restent inaccessibles aux non-admins.",
+          "- AC3: Un administrateur peut supprimer un deck et \u00e9diter son titre, sa description et sa visibilit\u00e9 depuis /admin ; les modifications sont valid\u00e9es c\u00f4t\u00e9 serveur, atomiques, journalis\u00e9es, puis visibles apr\u00e8s rechargement. L'identifiant, le propri\u00e9taire, les cartes et les assets ne sont pas \u00e9ditables par cette fonction.",
+          "- AC4: Les trois assets visuels actuellement affich\u00e9s (Kapsule, Paul Mondou, Gnosis), le favicon et les ic\u00f4nes PWA d\u00e9riv\u00e9es sont remplac\u00e9s depuis les masters Icones V3 correspondants ; aucun asset d'une autre marque du lot n'est affich\u00e9 par Kapsule.",
+          "- AC5: Les actions restent accessibles au clavier, ont des libell\u00e9s explicites, annoncent leurs \u00e9tats asynchrones et conservent les confirmations renforc\u00e9es avant suppression.",
+          "- AC6: La livraison couvre tests frontend/backend, build et contr\u00f4les Logics ; toute source temporaire d'assets externe est retir\u00e9e ou ignor\u00e9e avant commit afin que seuls les assets versionn\u00e9s n\u00e9cessaires restent dans le d\u00e9p\u00f4t."
+        ],
+        "Needs": [
+          "- L'administrateur utilise la largeur utile de son \u00e9cran : la console et ses tableaux ne sont pas artificiellement contraints et les adresses email restent lisibles.",
+          "- L'administrateur peut effectivement changer le r\u00f4le d'un compte, supprimer un compte, supprimer un deck et modifier les m\u00e9tadonn\u00e9es \u00e9ditables d'un deck depuis la console.",
+          "- Toutes les marques et ic\u00f4nes effectivement affich\u00e9es par Kapsule sont remplac\u00e9es par leurs masters SVG correspondants du lot Icones V3 fourni, sans ajouter de marques non utilis\u00e9es."
+        ]
+      },
+      "status": "Draft",
+      "title": "Rendre la console d'administration pleine largeur, editable et alignee sur Icones V3"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, etendre et rendre lisible la console d'administration, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Etendre et rendre lisible la console d'administration",
+        "use when": "Implementing the scaffolded slice for Etendre et rendre lisible la console d'administration."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_031_etendre_et_rendre_lisible_la_console_d_administration"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ],
+        "task": [
+          "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+        ]
+      },
+      "path": "logics/backlog/item_031_etendre_et_rendre_lisible_la_console_d_administration.md",
+      "ref": "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: La console et les tableaux utilisent la largeur disponible sur desktop, tandis que le d\u00e9filement horizontal reste local au tableau si n\u00e9cessaire sur viewport \u00e9troit.",
+          "- AC2: La colonne Email ne casse pas une adresse par caract\u00e8re ; elle poss\u00e8de une largeur minimale et le texte complet est accessible au clavier et \u00e0 la souris.",
+          "- AC3: Changer le r\u00f4le d'un autre compte et supprimer un autre compte fonctionnent depuis l'UI ; les refus m\u00e9tier et r\u00e9seau restent visibles, et aucune action ne permet l'auto-modification ou la suppression du dernier administrateur.",
+          "- AC4: Les contr\u00f4les, messages et confirmations restent utilisables au clavier et annonc\u00e9s aux technologies d'assistance."
+        ],
+        "Problem": [
+          "- La console ne tire pas suffisamment parti du desktop et la r\u00e8gle de coupure de l'email rend les comptes difficiles \u00e0 identifier.",
+          "- Les mutations de compte d\u00e9j\u00e0 disponibles doivent \u00eatre v\u00e9rifi\u00e9es et rendues clairement op\u00e9rables, sans contourner leurs invariants serveur."
+        ]
+      },
+      "status": "Ready",
+      "title": "Etendre et rendre lisible la console d'administration"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, editer de facon securisee les metadonnees d'un deck depuis l'administration, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Editer de facon securisee les metadonnees d'un deck depuis l'administration",
+        "use when": "Implementing the scaffolded slice for Editer de facon securisee les metadonnees d'un deck depuis l'administration."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ],
+        "task": [
+          "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+        ]
+      },
+      "path": "logics/backlog/item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration.md",
+      "ref": "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Seul un admin authentifi\u00e9 peut appeler la mutation ; guest et master re\u00e7oivent 403 et les entr\u00e9es inconnues ou non autoris\u00e9es sont rejet\u00e9es en 400.",
+          "- AC2: Le serveur n'accepte et ne persiste que title, description et visibility selon des contraintes explicites ; l'identifiant, le propri\u00e9taire, les cartes et les assets restent inchang\u00e9s.",
+          "- AC3: Une \u00e9dition valide met \u00e0 jour le deck de mani\u00e8re atomique, actualise updatedAt et \u00e9crit un \u00e9v\u00e9nement d'audit avec acteur, cible et \u00e9tat avant/apr\u00e8s born\u00e9.",
+          "- AC4: Depuis /admin, l'administrateur peut ouvrir l'\u00e9dition, modifier les trois champs autoris\u00e9s, enregistrer ou annuler et re\u00e7oit un retour accessible ; la liste refl\u00e8te l'\u00e9tat serveur apr\u00e8s succ\u00e8s."
+        ],
+        "Problem": [
+          "- La console ne permet aujourd'hui que de changer la visibilit\u00e9 ou supprimer un deck ; le titre et la description sont immuables depuis l'interface.",
+          "- Une \u00e9dition administrative doit rester \u00e9troitement born\u00e9e et laisser une trace exploitable."
+        ]
+      },
+      "status": "Ready",
+      "title": "Editer de facon securisee les metadonnees d'un deck depuis l'administration"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, remplacer les marques et icones visibles par les masters icones v3, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Remplacer les marques et icones visibles par les masters Icones V3",
+        "use when": "Implementing the scaffolded slice for Remplacer les marques et icones visibles par les masters Icones V3."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ],
+        "task": [
+          "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+        ]
+      },
+      "path": "logics/backlog/item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3.md",
+      "ref": "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: L'inventaire de fin de t\u00e2che ne laisse aucune r\u00e9f\u00e9rence applicative aux anciens fichiers brand pour Kapsule, Paul Mondou et Gnosis.",
+          "- AC2: Les SVG publics versionn\u00e9s correspondent aux masters Icones V3 fournis pour les trois marques affich\u00e9es, et leurs alternatives textuelles/accessibles restent correctes.",
+          "- AC3: Le favicon et les ic\u00f4nes PWA ont \u00e9t\u00e9 r\u00e9g\u00e9n\u00e9r\u00e9s ou v\u00e9rifi\u00e9s depuis le master Kapsule ; le build charge correctement les assets finaux.",
+          "- AC4: Les fichiers externes utilis\u00e9s comme source ne sont pas introduits en dehors des copies versionn\u00e9es n\u00e9cessaires et le d\u00e9p\u00f4t ne sert aucun logo d'une marque non utilis\u00e9e."
+        ],
+        "Problem": [
+          "- Les assets brand actuellement servis sont des PNG ant\u00e9rieurs alors qu'un lot de masters SVG Icones V3 mis \u00e0 jour est disponible.",
+          "- Le remplacement doit \u00eatre exhaustif pour les visuels r\u00e9ellement affich\u00e9s et ne pas importer des logos \u00e9trangers au produit."
+        ]
+      },
+      "status": "Ready",
+      "title": "Remplacer les marques et icones visibles par les masters Icones V3"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+          "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+          "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ],
+        "task": [
+          "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+        ]
+      },
+      "path": "logics/product/prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete.md",
+      "ref": "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Console d'administration exploitable et identite Icones V3 complete"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrer la console d'administration large, editable et Icones V3",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+          "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+          "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3"
+        ],
+        "prod": [
+          "prod_010_console_d_administration_exploitable_et_identite_icones_v3_complete"
+        ],
+        "req": [
+          "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3"
+        ],
+        "task": [
+          "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+        ]
+      },
+      "path": "logics/tasks/task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3.md",
+      "ref": "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrer la console d'administration large, editable et Icones V3"
+    }
+  ],
+  "estimates": {
+    "char_count": 14371,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-08T08:18:48Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3",
+      "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+      "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+      "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3",
+      "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3,item_031_etendre_et_rendre_lisible_la_console_d_administration,item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration,item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3,task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3",
+  "refs": [
+    "req_019_rendre_la_console_d_administration_pleine_largeur_editable_et_alignee_sur_icones_v3",
+    "item_031_etendre_et_rendre_lisible_la_console_d_administration",
+    "item_032_editer_de_facon_securisee_les_metadonnees_d_un_deck_depuis_l_administration",
+    "item_033_remplacer_les_marques_et_icones_visibles_par_les_masters_icones_v3",
+    "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit",
+      "release_tag: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "release_tag",
+        "required": true,
+        "state": "tagged",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "1.0.10"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3.md",
+      "ref": "task_020_orchestrer_la_console_d_administration_large_editable_et_icones_v3"
+    }
+  ]
+}

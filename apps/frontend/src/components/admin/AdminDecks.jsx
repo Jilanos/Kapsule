@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../../api.js";
 import { ConfirmDialog } from "./ConfirmDialog.jsx";
+import { EditDeckDialog } from "./EditDeckDialog.jsx";
 import { Pager } from "./Pager.jsx";
 import {
   VISIBILITY_LABEL,
@@ -13,8 +14,9 @@ import { VISIBILITY_ORDER } from "../../lib/visibility.js";
 /**
  * Inspection des contenus : decks, proprietaires, volumes, suppression bornee.
  * Les seules actions offertes sont celles que les regles metier autorisent deja
- * a un administrateur (visibilite, suppression) : la console n'ouvre aucune
- * edition de colonne brute.
+ * a un administrateur (visibilite, suppression) et l'edition explicitement
+ * bornee des metadonnees metier (titre, description, visibilite — item_032) :
+ * la console n'ouvre aucune edition de colonne brute ni de contenu de fiche.
  */
 export function AdminDecks() {
   const [query, setQuery] = useState("");
@@ -26,6 +28,9 @@ export function AdminDecks() {
   const [busyId, setBusyId] = useState(null);
   const [pendingDeletion, setPendingDeletion] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
+  // Deck en cours d'edition, charge depuis le serveur au moment de l'ouverture.
+  const [editing, setEditing] = useState(null);
+  const [editError, setEditError] = useState(null);
 
   const load = useCallback(() => {
     setError(null);
@@ -50,6 +55,36 @@ export function AdminDecks() {
       load();
     } catch (e) {
       setActionError(e.message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Le formulaire part de l'etat serveur, pas du dernier listing : la
+  // description n'est pas dans la liste, et un autre onglet a pu editer entre
+  // temps.
+  const askEdition = async (deck) => {
+    setActionError(null);
+    setMessage(null);
+    setEditError(null);
+    try {
+      const { deck: fresh } = await api.admin.getDeck(deck.id);
+      setEditing({ ...fresh, ownerEmail: deck.ownerEmail ?? null });
+    } catch (e) {
+      setActionError(e.message);
+    }
+  };
+
+  const saveEdition = async (patch) => {
+    setBusyId(editing.id);
+    setEditError(null);
+    try {
+      await api.admin.updateDeck(editing.id, patch);
+      setEditing(null);
+      setMessage(`Deck « ${patch.title} » mis à jour.`);
+      load();
+    } catch (e) {
+      setEditError(e.message);
     } finally {
       setBusyId(null);
     }
@@ -199,11 +234,21 @@ export function AdminDecks() {
                   <td className="admin-cell-actions">
                     <button
                       type="button"
+                      className="link-btn"
+                      disabled={busy}
+                      onClick={() => askEdition(deck)}
+                    >
+                      <span aria-hidden="true">Modifier</span>
+                      <span className="sr-only">Modifier le deck {deck.title}</span>
+                    </button>
+                    <button
+                      type="button"
                       className="btn-danger"
                       disabled={busy}
                       onClick={() => askDeletion(deck)}
                     >
-                      Supprimer
+                      <span aria-hidden="true">Supprimer</span>
+                      <span className="sr-only">Supprimer le deck {deck.title}</span>
                     </button>
                   </td>
                 </tr>
@@ -216,6 +261,19 @@ export function AdminDecks() {
       {page.decks.length === 0 && <p className="msg">Aucun deck pour cette recherche.</p>}
 
       <Pager page={page} onOffset={setOffset} label="contenus" />
+
+      {editing && (
+        <EditDeckDialog
+          deck={editing}
+          busy={busyId === editing.id}
+          error={editError}
+          onSave={saveEdition}
+          onCancel={() => {
+            setEditing(null);
+            setEditError(null);
+          }}
+        />
+      )}
 
       {pendingDeletion && (
         <ConfirmDialog

@@ -32,6 +32,7 @@
 
 import { existsSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { VALID_VISIBILITY } from "./permissions.mjs";
 
 /** Bornes de pagination : evite qu'un appel admin ne scanne toute la base. */
 export const ADMIN_PAGE_SIZE = 25;
@@ -48,6 +49,85 @@ export function normalizePaging({ limit, offset } = {}) {
         : ADMIN_PAGE_SIZE,
     offset: Number.isInteger(parsedOffset) && parsedOffset > 0 ? parsedOffset : 0,
   };
+}
+
+/**
+ * Seuls champs de deck qu'une edition administrative peut toucher
+ * (item_032 AC2). Toute autre cle du corps est un refus, pas un champ ignore :
+ * un appelant qui croit modifier l'identifiant ou le proprietaire doit
+ * l'apprendre par une erreur, pas par un silence.
+ */
+export const EDITABLE_DECK_FIELDS = ["title", "description", "visibility"];
+// Bornes alignees sur packages/schema/deck.schema.json : le deck edite doit
+// rester valide au regard du schema qui a servi a l'importer.
+const DECK_TITLE_MAX = 120;
+const DECK_DESCRIPTION_MAX = 500;
+
+/**
+ * Valide et normalise le corps d'une edition de metadonnees de deck.
+ * Fonction pure : aucune base, aucune autorisation — la route applique
+ * `requireAdmin` en amont.
+ * @param {unknown} body
+ * @returns {{ ok: true, patch: object } | { ok: false, status: number, error: string }}
+ */
+export function parseDeckMetadataPatch(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { ok: false, status: 400, error: "corps de requete invalide" };
+  }
+  const unknown = Object.keys(body).filter((key) => !EDITABLE_DECK_FIELDS.includes(key));
+  if (unknown.length > 0) {
+    return {
+      ok: false,
+      status: 400,
+      error: `champ non modifiable : ${unknown.join(", ")} (autorises : ${EDITABLE_DECK_FIELDS.join(", ")})`,
+    };
+  }
+
+  const patch = {};
+  if ("title" in body) {
+    if (typeof body.title !== "string") {
+      return { ok: false, status: 400, error: "titre invalide : chaine attendue" };
+    }
+    const title = body.title.trim();
+    if (title.length === 0) {
+      return { ok: false, status: 400, error: "titre invalide : le titre ne peut pas etre vide" };
+    }
+    if (title.length > DECK_TITLE_MAX) {
+      return {
+        ok: false,
+        status: 400,
+        error: `titre invalide : ${DECK_TITLE_MAX} caracteres maximum`,
+      };
+    }
+    patch.title = title;
+  }
+  if ("description" in body) {
+    // Une description vide vaut « pas de description » : on la persiste en NULL
+    // plutot qu'en chaine vide, pour un seul etat « absente » en base.
+    if (body.description !== null && typeof body.description !== "string") {
+      return { ok: false, status: 400, error: "description invalide : chaine ou null attendu" };
+    }
+    const description = body.description === null ? null : body.description.trim();
+    if (description !== null && description.length > DECK_DESCRIPTION_MAX) {
+      return {
+        ok: false,
+        status: 400,
+        error: `description invalide : ${DECK_DESCRIPTION_MAX} caracteres maximum`,
+      };
+    }
+    patch.description = description === "" ? null : description;
+  }
+  if ("visibility" in body) {
+    if (!VALID_VISIBILITY.includes(body.visibility)) {
+      return { ok: false, status: 400, error: `visibilite invalide "${body.visibility}"` };
+    }
+    patch.visibility = body.visibility;
+  }
+
+  if (Object.keys(patch).length === 0) {
+    return { ok: false, status: 400, error: "aucune modification demandee" };
+  }
+  return { ok: true, patch };
 }
 
 /** Motif LIKE echappe : l'operateur cherche du texte, pas des jokers SQL. */
@@ -325,6 +405,81 @@ export class AdminStore {
       .map((row) => ({ ...row, assetBytes: this.#deckAssetBytes(row.id) }));
 
     return { decks, total, ...paging };
+  }
+
+  /** Projection bornee d'un deck, telle que renvoyee apres une edition. */
+  getDeckMetadata(deckId) {
+    return (
+      this.db
+        .prepare(
+          `SELECT id, title, description, visibility, owner_id AS ownerId,
+                  created_at AS createdAt, updated_at AS updatedAt
+           FROM decks WHERE id = ?`,
+        )
+        .get(deckId) ?? null
+    );
+  }
+
+  /**
+   * Edition administrative bornee d'un deck : titre, description, visibilite
+   * (item_032 AC2/AC3). Le patch est deja valide et normalise par
+   * `parseDeckMetadataPatch` — cette methode ne fait plus aucun tri de champ.
+   *
+   * `decks.data` porte le JSON complet du deck, source de verite du contenu
+   * servi au lecteur, et y duplique titre et description. Colonne et JSON sont
+   * donc ecrits ensemble, dans la meme transaction que la trace d'audit : un
+   * titre corrige dans la liste mais pas dans le lecteur serait pire que pas de
+   * correction du tout.
+   *
+   * @returns {{ ok: boolean, deck?: object }}
+   */
+  updateDeckMetadata(deckId, patch, audit, actor) {
+    const before = this.db
+      .prepare(`SELECT id, title, description, visibility, data FROM decks WHERE id = ?`)
+      .get(deckId);
+    if (!before) return { ok: false };
+
+    const after = {
+      title: patch.title ?? before.title,
+      description: "description" in patch ? patch.description : before.description,
+      visibility: patch.visibility ?? before.visibility,
+    };
+    const now = new Date().toISOString();
+
+    const tx = this.db.transaction(() => {
+      const data = JSON.parse(before.data);
+      data.title = after.title;
+      // Le schema de deck n'autorise pas `description: null` : une description
+      // retiree disparait du JSON au lieu d'y devenir nulle.
+      if (after.description == null) delete data.description;
+      else data.description = after.description;
+
+      const info = this.db
+        .prepare(
+          `UPDATE decks SET title = ?, description = ?, visibility = ?, data = ?, updated_at = ?
+           WHERE id = ?`,
+        )
+        .run(after.title, after.description, after.visibility, JSON.stringify(data), now, deckId);
+      if (info.changes === 0) return false;
+
+      audit.record({
+        actor,
+        action: "deck.metadata.update",
+        targetType: "deck",
+        targetId: deckId,
+        targetLabel: after.title,
+        before: {
+          title: before.title,
+          description: before.description,
+          visibility: before.visibility,
+        },
+        after,
+      });
+      return true;
+    });
+
+    if (!tx()) return { ok: false };
+    return { ok: true, deck: this.getDeckMetadata(deckId) };
   }
 
   /** Impact de la suppression d'un deck, avant confirmation (item_026 AC4). */

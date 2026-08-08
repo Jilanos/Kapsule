@@ -5,6 +5,7 @@ import { DeckReader } from "./pages/DeckReader.jsx";
 import { ReviewSession } from "./pages/ReviewSession.jsx";
 import { AdminConsole } from "./pages/AdminConsole.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
+import { mainWidthClass } from "./lib/layout.js";
 import { AuthScreen } from "./auth/AuthScreen.jsx";
 
 export function App() {
@@ -36,7 +37,7 @@ export function App() {
         <Link to="/" className="brand">
           <img
             className="brand-mark brand-logo"
-            src="/brand/kapsule-emblem.png"
+            src="/brand/kapsule-emblem.svg"
             alt=""
             aria-hidden="true"
           />
@@ -65,16 +66,11 @@ export function App() {
             aria-label="Ouvrir paulmondou.fr"
             title="paulmondou.fr"
           >
-            <img src="/brand/paulmondou-emblem.png" alt="" aria-hidden="true" />
+            <img src="/brand/paulmondou-emblem.svg" alt="" aria-hidden="true" />
           </a>
         </div>
       </header>
-      <main
-        className={`app-main${pathname === "/" ? " app-main-decks" : ""}`}
-        id="main"
-        tabIndex={-1}
-        ref={mainRef}
-      >
+      <main className={`app-main${mainWidthClass(pathname)}`} id="main" tabIndex={-1} ref={mainRef}>
         {pathname === "/" && <DeckList />}
         {pathname === "/reviews" && <ReviewSession />}
         {pathname === "/admin" && <AdminConsole />}

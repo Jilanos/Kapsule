@@ -118,7 +118,16 @@ export const api = {
         body: JSON.stringify({ confirmId: userId }),
       }),
     listDecks: (params) => req(`/admin/decks${adminQuery(params)}`),
+    getDeck: (deckId) => req(`/admin/decks/${encodeURIComponent(deckId)}`),
     getDeckImpact: (deckId) => req(`/admin/decks/${encodeURIComponent(deckId)}/impact`),
+    // Edition bornee : le serveur refuse toute cle hors titre, description et
+    // visibilite, l'appelant n'envoie donc que celles-la.
+    updateDeck: (deckId, { title, description, visibility }) =>
+      req(`/admin/decks/${encodeURIComponent(deckId)}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ title, description, visibility }),
+      }),
     deleteDeck: (deckId) =>
       req(`/admin/decks/${encodeURIComponent(deckId)}`, {
         method: "DELETE",

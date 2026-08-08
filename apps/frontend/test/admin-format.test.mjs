@@ -119,3 +119,30 @@ test("describeAuditTransition resume roles, visibilites et suppressions", () => 
   assert.equal(describeAuditTransition({}), "");
   assert.equal(describeAuditTransition(null), "");
 });
+
+test("describeAuditTransition ne resume que les champs reellement modifies", () => {
+  // Une edition de metadonnees porte les trois champs : seul le titre a bouge,
+  // « general → general » ne doit pas apparaitre.
+  assert.equal(
+    describeAuditTransition({
+      beforeState: { title: "Avant", description: "d", visibility: "general" },
+      afterState: { title: "Après", description: "d", visibility: "general" },
+    }),
+    "titre modifié",
+  );
+  assert.equal(
+    describeAuditTransition({
+      beforeState: { title: "Avant", description: "d", visibility: "general" },
+      afterState: { title: "Après", description: null, visibility: "master" },
+    }),
+    "titre, description, visibilité modifiés",
+  );
+  // Une edition sans effet ne raconte rien.
+  assert.equal(
+    describeAuditTransition({
+      beforeState: { title: "Idem", visibility: "general" },
+      afterState: { title: "Idem", visibility: "general" },
+    }),
+    "",
+  );
+});

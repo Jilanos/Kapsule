@@ -2,7 +2,11 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/brand/kapsule-favicon.png" />
+    <!-- Master vectoriel d'abord (Icones V3), PNG genere en repli pour les
+         navigateurs sans favicon SVG. L'ordre compte : le dernier `icon`
+         supporte l'emporte, donc le repli reste declare avant le SVG. -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/brand/kapsule-emblem.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#23566b" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#14181b" media="(prefers-color-scheme: dark)" />

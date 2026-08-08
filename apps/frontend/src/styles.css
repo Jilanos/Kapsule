@@ -251,6 +251,12 @@ body {
 .app-main-decks {
   max-width: 1280px;
 }
+/* La console d'administration n'est pas un texte suivi : elle exploite toute la
+   largeur utile du contenu applicatif (item_031 AC1). Le defilement horizontal
+   eventuel reste local a `.admin-table-scroll`, jamais porte par la page. */
+.app-main-admin {
+  max-width: none;
+}
 .deck-list-page:not(.deck-list-page-wide) {
   max-width: 720px;
   margin: 0 auto;
@@ -1493,10 +1499,19 @@ main:focus {
 .admin-table tbody th {
   font-weight: 600;
 }
-.admin-cell-email,
+/* Une adresse email ne se coupe pas : elle s'affiche entiere, sur une ligne,
+   avec une largeur minimale documentee. Si la somme des colonnes deborde, c'est
+   `.admin-table-scroll` qui defile — pas l'adresse qui se casse caractere par
+   caractere comme le faisait `word-break: break-word` (item_031 AC2). */
+.admin-cell-email {
+  min-width: 20rem;
+  white-space: nowrap;
+}
+/* Un titre de deck est du texte libre : il peut passer a la ligne, mais aux
+   limites de mots, et sa colonne garde une largeur minimale. */
 .admin-cell-deck {
-  max-width: 18rem;
-  word-break: break-word;
+  min-width: 18rem;
+  overflow-wrap: break-word;
 }
 .admin-cell-detail {
   color: var(--muted);
@@ -1644,6 +1659,31 @@ main:focus {
   color: var(--text);
   font-family: var(--mono);
 }
+/* Edition de deck (item_032) : champs libres, donc serif comme le reste du
+   texte redige, la ou la confirmation destructrice retape un identifiant. */
+.admin-dialog-field textarea,
+.admin-dialog-field select {
+  padding: 0.5rem 0.6rem;
+  border: var(--rule);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  resize: vertical;
+}
+/* Rappel de la cible et de ce qui n'est pas modifiable, en tete du formulaire. */
+.admin-dialog-scope {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.admin-dialog-scope code {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  word-break: break-all;
+}
+
 .admin-dialog-actions {
   display: flex;
   justify-content: flex-end;
