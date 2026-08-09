@@ -30,6 +30,6 @@
     "esbuild@0.28.1": true
   },
   "devDependencies": {
-    "prettier": "^3.9.5"
+    "prettier": "^3.9.6"
   }
 }
